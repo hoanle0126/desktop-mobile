@@ -204,16 +204,12 @@ describe('Electron Worker Service', () => {
       expect(() => serviceApi.restoreAllMocks()).toThrow('CDP bridge is not available, API is disabled');
     });
 
-    it('should gracefully degrade when CDP bridge connection fails', async () => {
+    it('should fail the hook when CDP bridge connection fails', async () => {
       const { ElectronCdpBridge } = await import('../src/bridge.js');
       vi.mocked(ElectronCdpBridge.prototype.connect).mockRejectedValueOnce(new Error('Connection refused'));
 
       instance = new ElectronWorkerService({}, {});
-      await instance.before({}, [], browser);
-
-      const serviceApi = browser.electron as BrowserExtension['electron'];
-      expect(() => serviceApi.execute(() => {})).toThrow('CDP bridge is not available, API is disabled');
-      expect(() => serviceApi.mock('app', 'getName')).toThrow('CDP bridge is not available, API is disabled');
+      await expect(instance.before({}, [], browser)).rejects.toThrow('Connection refused');
     });
 
     it('should log warning when fuse check has non-fatal error', async () => {

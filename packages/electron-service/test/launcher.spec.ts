@@ -1,4 +1,5 @@
 import { access } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import type { AppBuildInfo, BinaryPathResult, ElectronServiceOptions } from '@wdio/native-types';
 import type { Capabilities, Options } from '@wdio/types';
@@ -1448,6 +1449,43 @@ describe('Electron Launch Service', () => {
 
         await instance?.onWorkerStart('0', capabilities as WebdriverIO.Capabilities);
         expect(capabilities).toStrictEqual(expectedCaps);
+      });
+
+      it('should give each Windows instance its own user-data-dir', async () => {
+        mockProcessProperty('platform', 'win32');
+        const outputDir = path.join(os.tmpdir(), 'wdio-electron-user-data');
+        instance = new ElectronLaunchService({}, {}, { outputDir } as Options.Testrunner);
+        const capabilities = {
+          browserA: {
+            capabilities: structuredClone(baseCapability),
+          },
+          browserB: {
+            capabilities: structuredClone(baseCapability),
+          },
+        };
+        const workerId = process.env.WDIO_WORKER_ID ?? 'session';
+
+        await instance.onWorkerStart('0', capabilities as WebdriverIO.Capabilities);
+
+        const argsA = capabilities.browserA.capabilities['goog:chromeOptions'].args;
+        const argsB = capabilities.browserB.capabilities['goog:chromeOptions'].args;
+        expect(argsA).toContain(`--user-data-dir=${path.join(outputDir, `electron-user-data-${workerId}-50000`)}`);
+        expect(argsB).toContain(`--user-data-dir=${path.join(outputDir, `electron-user-data-${workerId}-50001`)}`);
+        expect(argsA).not.toEqual(argsB);
+      });
+
+      it('should keep a user-data-dir the capability already set', async () => {
+        mockProcessProperty('platform', 'win32');
+        instance = new ElectronLaunchService({}, {}, { outputDir: os.tmpdir() } as Options.Testrunner);
+        const capabilities = structuredClone(baseCapability);
+        capabilities['goog:chromeOptions'].args.push('--user-data-dir=C:\\already-set');
+
+        await instance.onWorkerStart('0', capabilities);
+
+        const userDataArgs = capabilities['goog:chromeOptions'].args.filter(
+          (arg) => typeof arg === 'string' && arg.includes('user-data-dir'),
+        );
+        expect(userDataArgs).toEqual(['--user-data-dir=C:\\already-set']);
       });
     });
   });

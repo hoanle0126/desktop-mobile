@@ -1,3 +1,5 @@
+import os from 'node:os';
+import path from 'node:path';
 import { nonChromeBrowserNameError, probeDevServerReachable, startManagedDevServer } from '@wdio/native-core';
 import type {
   AppBuildInfo,
@@ -116,6 +118,7 @@ function generateBinaryPathErrorMessage(result: BinaryPathResult, appBuildInfo: 
 export default class ElectronLaunchService implements Services.ServiceInstance {
   #globalOptions: ElectronServiceGlobalOptions;
   #projectRoot: string;
+  #outputDir: string;
   #usedPorts = new Set<number>();
   #browserMode = false;
   // Teardown for a service-managed dev server (browser mode). Called from onComplete AND on an
@@ -125,6 +128,7 @@ export default class ElectronLaunchService implements Services.ServiceInstance {
   constructor(globalOptions: ElectronServiceGlobalOptions, _caps: unknown, config: Options.Testrunner) {
     this.#globalOptions = globalOptions;
     this.#projectRoot = globalOptions.rootDir || config.rootDir || process.cwd();
+    this.#outputDir = config.outputDir || os.tmpdir();
   }
 
   async onComplete(): Promise<void> {
@@ -437,7 +441,9 @@ export default class ElectronLaunchService implements Services.ServiceInstance {
    * This method runs at the beginning of each worker process and:
    * 1. Dynamically finds available ports using get-port
    * 2. Adds the --inspect flag with the assigned port to each Electron instance
-   * 3. Ensures each Electron instance has a unique debugging port
+   * 3. On Windows, gives each instance its own --user-data-dir so WebdriverIO's
+   *    per-worker profile name cannot collide
+   * 4. Ensures each Electron instance has a unique debugging port
    *
    * This allows for reliable parallel debugging of multiple Electron instances.
    */
@@ -453,7 +459,9 @@ export default class ElectronLaunchService implements Services.ServiceInstance {
 
       await Promise.all(
         caps.map(async (cap, index) => {
-          setInspectArg(cap, portList[index]);
+          const debuggerPort = portList[index];
+          setInspectArg(cap, debuggerPort);
+          setWindowsUserDataDir(cap, debuggerPort, this.#outputDir);
         }),
       );
       log.debug('Setting capability at onWorkerStart', JSON.stringify(caps));
@@ -515,4 +523,33 @@ const setInspectArg = (cap: WebdriverIO.Capabilities, debuggerPort: number) => {
   if (Array.isArray(chromeOptions.args)) {
     chromeOptions.args.push(`--inspect=localhost:${debuggerPort}`);
   }
+};
+
+/**
+ * Windows only. `@wdio/utils` names a missing profile
+ * `wdio-chrome-${WDIO_WORKER_ID}-${Date.now()}` and leaves an existing
+ * `user-data-dir` argument alone. Multiremote starts every instance in one
+ * worker, so two sessions in the same millisecond share that directory.
+ * Chromium's profile lock, and an app `requestSingleInstanceLock()` keyed on
+ * it, then drop one Node inspector while the window can still answer WebDriver.
+ * https://github.com/webdriverio/webdriverio/issues/16241
+ */
+const setWindowsUserDataDir = (cap: WebdriverIO.Capabilities, debuggerPort: number, outputDir: string) => {
+  if (process.platform !== 'win32') {
+    return;
+  }
+  const chromeOptions = cap['goog:chromeOptions'];
+  if (!chromeOptions) {
+    return;
+  }
+  if (!Array.isArray(chromeOptions.args)) {
+    chromeOptions.args = [];
+  }
+  const hasUserDataDir = chromeOptions.args.some((arg) => typeof arg === 'string' && arg.includes('user-data-dir'));
+  if (hasUserDataDir) {
+    return;
+  }
+  const workerId = process.env.WDIO_WORKER_ID ?? 'session';
+  const userDataDir = path.join(outputDir, `electron-user-data-${workerId}-${debuggerPort}`);
+  chromeOptions.args.push(`--user-data-dir=${userDataDir}`);
 };

@@ -867,36 +867,29 @@ async function initCdpBridge(
   cdpOptions: CdpBridgeOptions,
   capabilities: WebdriverIO.Capabilities,
 ): Promise<ElectronCdpBridge | undefined> {
-  try {
-    // Check if the Electron binary has the necessary fuse enabled
-    const binaryPath = capabilities['goog:chromeOptions']?.binary;
-    if (binaryPath && typeof binaryPath === 'string') {
-      const fuseCheck = await checkInspectFuse(binaryPath);
+  // Check if the Electron binary has the necessary fuse enabled
+  const binaryPath = capabilities['goog:chromeOptions']?.binary;
+  if (binaryPath && typeof binaryPath === 'string') {
+    const fuseCheck = await checkInspectFuse(binaryPath);
 
-      // Fuse is disabled - cannot use CDP bridge
-      if (!fuseCheck.canUseCdpBridge) {
-        // Don't warn here - this will be handled by the API stub functions
-        return undefined;
-      }
-
-      // Fuse check encountered an error but we're proceeding anyway
-      if (fuseCheck.error) {
-        log.warn(fuseCheck.error);
-      }
+    // Fuse is disabled - cannot use CDP bridge. The API stub explains that.
+    // A failed connection is not this case: it throws so before() fails with the
+    // inspector error instead of installing that same stub.
+    if (!fuseCheck.canUseCdpBridge) {
+      return undefined;
     }
 
-    const options = Object.assign({}, cdpOptions, getDebuggerEndpoint(capabilities));
-
-    const cdpBridge = new ElectronCdpBridge(options);
-    await cdpBridge.connect();
-    return cdpBridge;
-  } catch (error) {
-    log.warn(
-      'CDP bridge initialization failed — electron.execute(), mock(), and related APIs will be unavailable:',
-      error,
-    );
-    return undefined;
+    // Fuse check encountered an error but we're proceeding anyway
+    if (fuseCheck.error) {
+      log.warn(fuseCheck.error);
+    }
   }
+
+  const options = Object.assign({}, cdpOptions, getDebuggerEndpoint(capabilities));
+
+  const cdpBridge = new ElectronCdpBridge(options);
+  await cdpBridge.connect();
+  return cdpBridge;
 }
 
 const copyOriginalApi = async (browser: WebdriverIO.Browser) => {
@@ -920,7 +913,7 @@ const copyOriginalApi = async (browser: WebdriverIO.Browser) => {
 function getElectronAPI(this: ServiceConfig, browser: WebdriverIO.Browser, cdpBridge?: ElectronCdpBridge) {
   const disabledApiFunc = () => {
     log.warn('CDP bridge is not available, API is disabled');
-    log.warn('This may be due to EnableNodeCliInspectArguments fuse being disabled or other connection issues.');
+    log.warn('The EnableNodeCliInspectArguments fuse is disabled, so the Node inspector cannot start.');
     log.warn('To enable the CDP bridge, ensure this fuse is enabled in your test builds.');
     log.warn('See: https://www.electronjs.org/docs/latest/tutorial/fuses#nodecliinspect');
     throw new Error('CDP bridge is not available, API is disabled');
