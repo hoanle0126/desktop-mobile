@@ -119,6 +119,17 @@ jobs:
           which WebKitWebDriver || echo "WebKitWebDriver not found in PATH"
           WebKitWebDriver --version || echo "WebKitWebDriver version check failed"
 
+      # Tauri and Dioxus install Xvfb with their runtime libraries. Electron and Electrobun
+      # don't, and the display server does not install it either. Don't start it or export
+      # DISPLAY: a preset DISPLAY makes WebdriverIO skip its own server.
+      - name: 🖥️ Install Xvfb (Linux)
+        if: runner.os == 'Linux' && (inputs.service == 'electron' || inputs.service == 'electrobun')
+        shell: bash
+        run: |
+          if ! command -v Xvfb >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+          fi
+
       # Download the pre-built packages from the build job
       # This ensures all tests use the same build artifacts
       - name: 📦 Download Build Artifacts

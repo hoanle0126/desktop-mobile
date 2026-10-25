@@ -82,8 +82,17 @@ jobs:
         run: |
           echo "::notice::Build artifact: ID=${{ inputs.build_id }}, Size=${{ inputs.artifact_size }} bytes"
 
+      # WebdriverIO starts the display itself and does not install Xvfb. Don't start it here or
+      # export DISPLAY: a preset DISPLAY makes WebdriverIO skip its own server.
+      - name: 🖥️ Install Xvfb
+        shell: bash
+        run: |
+          if ! command -v Xvfb >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+          fi
+
       # The wdio configs force browserName=chrome, so WDIO drives the real Chrome preinstalled
-      # on ubuntu-latest under the display started above. Each step runs even if an earlier one
+      # on ubuntu-latest under the display server it starts. Each step runs even if an earlier one
       # failed (!cancelled) so one red tier never masks the others; any failure still fails the
       # job. The browser-mode E2E confs self-host their dev servers
       # (electron-browser :5174, tauri-browser :1421, dioxus-browser :8088); test-package.ts

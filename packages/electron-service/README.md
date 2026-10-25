@@ -25,13 +25,13 @@ Makes testing Electron applications much easier via:
 - 🔗 Deeplink/protocol handler testing support
 - 📊 Console log capture from main and renderer processes
 - 🖥️ Headless testing support
-  - Automatic Xvfb integration for Linux environments (requires WebdriverIO 9.19.1+)
+  - On WebdriverIO v10, Linux gets a display server with no configuration. On v9.19.1+, `autoXvfb` covers the test workers and is on by default.
 
 ## Installation
 
 You will need to install `WebdriverIO`, instructions can be found [here](https://webdriver.io/docs/gettingstarted).
 
-**Note:** WebdriverIO 9.19.1+ is required for automatic Xvfb support via the `autoXvfb` configuration option. For legacy WDIO versions, you'll need to use external tools like `xvfb-maybe` or manually set up Xvfb for headless testing on Linux. See the [Common Issues](./docs/common-issues.md) section for more details on Xvfb setup.
+**Note:** On WebdriverIO v10 a display server starts on Linux with no configuration ([Headless & Display Servers](https://webdriver.io/docs/headless-and-display-servers)). On v9.19.1+, `autoXvfb` covers the test workers and is on by default; setting that key on v10 logs a deprecation warning. Older WebdriverIO needs `xvfb-run` or `xvfb-maybe`. See [Common Issues](./docs/common-issues.md).
 
 ## Quick Start
 

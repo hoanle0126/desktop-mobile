@@ -90,6 +90,8 @@ export const config = {
   connectionRetryCount: 3,
   // A 16-bit Xvfb: WebKitGTK hits GTK pixbuf errors at 24-bit colour.
   displayServer: 'xvfb',
+  displayServerWidth: 1280,
+  displayServerHeight: 1024,
   displayServerDepth: 16,
   // Output directory for logs
   outputDir: path.join(__dirname, 'logs'),

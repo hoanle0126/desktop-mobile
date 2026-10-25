@@ -103,6 +103,10 @@ export const config = {
   // CEF instance.
   specFileRetries: 2,
   specFileRetriesDeferred: false,
+  // Headless Weston never brings the WebKitGTK app up. 24-bit, same screen as the e2e config.
+  displayServer: 'xvfb',
+  displayServerWidth: 1280,
+  displayServerHeight: 1024,
   outputDir: join(__dirname, 'logs'),
   services: ['electrobun'],
   framework: 'mocha',

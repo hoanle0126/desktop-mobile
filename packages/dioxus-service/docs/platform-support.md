@@ -79,19 +79,23 @@ To run tests without a display (CI/CD environments), install Xvfb:
 sudo apt-get install -y xvfb
 ```
 
-With WebdriverIO v10 you don't need a wrapper: WebdriverIO starts a display server before the service starts your app. It prefers Weston when that's installed, so set `displayServer: 'xvfb'` if your app has X11-only dependencies:
+With WebdriverIO v10 you don't need a wrapper: WebdriverIO starts a display server before the service starts your app. It prefers Weston when that's installed, and its Xvfb default is 1920×1080 at 24-bit. WebKitGTK hits GTK pixbuf errors at 24-bit, and an app with X11-only dependencies never comes up under headless Weston, so pin a 16-bit Xvfb:
 
 ```typescript
 export const config = {
   displayServer: 'xvfb',
+  displayServerWidth: 1280,
+  displayServerHeight: 1024,
+  displayServerDepth: 16,
   // ...
 };
 ```
 
-With WebdriverIO v9, its virtual display only covers the test workers, not the service that starts your app, so wrap the whole run:
+With WebdriverIO v9, its virtual display only covers the test workers, not the service that starts your app, so wrap the whole run at the same screen:
 
 ```bash
-xvfb-run -a npx wdio run wdio.conf.ts
+xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" \
+  npx wdio run wdio.conf.ts
 ```
 
 ### Linux-Specific Features
