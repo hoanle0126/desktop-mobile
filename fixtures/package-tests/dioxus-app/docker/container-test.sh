@@ -12,8 +12,8 @@
 # build the fixture's Rust binary -- it no longer requires the workspace
 # toolchain (pnpm install --frozen-lockfile, turbo, TS execution). (#350)
 #
-# Note: dioxus-bridge dist-js is baked into the app binary at cargo-build time
-# via build.rs (packages/dioxus-bridge/build.rs). The bridge Rust crate is
+# Note: dioxus-bridge dist-js is baked into the app binary when dx build compiles
+# it, via build.rs (packages/dioxus-bridge/build.rs). The bridge Rust crate is
 # referenced via a workspace path dep in Cargo.toml, so dist-js/index.js is
 # already present in the bind-mounted workspace after the runner's build step.
 
@@ -134,8 +134,29 @@ npm install --prefer-offline 2>&1
 rm package.json
 mv package.json.orig package.json
 
-echo '=== Building Dioxus app (compiles embedded driver + bridge) ==='
-cargo build --manifest-path src-dioxus/Cargo.toml
+echo '=== Installing Dioxus CLI (version matched to the dioxus crate) ==='
+# rustup lives in /root/.cargo; binstall and dx install into this user's cargo home.
+export PATH="${HOME}/.cargo/bin:${PATH}"
+if ! command -v cargo-binstall >/dev/null 2>&1; then
+  curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+fi
+if ! dioxus_version=$(node -e '
+  const fs = require("fs");
+  const text = fs.readFileSync("Cargo.lock", "utf8");
+  const match = text.match(/^name = "dioxus"\r?\nversion = "([^"]+)"/m);
+  if (!match) {
+    console.error("dioxus version not found in Cargo.lock");
+    process.exit(1);
+  }
+  process.stdout.write(match[1]);
+'); then
+  echo 'ERROR: could not read the dioxus version from Cargo.lock.'
+  exit 1
+fi
+cargo binstall dioxus-cli --version "$dioxus_version" --no-confirm
+
+echo '=== Building Dioxus app with dx (compiles embedded driver + bridge, bundles asset!()) ==='
+(cd src-dioxus && dx build --desktop)
 
 echo '=== Running Dioxus package test ==='
 # Capture the exit code instead of letting set -e abort here, so the

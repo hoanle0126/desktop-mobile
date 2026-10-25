@@ -109,8 +109,30 @@ jobs:
         run: pnpm --filter @wdio/dioxus-bridge build
         shell: bash
 
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install Dioxus CLI
+        shell: bash
+        working-directory: fixtures/package-tests/dioxus-app
+        run: |
+          if ! version=$(node -e '
+            const fs = require("fs");
+            const text = fs.readFileSync("Cargo.lock", "utf8");
+            const match = text.match(/^name = "dioxus"\r?\nversion = "([^"]+)"/m);
+            if (!match) {
+              console.error("dioxus version not found in Cargo.lock");
+              process.exit(1);
+            }
+            process.stdout.write(match[1]);
+          '); then
+            echo "could not read the dioxus version from Cargo.lock"
+            exit 1
+          fi
+          cargo binstall dioxus-cli --version "$version" --no-confirm
+
       - name: Build Dioxus Package Test App
-        run: cargo build
+        run: dx build --desktop
         shell: bash
         working-directory: fixtures/package-tests/dioxus-app/src-dioxus
 

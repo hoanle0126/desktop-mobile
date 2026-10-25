@@ -35,7 +35,7 @@ jobs:
       # Pack workspace packages to tarballs so the container only receives pre-built
       # artefacts and does not need the full workspace toolchain (Node >=23.6 .ts
       # execution, Turbo, etc.) -- root cause of the Node-version breakage (#350).
-      # Note: dioxus-bridge dist-js is baked into the app binary at cargo-build time
+      # Note: dioxus-bridge dist-js is baked into the app binary when dx build compiles it
       # via build.rs; its Rust crate stays as a path dep so the JS is still available
       # in the workspace during the container's cargo build step.
       - name: Pack tarballs
