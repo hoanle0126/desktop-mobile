@@ -154,9 +154,6 @@ export const config = {
   // re-spawns a fresh app instead of burning ~120s per attempt.
   connectionRetryTimeout: process.platform === 'linux' ? 45_000 : 120_000,
   connectionRetryCount: 3,
-  // Runs Xvfb for the worker process on Linux (the launcher-spawned WebKitWebDriver handles
-  // its own Xvfb; see webkitDriver.ts).
-  autoXvfb: true,
   services: ['electrobun'],
   framework: 'mocha',
   reporters: ['spec'],

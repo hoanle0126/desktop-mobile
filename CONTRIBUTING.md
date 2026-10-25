@@ -330,12 +330,7 @@ When contributing to the Dioxus service or its Rust crates (`wdio-dioxus`, `wdio
   cd e2e
   pnpm wdio run wdio.dioxus-embedded.conf.ts
   ```
-- On Linux, a display server is required. Wrap E2E runs with Xvfb:
-  ```bash
-  export DISPLAY=:99
-  Xvfb :99 -screen 0 1280x800x24 &
-  pnpm wdio run wdio.dioxus-embedded.conf.ts
-  ```
+- On Linux, install Xvfb. WebdriverIO starts it for the run.
 - The `'external'` provider is Windows-only in v1. Linux support is deferred to v1.1. Do not attempt to test the `'external'` provider on Linux or macOS.
 - See [App Setup](packages/dioxus-service/docs/app-setup.md) for how the embedded driver and bridge integrate with a Dioxus application
 

@@ -33,7 +33,6 @@ export const config: Options.Testrunner = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  autoXvfb: true,
   services: [['electron', { appBinaryPath }]],
   framework: 'mocha',
   reporters: ['spec'],

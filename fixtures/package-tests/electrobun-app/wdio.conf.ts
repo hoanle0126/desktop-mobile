@@ -103,7 +103,6 @@ export const config = {
   // CEF instance.
   specFileRetries: 2,
   specFileRetriesDeferred: false,
-  autoXvfb: false,
   outputDir: join(__dirname, 'logs'),
   services: ['electrobun'],
   framework: 'mocha',

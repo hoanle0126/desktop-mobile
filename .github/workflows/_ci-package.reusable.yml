@@ -272,9 +272,6 @@ jobs:
           # The de-elevated test tree still writes into the workspace the elevated runner created.
           icacls "$env:GITHUB_WORKSPACE" /grant "Everyone:(OI)(CI)F"
 
-      - name: 🖥️ Start Xvfb (Linux)
-        uses: ./.github/workflows/actions/start-xvfb
-
       - name: 🧪 Execute Package Tests
         id: package-tests
         shell: bash
@@ -293,22 +290,11 @@ jobs:
               ;;
             dioxus)
               echo "Running Dioxus package tests (using pre-built binaries from separate build job)"
-              if [[ "${{ runner.os }}" == "Linux" ]]; then
-                echo "Using xvfb-run to provide a DISPLAY on Linux (${{ inputs.os }})"
-                xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" \
-                  pnpm run test:package:dioxus -- --skip-build
-              else
-                pnpm run test:package:dioxus -- --skip-build
-              fi
+              pnpm run test:package:dioxus -- --skip-build
               ;;
             tauri)
               echo "Running Tauri package tests (using pre-built binaries from separate build job)"
-              if [[ "${{ runner.os }}" == "Linux" ]]; then
-                echo "Using xvfb-run to provide a DISPLAY on Linux (${{ inputs.os }})"
-                # Use 16-bit color depth to avoid pixbuf issues with GTK/WebKit (same as E2E)
-                xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" \
-                  pnpm run test:package:tauri -- --skip-build
-              elif [[ "${{ runner.os }}" == "Windows" ]]; then
+              if [[ "${{ runner.os }}" == "Windows" ]]; then
                 gsudo --integrity Medium pwsh -NoProfile -Command "pnpm run test:package:tauri -- --skip-build"
               else
                 pnpm run test:package:tauri -- --skip-build
@@ -325,10 +311,7 @@ jobs:
                 # Electron: build in isolated environments (no --skip-build)
                 pnpm run test:package:electron -- --module-type=${{ inputs.module-type }}
                 # Tauri: use --skip-build for pre-built binaries from separate build job
-                # Wrap with xvfb-run since tauri-driver runs in launcher (not worker) per wdio.conf.ts comment
-                # Use 16-bit color depth to avoid pixbuf issues with GTK/WebKit (same as E2E)
-                xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" \
-                  pnpm run test:package:tauri -- --skip-build
+                pnpm run test:package:tauri -- --skip-build
               fi
               ;;
             electrobun)

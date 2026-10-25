@@ -224,12 +224,7 @@ jobs:
           NO_AT_BRIDGE: '1'
           DRIVER_PROVIDER: 'embedded'
         run: |
-          if ($env:RUNNER_OS -eq "Linux") {
-            xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" `
-              pnpm run ${{ steps.gen-test.outputs.embedded }}
-          } else {
-            pnpm run ${{ steps.gen-test.outputs.embedded }}
-          }
+          pnpm run ${{ steps.gen-test.outputs.embedded }}
 
       - name: 🧹 Post-cleanup [Embedded]
         if: always()

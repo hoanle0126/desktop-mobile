@@ -173,6 +173,9 @@ catalogs:
     '@wdio/cli':
       specifier: 10.1.0
       version: 10.1.0
+    '@wdio/display-server':
+      specifier: 10.1.0
+      version: 10.1.0
     '@wdio/globals':
       specifier: 10.1.0
       version: 10.1.0
@@ -191,9 +194,6 @@ catalogs:
     '@wdio/visual-service':
       specifier: 11.0.0
       version: 11.0.0
-    '@wdio/xvfb':
-      specifier: 9.32.0
-      version: 9.32.0
     electron:
       specifier: 44.9.1
       version: 44.9.1
@@ -289,6 +289,9 @@ importers:
       '@wdio/dioxus-service':
         specifier: link:../packages/dioxus-service
         version: link:../packages/dioxus-service
+      '@wdio/display-server':
+        specifier: catalog:default
+        version: 10.1.0
       '@wdio/electrobun-service':
         specifier: link:../packages/electrobun-service
         version: link:../packages/electrobun-service
@@ -319,9 +322,6 @@ importers:
       '@wdio/visual-service':
         specifier: catalog:default
         version: 11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
-      '@wdio/xvfb':
-        specifier: catalog:default
-        version: 9.32.0
       electron:
         specifier: catalog:default
         version: 44.9.1(supports-color@8.1.1)
@@ -4184,10 +4184,6 @@ packages:
     engines: {node: '>=22.19.0'}
     peerDependencies:
       webdriverio: ^10.0.0
-
-  '@wdio/xvfb@9.32.0':
-    resolution: {integrity: sha512-K1DL05PngTMKY8mkzMNYpKNqZNPTrdJheuvTeWwwYlm4Yn9hLc8V3hw6EDsuEYw4cyEyiVeukLbLOEW+AhvqVw==}
-    engines: {node: '>=18.20.0'}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -11286,6 +11282,7 @@ snapshots:
       loglevel-plugin-prefix: 0.8.4
       safe-regex2: 5.1.1
       strip-ansi: 7.2.0
+    optional: true
 
   '@wdio/mocha-framework@10.1.0(supports-color@8.1.1)(yauzl@3.4.0)':
     dependencies:
@@ -11659,10 +11656,6 @@ snapshots:
       webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - expect-webdriverio
-
-  '@wdio/xvfb@9.32.0':
-    dependencies:
-      '@wdio/logger': 9.29.1
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:

@@ -88,9 +88,9 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  // Don't use autoXvfb - tauri-driver runs in launcher (not worker) and needs display
-  // The entire test command must be wrapped with xvfb-run in CI
-  autoXvfb: false,
+  // A 16-bit Xvfb: WebKitGTK hits GTK pixbuf errors at 24-bit colour.
+  displayServer: 'xvfb',
+  displayServerDepth: 16,
   // Output directory for logs
   outputDir: path.join(__dirname, 'logs'),
   services: [

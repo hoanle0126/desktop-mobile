@@ -82,9 +82,6 @@ jobs:
         run: |
           echo "::notice::Build artifact: ID=${{ inputs.build_id }}, Size=${{ inputs.artifact_size }} bytes"
 
-      - name: 🖥️ Start Xvfb (Linux)
-        uses: ./.github/workflows/actions/start-xvfb
-
       # The wdio configs force browserName=chrome, so WDIO drives the real Chrome preinstalled
       # on ubuntu-latest under the display started above. Each step runs even if an earlier one
       # failed (!cancelled) so one red tier never masks the others; any failure still fails the

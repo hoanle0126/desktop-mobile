@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { NormalizedPackageJson } from '@wdio/native-types';
 
 import { createEnvironmentContext } from './config/envSchema.js';
+import { webkitDisplayServer } from './lib/display.js';
 import { fileExists, resolveTauriFixtureBinary, safeJsonParse } from './lib/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -269,9 +270,7 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  // Don't use autoXvfb - tauri-driver runs in launcher (not worker) and needs display
-  // The entire test command must be wrapped with xvfb-run in CI
-  autoXvfb: false,
+  ...webkitDisplayServer,
   services: [
     [
       '@wdio/tauri-service',

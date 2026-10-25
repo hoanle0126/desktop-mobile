@@ -398,10 +398,7 @@ jobs:
           NO_AT_BRIDGE: '1'
           DRIVER_PROVIDER: 'external'
         run: |
-          if ($env:RUNNER_OS -eq "Linux") {
-            xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" `
-              pnpm run ${{ steps.gen-test.outputs.external }}
-          } elseif ($env:RUNNER_OS -eq "Windows") {
+          if ($env:RUNNER_OS -eq "Windows") {
             gsudo --integrity Medium pwsh -NoProfile -Command "pnpm run ${{ steps.gen-test.outputs.external }}"
           } else {
             pnpm run ${{ steps.gen-test.outputs.external }}
@@ -451,12 +448,7 @@ jobs:
           NO_AT_BRIDGE: '1'
           DRIVER_PROVIDER: 'embedded'
         run: |
-          if ($env:RUNNER_OS -eq "Linux") {
-            xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" `
-              pnpm run ${{ steps.gen-test.outputs.embedded }}
-          } else {
-            pnpm run ${{ steps.gen-test.outputs.embedded }}
-          }
+          pnpm run ${{ steps.gen-test.outputs.embedded }}
 
       - name: 🧹 Post-cleanup [Embedded]
         if: always() && !inputs.crabnebula_only
@@ -523,10 +515,7 @@ jobs:
           DRIVER_PROVIDER: 'crabnebula'
           CN_API_KEY: ${{ secrets.CN_API_KEY }}
         run: |
-          if ($env:RUNNER_OS -eq "Linux") {
-            xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x16" `
-              pnpm run ${{ steps.gen-test.outputs.crabnebula }}
-          } elseif ($env:RUNNER_OS -eq "Windows") {
+          if ($env:RUNNER_OS -eq "Windows") {
             gsudo --integrity Medium pwsh -NoProfile -Command "pnpm run ${{ steps.gen-test.outputs.crabnebula }}"
           } else {
             pnpm run ${{ steps.gen-test.outputs.crabnebula }}

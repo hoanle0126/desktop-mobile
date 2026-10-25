@@ -4,7 +4,7 @@ import process from 'node:process';
 import url from 'node:url';
 import { cleanupWdioSession, createTauriCapabilities, startWdioSession } from '@wdio/tauri-service';
 import '@wdio/native-types';
-import { xvfb } from '@wdio/xvfb';
+import { startWebKitDisplay } from '../../../lib/display.js';
 import { resolveTauriFixtureBinary } from '../../../lib/utils.js';
 
 // Get the directory name once at the top
@@ -33,11 +33,7 @@ const sessionOptions = createTauriCapabilities(appBinaryPath, {
   autoInstallTauriDriver: true,
 });
 
-// Initialize xvfb if running on Linux
-if (process.platform === 'linux') {
-  console.log('🔍 Linux detected: initializing xvfb for standalone tests...');
-  await xvfb.init();
-}
+const display = await startWebKitDisplay();
 
 console.log('🔍 Debug: Starting session with options:', JSON.stringify(sessionOptions, null, 2));
 const browser = await startWdioSession(sessionOptions);
@@ -73,6 +69,7 @@ try {
 } finally {
   // Clean up - quit the app and stop tauri-driver.
   await cleanupWdioSession(browser);
+  await display?.stop();
   console.log('✅ Cleanup complete');
 }
 

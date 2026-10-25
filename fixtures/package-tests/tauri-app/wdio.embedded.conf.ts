@@ -63,7 +63,9 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  autoXvfb: false,
+  // A 16-bit Xvfb: WebKitGTK hits GTK pixbuf errors at 24-bit colour.
+  displayServer: 'xvfb',
+  displayServerDepth: 16,
   outputDir: path.join(__dirname, 'logs'),
   services: [
     [

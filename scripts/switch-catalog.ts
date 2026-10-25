@@ -134,10 +134,9 @@ if (!catalogName || !VALID_CATALOGS.includes(catalogName)) {
 
 // Resolve the catalog ref a dep should use under the target catalog. If the
 // target catalog contains the dep, use it directly. Otherwise fall back to
-// `catalog:default` so deps that exist only in default (e.g. @wdio/xvfb, which
-// is v9-only and has no v8 to put in the `minimum` catalog) don't produce a
-// broken `catalog:<missing>` ref. The next predictable case for this is the
-// `@wdio/xvfb` → `@wdio/display-server` rename in WDIO v10.
+// `catalog:default` so deps that exist only in default (e.g. @wdio/display-server,
+// which has no v9 release for the `minimum` catalog) don't produce a broken
+// `catalog:<missing>` ref.
 function resolveCatalogRef(dep: string, target: CatalogName): string {
   const targetDeps = CATALOGS.get(target);
   if (targetDeps?.has(dep)) return `catalog:${target}`;

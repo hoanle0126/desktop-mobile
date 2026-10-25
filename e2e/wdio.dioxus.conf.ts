@@ -1,6 +1,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { webkitDisplayServer } from './lib/display.js';
 import { getLogDirName } from './lib/utils.js';
 
 // Exit 78 on darwin/linux — 'external' provider not supported on these platforms.
@@ -169,7 +170,7 @@ export const config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
-  autoXvfb: false,
+  ...webkitDisplayServer,
   services: [
     [
       '@wdio/dioxus-service',

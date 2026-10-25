@@ -65,6 +65,7 @@
     "@wdio/appium-service": "catalog:default",
     "@wdio/cli": "catalog:default",
     "@wdio/dioxus-service": "link:../packages/dioxus-service",
+    "@wdio/display-server": "catalog:default",
     "@wdio/electrobun-service": "link:../packages/electrobun-service",
     "@wdio/electron-service": "link:../packages/electron-service",
     "@wdio/flutter-service": "link:../packages/flutter-service",
@@ -75,7 +76,6 @@
     "@wdio/react-native-service": "link:../packages/react-native-service",
     "@wdio/tauri-service": "link:../packages/tauri-service",
     "@wdio/visual-service": "catalog:default",
-    "@wdio/xvfb": "catalog:default",
     "electron": "catalog:default",
     "tsx": "^4.23.15",
     "webdriverio": "catalog:default"

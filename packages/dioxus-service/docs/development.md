@@ -83,7 +83,7 @@ cd e2e && pnpm wdio run wdio.dioxus-embedded.conf.ts
 ```
 
 Platform-specific notes:
-- **Linux**: Run under Xvfb: `xvfb-run -a pnpm wdio run wdio.dioxus-embedded.conf.ts`
+- **Linux**: Install Xvfb. WebdriverIO starts it for the run.
 
 ## Code Quality
 

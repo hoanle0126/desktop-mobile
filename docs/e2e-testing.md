@@ -268,15 +268,7 @@ The embedded driver only starts when the Dioxus app is built in **debug mode** â
 
 #### Linux: No Display
 
-Dioxus (like Tauri) requires a display server on Linux. For CI use Xvfb:
-
-```yaml
-- name: Run Dioxus E2E tests
-  run: |
-    export DISPLAY=:99
-    Xvfb :99 -screen 0 1280x800x24 &
-    pnpm --filter @repo/e2e test:e2e:dioxus-embedded
-```
+Dioxus (like Tauri) needs a display server on Linux. The E2E configs have WebdriverIO start Xvfb, so install it (`sudo apt-get install -y xvfb`) and run the tests as usual.
 
 #### Protocol Handler Not Registered
 
@@ -320,15 +312,7 @@ strategy:
   run: cargo build
   working-directory: fixtures/e2e-apps/dioxus
 
-- name: Run Dioxus E2E tests (Linux â€” Xvfb required)
-  if: runner.os == 'Linux'
-  run: |
-    export DISPLAY=:99
-    Xvfb :99 -screen 0 1280x800x24 &
-    pnpm --filter @repo/e2e test:e2e:dioxus-embedded
-
-- name: Run Dioxus E2E tests (Windows / macOS)
-  if: runner.os != 'Linux'
+- name: Run Dioxus E2E tests
   run: pnpm --filter @repo/e2e test:e2e:dioxus-embedded
 ```
 
