@@ -10,6 +10,14 @@ export { executeDeeplinkCommand, getPlatformCommand, validateDeeplinkUrl };
 
 const log = createLogger('tauri-service', 'triggerDeeplink');
 
+// The event tauri-plugin-deep-link emits for an opened URL; its `onOpenUrl` (JS) and
+// `on_open_url` (Rust) listen for it.
+const DEEP_LINK_EVENT = 'deep-link://new-url';
+
+interface TauriInternals {
+  invoke: (cmd: string, args: unknown) => Promise<unknown>;
+}
+
 interface TauriServiceContext {
   browser?: WebdriverIO.Browser | WebdriverIO.MultiRemoteBrowser;
   provider: DriverProvider;
@@ -19,7 +27,8 @@ interface TauriServiceContext {
  * Triggers a deeplink to the Tauri application for testing protocol handlers.
  *
  * For the embedded provider, and CrabNebula on macOS:
- * - Uses browser.execute() to directly inject the deeplink into the app's JavaScript context
+ * - Emits tauri-plugin-deep-link's `deep-link://new-url` event inside the app, so the app's
+ *   `onOpenUrl` / `on_open_url` handlers receive the URL. The plugin's `getCurrent()` doesn't change.
  * - This bypasses platform-specific single-instance IPC mechanisms (D-Bus on Linux,
  *   NSDistributedNotificationCenter on macOS) which don't work reliably with
  *   unbundled binaries or when the app is managed by test-runner-backend.
@@ -48,36 +57,23 @@ export async function triggerDeeplink(this: TauriServiceContext, url: string): P
   const { provider } = this;
 
   if (provider === 'embedded' || (provider === 'crabnebula' && platform === 'darwin')) {
-    log.debug(`${provider} mode: injecting deeplink via browser.execute`);
+    log.debug(`${provider} mode: emitting ${DEEP_LINK_EVENT} in the app`);
 
     if (!this.browser) {
       throw new Error(`${provider} deeplink injection requires browser context`);
     }
 
     try {
-      // Build URL using char codes to avoid WebKit parsing the URL string literally.
-      // Use plain statements (not an arrow function) so the script works correctly when
-      // the embedded WebDriver wraps it as a function body: (function() { SCRIPT })().
-      const charCodes = Array.from(validatedUrl)
-        .map((c) => c.charCodeAt(0))
-        .join(',');
-      const script = `
-        try {
-          var charCodes = [${charCodes}];
-          var url = String.fromCharCode.apply(null, charCodes);
-          if (typeof window.receivedDeeplinks === 'undefined') {
-            window.receivedDeeplinks = [];
-          }
-          window.receivedDeeplinks.push(url);
-          if (typeof window.deeplinkCount === 'undefined') {
-            window.deeplinkCount = 0;
-          }
-          window.deeplinkCount++;
-        } catch (e) {
-          console.error('[WDIO Deeplink] Error:', e.message);
-        }
-      `;
-      await this.browser.execute(script);
+      // `__TAURI_INTERNALS__` exists in every Tauri 2 webview; `__TAURI__` needs `withGlobalTauri`.
+      await (this.browser as WebdriverIO.Browser).execute(
+        (event: string, url: string) =>
+          (globalThis as unknown as { __TAURI_INTERNALS__: TauriInternals }).__TAURI_INTERNALS__.invoke(
+            'plugin:event|emit',
+            { event, payload: [url] },
+          ),
+        DEEP_LINK_EVENT,
+        validatedUrl,
+      );
 
       log.debug(`Deeplink injected successfully: ${validatedUrl}`);
       return;

@@ -24,6 +24,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use serde::{Deserialize, Serialize};
 use sysinfo::System;
 use tauri::{Emitter, Manager, PhysicalPosition, PhysicalSize, Window};
+use tauri_plugin_deep_link::DeepLinkExt;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct WindowBounds {
@@ -327,19 +328,10 @@ fn main() {
     builder = builder.plugin(tauri_plugin_automation::init());
   }
 
-  // Add single-instance plugin only when explicitly enabled (deeplink tests)
+  // Add single-instance plugin only when explicitly enabled (deeplink tests). Its `deep-link`
+  // feature hands a second instance's URL to the deep-link plugin, so the callback has nothing to do.
   if enable_single_instance {
-    builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-      // Forward deep links from second instance to the running instance
-      for arg in args.iter() {
-        if arg.starts_with("testapp://") {
-          if let Ok(mut links) = DEEP_LINKS.lock() {
-            links.push(arg.clone());
-          }
-          let _ = app.emit("deeplink-received", arg);
-        }
-      }
-    }));
+    builder = builder.plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}));
   }
 
   builder
@@ -356,13 +348,23 @@ fn main() {
         emit_deep_links(&app.handle());
       }
 
+      // Deep links opened while the app runs, from the OS or from browser.tauri.triggerDeeplink.
+      let handle = app.handle().clone();
+      app.deep_link().on_open_url(move |event| {
+        for url in event.urls() {
+          let link = url.to_string();
+          if let Ok(mut links) = DEEP_LINKS.lock() {
+            links.push(link.clone());
+          }
+          let _ = handle.emit("deeplink-received", link);
+        }
+      });
+
       // Register deeplink protocol at runtime (Linux/Windows only)
       // This is needed for development/testing when the protocol handler
       // hasn't been registered by the installer
       #[cfg(any(target_os = "linux", target_os = "windows"))]
       {
-        use tauri_plugin_deep_link::DeepLinkExt;
-
         match app.deep_link().register("testapp") {
           Ok(_) => {}
           Err(_e) => {

@@ -256,9 +256,8 @@
         });
       }
 
-      // Deep link listener for E2E testing
-      // On Linux, deep links arrive via CLI args (not via onOpenUrl)
-      // We use the backend's getDeepLinks command and listen for deeplink-received events
+      // Deep link listener for E2E testing: the backend re-emits each URL tauri-plugin-deep-link
+      // delivers as deeplink-received, and get_deep_links returns the ones the app was launched with
       window.receivedDeeplinks = [];
       window.deeplinkCount = 0;
       console.log('[Deeplink] Initialized: count=0, receivedDeeplinks=[]');
