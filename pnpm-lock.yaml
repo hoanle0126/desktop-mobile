@@ -195,8 +195,8 @@ catalogs:
       specifier: 9.32.0
       version: 9.32.0
     electron:
-      specifier: 44.9.1
-      version: 44.9.1
+      specifier: 44.9.3
+      version: 44.9.3
     electron-builder:
       specifier: 26.15.3
       version: 26.15.3
@@ -282,10 +282,10 @@ importers:
     dependencies:
       '@wdio/appium-service':
         specifier: catalog:default
-        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/cli':
         specifier: catalog:default
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/dioxus-service':
         specifier: link:../packages/dioxus-service
         version: link:../packages/dioxus-service
@@ -300,10 +300,10 @@ importers:
         version: link:../packages/flutter-service
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: catalog:default
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: catalog:default
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -318,19 +318,19 @@ importers:
         version: link:../packages/tauri-service
       '@wdio/visual-service':
         specifier: catalog:default
-        version: 11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/xvfb':
         specifier: catalog:default
         version: 9.32.0
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     devDependencies:
       '@crabnebula/tauri-driver':
         specifier: ^2.0.9
@@ -406,19 +406,19 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: catalog:default
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: catalog:default
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: catalog:default
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       electron-builder:
         specifier: catalog:default
         version: 26.15.3(electron-builder-squirrel-windows@26.15.3)(supports-color@8.1.1)
@@ -430,7 +430,7 @@ importers:
         version: 6.0.3
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   fixtures/e2e-apps/electron-forge:
     devDependencies:
@@ -442,19 +442,19 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: catalog:default
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: catalog:default
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: catalog:default
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -463,7 +463,7 @@ importers:
         version: 6.0.3
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   fixtures/e2e-apps/electron-script:
     devDependencies:
@@ -472,19 +472,19 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: catalog:default
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: catalog:default
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: catalog:default
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -493,7 +493,7 @@ importers:
         version: 6.0.3
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   fixtures/e2e-apps/tauri:
     dependencies:
@@ -518,10 +518,10 @@ importers:
         version: 2.12.4
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -542,16 +542,16 @@ importers:
     devDependencies:
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/dioxus-service':
         specifier: workspace:*
         version: link:../../../packages/dioxus-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -579,16 +579,16 @@ importers:
         version: 10.0.10
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electrobun-service':
         specifier: workspace:*
         version: link:../../../packages/electrobun-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -609,16 +609,16 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -629,8 +629,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-builder:
         specifier: 26.15.3
         version: 26.15.3(electron-builder-squirrel-windows@26.15.3)(supports-color@8.1.1)
@@ -648,16 +648,16 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -668,8 +668,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-builder:
         specifier: 26.15.3
         version: 26.15.3(electron-builder-squirrel-windows@26.15.3)(supports-color@8.1.1)
@@ -702,16 +702,16 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -728,8 +728,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -759,16 +759,16 @@ importers:
         version: 26.6.5
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -785,8 +785,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -804,16 +804,16 @@ importers:
         version: 7.8.0
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -824,8 +824,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -846,16 +846,16 @@ importers:
         version: 7.8.0
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/electron-service':
         specifier: workspace:*
         version: link:../../../packages/electron-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+        version: 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -866,8 +866,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       electron:
-        specifier: 44.9.1
-        version: 44.9.1(supports-color@8.1.1)
+        specifier: 44.9.3
+        version: 44.9.3(supports-color@8.1.1)
       electron-vite:
         specifier: 6.0.0
         version: 6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
@@ -888,19 +888,19 @@ importers:
         version: 26.6.5
       '@wdio/appium-service':
         specifier: ^10.1.0
-        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/flutter-service':
         specifier: workspace:*
         version: link:../../../packages/flutter-service
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -930,16 +930,16 @@ importers:
         version: 26.6.5
       '@wdio/appium-service':
         specifier: ^10.1.0
-        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/globals':
         specifier: ^10.1.0
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -982,10 +982,10 @@ importers:
         version: 2.12.4
       '@wdio/cli':
         specifier: ^10.1.0
-        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/local-runner':
         specifier: ^10.1.0
-        version: 10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)
+        version: 10.1.0(e7e69e48332a1a49c6efc048adba222c)
       '@wdio/mocha-framework':
         specifier: ^10.1.0
         version: 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
@@ -1003,10 +1003,10 @@ importers:
     dependencies:
       '@rollup/plugin-node-resolve':
         specifier: ^16.0.2
-        version: 16.0.3(rollup@4.64.12)
+        version: 16.0.3(rollup@4.65.0)
       '@rollup/plugin-typescript':
-        specifier: ^12.3.0
-        version: 12.3.0(rollup@4.64.12)(tslib@2.8.1)(typescript@6.0.3)
+        specifier: ^12.3.1
+        version: 12.3.1(rollup@4.65.0)(tslib@2.8.1)(typescript@6.0.3)
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -1017,11 +1017,11 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       rollup:
-        specifier: ^4.64.12
-        version: 4.64.12
+        specifier: ^4.65.0
+        version: 4.65.0
       rollup-plugin-node-externals:
         specifier: ^9.0.1
-        version: 9.0.1(rollup@4.64.12)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+        version: 9.0.1(rollup@4.65.0)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1125,7 +1125,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/electrobun-service:
     dependencies:
@@ -1183,13 +1183,13 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/electron-service:
     dependencies:
       '@babel/parser':
-        specifier: ^8.0.7
-        version: 8.0.7
+        specifier: ^8.0.8
+        version: 8.0.8
       '@electron/fuses':
         specifier: ^2.1.3
         version: 2.1.3
@@ -1218,8 +1218,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2
       electron-to-chromium:
-        specifier: ^1.5.461
-        version: 1.5.461
+        specifier: ^1.5.464
+        version: 1.5.464
       fast-copy:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1230,8 +1230,8 @@ importers:
         specifier: ^7.1.0
         version: 7.2.0
       puppeteer-core:
-        specifier: ^25.15.0
-        version: 25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        specifier: ^25.16.0
+        version: 25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       recast:
         specifier: ^0.24.0
         version: 0.24.0
@@ -1244,7 +1244,7 @@ importers:
         version: 7.11.2(bluebird@3.7.2)(supports-color@8.1.1)
       '@puppeteer/browsers':
         specifier: ^3.2.5
-        version: 3.2.5(yauzl@3.4.0)
+        version: 3.2.6(yauzl@3.4.0)
       '@repo/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -1265,7 +1265,7 @@ importers:
         version: link:../bundler
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/native-spy':
         specifier: workspace:*
         version: link:../native-spy
@@ -1280,7 +1280,7 @@ importers:
         version: 0.0.1721602
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       jsdom:
         specifier: ^30.1.3
         version: 30.1.3(@noble/hashes@2.2.0)
@@ -1304,7 +1304,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.3(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/flutter-service:
     dependencies:
@@ -1359,7 +1359,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/native-cdp-bridge:
     dependencies:
@@ -1494,7 +1494,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/native-spy:
     devDependencies:
@@ -1533,7 +1533,7 @@ importers:
         version: link:../bundler
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/native-spy':
         specifier: workspace:*
         version: link:../native-spy
@@ -1545,7 +1545,7 @@ importers:
         version: 26.15.3(supports-color@8.1.1)
       electron:
         specifier: catalog:default
-        version: 44.9.1(supports-color@8.1.1)
+        version: 44.9.3(supports-color@8.1.1)
       shx:
         specifier: ^0.4.0
         version: 0.4.0
@@ -1554,7 +1554,7 @@ importers:
         version: 6.0.3
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/native-utils:
     dependencies:
@@ -1661,7 +1661,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/tauri-plugin:
     dependencies:
@@ -1673,8 +1673,8 @@ importers:
         version: link:../native-utils
     devDependencies:
       '@tauri-apps/api':
-        specifier: 2.12.1
-        version: 2.12.1
+        specifier: 2.12.4
+        version: 2.12.4
       '@vitest/coverage-v8':
         specifier: 5.0.5
         version: 5.0.5(vitest@5.0.5)
@@ -1719,8 +1719,8 @@ importers:
         version: 2.8.1
     devDependencies:
       '@babel/parser':
-        specifier: ^8.0.7
-        version: 8.0.7
+        specifier: ^8.0.8
+        version: 8.0.8
       '@repo/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -1735,7 +1735,7 @@ importers:
         version: link:../bundler
       '@wdio/globals':
         specifier: catalog:default
-        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+        version: 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/types':
         specifier: catalog:default
         version: 10.1.0
@@ -1756,7 +1756,7 @@ importers:
         version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.5(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.1.2(@noble/hashes@2.2.0))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       webdriverio:
         specifier: catalog:default
-        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+        version: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   packages/test-utils:
     devDependencies:
@@ -1884,8 +1884,8 @@ packages:
     resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-string-parser@8.0.6':
-    resolution: {integrity: sha512-+6HYEBnsDRZHJtUTAEfMQd0zMDqdFHS7C+5vAsEZqBUr3vEMWOWlHJ0Jz1gS8jJIlCvLsuA6ivmeoqzH936YcA==}
+  '@babel/helper-string-parser@8.0.8':
+    resolution: {integrity: sha512-fVM+gSuKbdv9cpmyRNh5EvsDHUZCdxQH3FdnFKSkNYHpbsn95bbrxm+ES3MVeQjcqwi2O5ur/DjLfmTQaO60ng==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/helper-validator-identifier@7.29.7':
@@ -1909,8 +1909,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@8.0.7':
-    resolution: {integrity: sha512-UkDwEbPO1px2JQSrdh4qIgaH1JgG7GO/pFeJkpxhDxIETkT/QvGpnigXIw75ViHYPtIgKITmVUJqLjiO+JuWjA==}
+  '@babel/parser@8.0.8':
+    resolution: {integrity: sha512-Gq65JogAr0S2p0BzvfSJboyuiRnxDQApyOqHkKmkrvm+VlLK4gC3pKsiOKEdnhFBemrFbSnOu90mZZWDpiJnmQ==}
     engines: {node: ^22.18.0 || >=24.11.0}
     hasBin: true
 
@@ -1936,8 +1936,8 @@ packages:
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/types@8.0.6':
-    resolution: {integrity: sha512-c+xgSWboV2pdwXP67BUWDVRHi2BO5Q3KwxyFVs7taVTY+fsK47/L51ZXQoV9rozHJDNHvJ4v4WEsI/IlxV2l2A==}
+  '@babel/types@8.0.8':
+    resolution: {integrity: sha512-iXSSZAKQWmaeAwGtFw10v9fg5hUiUs0L+w+Z2K11kym3pDNK+SF0VcAQPsEFvWcTSZ7LMgClMXDBvTbH0IlICg==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@bcoe/v8-coverage@1.0.2':
@@ -3290,6 +3290,19 @@ packages:
       yauzl:
         optional: true
 
+  '@puppeteer/browsers@3.2.6':
+    resolution: {integrity: sha512-MJP29gVoHznmqmwhH1tlZqzfeQ3aylTpSSa6WKZXtkwYUH02i9imBmWGTyZrbnAou5paX78SE4jMAUqnEPf8ug==}
+    engines: {node: '>=22.12.0'}
+    hasBin: true
+    peerDependencies:
+      proxy-agent: '>=8.0.1'
+      yauzl: ^2.10.0 || ^3.4.0
+    peerDependenciesMeta:
+      proxy-agent:
+        optional: true
+      yauzl:
+        optional: true
+
   '@releasekit/notes@0.42.1':
     resolution: {integrity: sha512-PEjnELQ54zwTl4HteCz1a1tOc4D+53KtivUWZXp6mW+3l+f635Y+xwgMcY68y54FZCkWQKKT/6mKv1/3Pu00LA==}
     engines: {node: '>=22.12'}
@@ -3418,8 +3431,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-typescript@12.3.0':
-    resolution: {integrity: sha512-7DP0/p7y3t67+NabT9f8oTBFE6gGkto4SA6Np2oudYmZE/m1dt8RB0SjL1msMxFpLo631qjRCcBlAbq1ml/Big==}
+  '@rollup/plugin-typescript@12.3.1':
+    resolution: {integrity: sha512-+dT5iMCxLNOCdaCGvGQpLhBpWdnKlPNMU/hvVLKgQgHuBlRFABi1Y6YxXg7ajqnsHRA53Tkdm3Vu1P+qn9HQ7Q==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.14.0||^3.0.0||^4.0.0
@@ -3440,141 +3453,141 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/rollup-android-arm-eabi@4.64.12':
-    resolution: {integrity: sha512-Z8lz+5UOiCJLonjeqwJlhUtHA/Sr6R1AidkccQxdWF0nigNzP81aLoU+udgOaGfL5s1uzFXzcux/pCwGAMu0lw==}
+  '@rollup/rollup-android-arm-eabi@4.65.0':
+    resolution: {integrity: sha512-t2AnVba25baFdq7gczzS13JyVcdubLVbFX1X04mxrggDrTQPUXNv3XM0k9H1hr5tqvg7AVvtQ720QHAj0iYqhg==}
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.64.12':
-    resolution: {integrity: sha512-+tKxNa2psFmiTb0KfXlXs4Yj7vkEhzAvZ0DrQ5+0gWHQJM10jSleQ3l1FIVm5uvD53YM8lHfM4mgCLDDN9f1Gg==}
+  '@rollup/rollup-android-arm64@4.65.0':
+    resolution: {integrity: sha512-dNONUaEwPGhl/nuO2KV8VABWlcjYyU6KtZGN8dQv5OS5JU7JSCxPijVNKXbRJd0iuTzTiJ4TjPt/4bbvDRNiMQ==}
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.64.12':
-    resolution: {integrity: sha512-iiripdfvyRBugV55/Dk7GplNXQtN/PG85OcKeveU1z2UkTg0MofbBF1qk//qgPWiqJbVvQcXAVCfE56oDGO4EQ==}
+  '@rollup/rollup-darwin-arm64@4.65.0':
+    resolution: {integrity: sha512-zWQqUH+9zavr2Bxuzfpuv2SIF3X31cr58TvSQC9o1GhpOvkqRwr60GkZdQcudyT/BEgdpdSafjgd2I13MbTL7g==}
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.64.12':
-    resolution: {integrity: sha512-BmATib8swSMAagWNIfDZMnb+k34RXR4bbGOUfZgK8lLlniuMyVoSDDXCOGkdhtUmBXL4aygDh7bhjQ+TmhTvIw==}
+  '@rollup/rollup-darwin-x64@4.65.0':
+    resolution: {integrity: sha512-RQYreBFWtO4//hIuOaZkYUnF/lPU4lz35dveDimDshWCJvVisVtJ/shmT9bkXK8wFJY+FJF89X6F3Cq1qI3LCw==}
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.64.12':
-    resolution: {integrity: sha512-GzrO0CiUq8vcAI/hYJuIcp6wNm3T3YhOpumYtf9Z3Fz+cfN1VESCVfy7EPcM3/m2K8l+Gn2U+4XtNZjwhUXctQ==}
+  '@rollup/rollup-freebsd-arm64@4.65.0':
+    resolution: {integrity: sha512-A0NfMj6Cuh/9BE5k3awJKv6HoxFVXIcLAb6SZqAMoxUHPA1ZNNK4RsGuUPD/vL7nEAm9LG+ZzXWWTrnC0XtkpA==}
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.64.12':
-    resolution: {integrity: sha512-Dpta6gigm4o6SYioXtTkZBlGLA/Sl6OpzgLqY+51uafJE2blPejAtR1w82CVLPN+F9cvo1+/em92x/zcOgY0uQ==}
+  '@rollup/rollup-freebsd-x64@4.65.0':
+    resolution: {integrity: sha512-BI6/H7q3aP0I7S7GOrjyxTjgEJlSnovXE38+bdxBpuKN6z+d//uF+T+VQ3Q7ltJL/71p17ufartARX9Ja5gOGQ==}
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.64.12':
-    resolution: {integrity: sha512-YpeDwQ5uFaogRvytNC8RK0keDO65kI5wNEhGSs+4GiJc3KHhxj4j5cnQh2nCu9ybJj6RP0/ycB6bkN0yFJ9I+w==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.65.0':
+    resolution: {integrity: sha512-W1vUprf09RWaVWnsFP1vlUkEWJzTZlpObOEAYZXt9Fq0UVAOYEkeGr7wBX7McKqqIQskXdBnpiOMgwPujordgA==}
     cpu: [arm]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.64.12':
-    resolution: {integrity: sha512-LQrB3/sImIr1ycrlEyaApOLH1rAy8JV4/dH4eoK817aWATdcs4fESXz53/w72NwDnwPM5zEUpoL7socH4ZDnwA==}
+  '@rollup/rollup-linux-arm-musleabihf@4.65.0':
+    resolution: {integrity: sha512-s8QTcZWgrl9haFzEGIqyE5BWyo89pFDGLMBFZ752WYxk8DJwNU/O1X6pZgPw829d9/sm6CCHyrMP3aurt76p1Q==}
     cpu: [arm]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-arm64-gnu@4.64.12':
-    resolution: {integrity: sha512-iAF2iYu9S4SBfNsb4k0ewNBjO83WxHEltIuKQBGMzEKFgrYfmJn+gatBDXR2t/0zJN0UW0kzR4rfvQ1UHzkZ1A==}
+  '@rollup/rollup-linux-arm64-gnu@4.65.0':
+    resolution: {integrity: sha512-ke1f6dLRzkqveyjjF2fkEwQYZvxHtNNwjegY8nJrwcO0Bdqr8CzFO/pKE0Bns13cx0qz2Ba2Y0Hs3dSwMdnHxA==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm64-musl@4.64.12':
-    resolution: {integrity: sha512-0MQdRtdbirJCXPIVeW/hd/LXLR8Qz96pc+2EBptuuV5q/zSGOzND7SZt8gBTE58NC9cUG/8UxcUXQiKRZ2WzzA==}
+  '@rollup/rollup-linux-arm64-musl@4.65.0':
+    resolution: {integrity: sha512-926SMeUcy4y18Rz/w2aJiUKOnyAnm6czg72bXkQEaeemsll+Wr0hnsjb2BGRpHvWgwAMYy5ACJCotbvfLCfj0A==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-loong64-gnu@4.64.12':
-    resolution: {integrity: sha512-yGDEwn0AGnrY/KCz2oY8R9KKNiQnTcwNuCWXeSXF0VLxXzlqoCgaS5QHsf1lbQvKWwPuN2Czkjk1wXRCBONTOQ==}
+  '@rollup/rollup-linux-loong64-gnu@4.65.0':
+    resolution: {integrity: sha512-6T7JNRP1hc4hqF2dUsEoVLOt9K8tmODoCLldtQRYnrddGGQY8Gqe2pM/qMMUo7EMowpP7oa2N95k0/8sYK/ipw==}
     cpu: [loong64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-loong64-musl@4.64.12':
-    resolution: {integrity: sha512-AjlbD0efZEhHaJ3bsNjxSFDoguNq6VZvC+FKGJGBCA+ZN7BrZq2TuuSWFa6AI8IpOeuvhp2LoYcP7jiZwmtU0Q==}
+  '@rollup/rollup-linux-loong64-musl@4.65.0':
+    resolution: {integrity: sha512-SImGFl1Je5kpyAgOCPONVT7h6ASV8mAUwGRjY7eZvVjPg//PfHOXgI+P241RF/+HqsA4PP3qD527ysWFKNQyhQ==}
     cpu: [loong64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-ppc64-gnu@4.64.12':
-    resolution: {integrity: sha512-sDW0CiPoUCEEUV25uBG5sJ2gKe75DJqLpj91m1eK1vKffywyY7v4i6q1450ZuR6QW4NArXg7JpbMGgKU8di3HQ==}
+  '@rollup/rollup-linux-ppc64-gnu@4.65.0':
+    resolution: {integrity: sha512-XeDTbmPF1Yu5asfXGPrMkWoxTDhgryQbmw5Q1+R582O51VNCk23J6f2pDrsAp5YkneBVBwtExx6ZGOb9D2aQ6A==}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-ppc64-musl@4.64.12':
-    resolution: {integrity: sha512-VTQYUhMjl8kv999VuYqScgv7P9cR9KuxI/6bkUsEa3bsswqG0+otFjuLZmJ1U+ffEP4IAz0jxOeV0DX6NRBhjg==}
+  '@rollup/rollup-linux-ppc64-musl@4.65.0':
+    resolution: {integrity: sha512-VS55JUI/1nsljmV/jfqNkLZXFw8uMO8nNlfoHmSevNf6fO3neuhyDvx9dv3c/Ytt8r/431SL8Qax1dpYvOMZTg==}
     cpu: [ppc64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.64.12':
-    resolution: {integrity: sha512-ppsKwpSjNrzJ8hge3Z3uiCcoRgAAQk2tU7auy3MFF348ffWRldFPnWIT/a/enK7huijlTfnwn4DYpDoapEb45A==}
+  '@rollup/rollup-linux-riscv64-gnu@4.65.0':
+    resolution: {integrity: sha512-Vblw84TbX7RS4la1Y4+yQ7aore/oSyaNtFbppuBr5Vs/4LfBeXKq9dIfoExw6zOvRERqd2rRAjnZRaMhH/0x5w==}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-riscv64-musl@4.64.12':
-    resolution: {integrity: sha512-Gc3cVRC1trFH+GFWWTsJz6YuD4u75fzr/q99jqQGimonN/zvN6Wecck5WGzllOHj+XYXHcq0Ibor0tanGjfI6A==}
+  '@rollup/rollup-linux-riscv64-musl@4.65.0':
+    resolution: {integrity: sha512-7+gHjtONvKgwR9InTKFaLq53f6YzBJkgeMRBENdWTsQr+spahGqQm8HF5aXpq8i4JaRrOqYyv6Zn1WltDTxaZQ==}
     cpu: [riscv64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-s390x-gnu@4.64.12':
-    resolution: {integrity: sha512-pjmDTFStvwFE3shTeUDvSDiSp8/qAf5bQXejcEUDDavWz4jEhTIpCdpS06G0PEwSCSNK0Lngjz2v9l4hk3Z74A==}
+  '@rollup/rollup-linux-s390x-gnu@4.65.0':
+    resolution: {integrity: sha512-KvNDC0J6s4vVHhtJ6KrDXU0Er0au/hmRIBq/+1maCV8TseGupeKizq0bWcrbp2HE1T8xoknvN0Q/KZ/YF0qX3w==}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-gnu@4.64.12':
-    resolution: {integrity: sha512-mkbjxPqpR91u1JD7xY4aLZhr/Mqka4/RqGcG4WNGgN/lC1o7TzyCyqJoSJXp9qVVxMwpJGFlEF1VlERb+Ghw1Q==}
+  '@rollup/rollup-linux-x64-gnu@4.65.0':
+    resolution: {integrity: sha512-GExdD15WPvu/x/drELjVam7vX8EsPgvTMOa/iJL/p/4m/oOqzbb7JXZg8fXR4hlXtg/sF2zyTZ3bR0AEtEMlhQ==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-musl@4.64.12':
-    resolution: {integrity: sha512-vIeut2LkuVc3gcsawLJPahNAzvzBcFRhu2O+yVb//BuQKz7PIItMF0piXRbN/lIDO3d68TSDd368Vg6YwgTybw==}
+  '@rollup/rollup-linux-x64-musl@4.65.0':
+    resolution: {integrity: sha512-8sT9PemIZfIMED4Vd4KGoOXVDj5CMSWNcGdbheRUx9TYS03yOWdT2Q0lXPyEyNBB9YTilwewIQKNIBk6Nxi0Kg==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-openbsd-x64@4.64.12':
-    resolution: {integrity: sha512-3Sx+D3r9oPkTdNUcPrIRM2Am+vzEV6VGWoImHG4ZVK2jJeOW+eDjLeTm6nvu/z/m0fiX2YmGLXIypblc336MXg==}
+  '@rollup/rollup-openbsd-x64@4.65.0':
+    resolution: {integrity: sha512-pO6Ehi0jo5yE0R6PltKhJhv9mlIiyzBJk5N5NUF2OF6xtVKI+1bdXxj/rb0jGXy3hck1ELVT0QPY3tzkAm360w==}
     cpu: [x64]
     os: [openbsd]
 
-  '@rollup/rollup-openharmony-arm64@4.64.12':
-    resolution: {integrity: sha512-Nn2xh0teFnl71EiiUrKvECWcdGXtWF8q0uGclYwXGVw6QClGAcME0/bJSGdK+xIvd6MLEKYmjkTUvCBV+7m5Kw==}
+  '@rollup/rollup-openharmony-arm64@4.65.0':
+    resolution: {integrity: sha512-vo7N3/+cjjPDYr8vtxC+qSNgWa9sDvJ7g8N8R5SWqFY4WiNH1ULcAU70SKVyHeiIZOYYwNP9pTipmhN5sl1NPw==}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rollup/rollup-win32-arm64-msvc@4.64.12':
-    resolution: {integrity: sha512-n1/0H9TS+kBa4xp6n9aV7yiynBNfmerjkj2nAMIfY0ZHv1zShWRXnsAuAPAH0sfEK4ZSMK+z24q2RjAPFLCN1w==}
+  '@rollup/rollup-win32-arm64-msvc@4.65.0':
+    resolution: {integrity: sha512-ArwvgFAbjKcDM7qqotZ4OVYf+UMT9xH2YzkCzK4+AuZSDihMlz1Ekoe4INwBVXzn2mnJzuIYOcSx07iTBijGRQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.64.12':
-    resolution: {integrity: sha512-AdlDbQpsLfGlsHr1NfLZFtdnvxCKNp9TwlYVYExs8JJLWjLafUQEKJk0r9zUbmU57mw9nglMEvzqPHuLWYmaKw==}
+  '@rollup/rollup-win32-ia32-msvc@4.65.0':
+    resolution: {integrity: sha512-QGMmK4/cxKE/36FoLMSHQBCyymv/eFTnsCvvsBF0rgmOvVbvX78VWZRerL3dHa77f4pM6Xcc2iGDhJ10w/svKQ==}
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-gnu@4.64.12':
-    resolution: {integrity: sha512-u5SSUJBHod51UamjkigSr+JPre6xMy5vaWTTV2K0SnFG4RuKyYpf66dTSLFKX2cwaldpwyBurXPUCxq8riQMEg==}
+  '@rollup/rollup-win32-x64-gnu@4.65.0':
+    resolution: {integrity: sha512-XfKYFWHIPs4HPODIMsGF1IKlS3H1e3WokUZIgpmn4+uNnZBlnRDDHEylNyazbQXwhMKZre68OjtRYbKqb5+j8w==}
     cpu: [x64]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.64.12':
-    resolution: {integrity: sha512-j5rXD4R/4DM5+V991AA9xOnG2Rwu2g3p5TPgu1Eu7apju0NUrLl+Bn/KpWc6wYJtlXqzwz1r+LNV1JeBU4VGvw==}
+  '@rollup/rollup-win32-x64-msvc@4.65.0':
+    resolution: {integrity: sha512-wPWi++K4Bs1VR4XihOhfGi4IGX6Cub7FlerTf8X2v+2BtDHddgSqWCXwGD+h2yAe4/niIhNDwAltioOC+wEogQ==}
     cpu: [x64]
     os: [win32]
 
@@ -3629,9 +3642,6 @@ packages:
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
-
-  '@tauri-apps/api@2.12.1':
-    resolution: {integrity: sha512-DeyFHa3wynpyoqTDikDEDGTJIq4LQ5USfolQGRmGIWT6JMADyxZBTDa5cAdT3tDg73rUXufPaCwN7aXBos4OnQ==}
 
   '@tauri-apps/api@2.12.4':
     resolution: {integrity: sha512-pVmfis+4zT8H0Qhp3xPZx9Ju7kpzvA6rr/PSJPyuwfvucTQ8sVt61NYU9KMkK703UFlYadFmjKA4HhybOtN0gg==}
@@ -5137,8 +5147,8 @@ packages:
   detect-node@2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
 
-  devtools-protocol@0.0.1696802:
-    resolution: {integrity: sha512-FO5/SENfvc2K8wRnWQflKcwuoTH4dBkXCWTQ9ebIWtuX8JM5+ZvCotaEmkfh21pO7TvIKGTM3hG4xFiq9WTwmg==}
+  devtools-protocol@0.0.1704951:
+    resolution: {integrity: sha512-GQhQOs9u/Mvm1zMtJIH872JS4AskuZdUSsPNPk4ChahtWAUqgz6atEtIsMt+nO7MqF1Ic4HxII/k8Cu36JivNg==}
 
   devtools-protocol@0.0.1721602:
     resolution: {integrity: sha512-e+CRu+s/WFxe/RbRywkCdQDvmyCbM/JxvbyZMBxO3CDH1snKtpghcCzUJ69KUzG4QehmYyXBOtyCq1pNMScmyQ==}
@@ -5247,11 +5257,8 @@ packages:
   electron-publish@26.15.3:
     resolution: {integrity: sha512-g/2bn8YTavY4cuS5F+jOS7zmZbXXBV8KZ8yHKfJjFPoKtzBqrpCdNPxBd3tqdBwP7BVd0lGzf7Bk2s0KesWZ4Q==}
 
-  electron-to-chromium@1.5.444:
-    resolution: {integrity: sha512-5ss/uJfoDYDHT0lfJzT6FbcskIzROIOPf0BbbFkGcvDzoJU7i//9GDrwwIHQVmIsrAGiF3ihpADBRIsrEFt1rQ==}
-
-  electron-to-chromium@1.5.461:
-    resolution: {integrity: sha512-3WZFARz1By+/rYcqQ0OLj4UcEdhd6tz2LEcDtKBUq7ey77EeJ1OtetY/5hjSUxw7dC5r5mA7FfkhRbqO9vnTCg==}
+  electron-to-chromium@1.5.464:
+    resolution: {integrity: sha512-nRa65aFge40viPAKxMKULIY8tcXKwKboJWNn4RoKwyWXJ6SP7BnrDGKUTzc64818jIciH0PK7LSF8QzZes19GA==}
 
   electron-vite@6.0.0:
     resolution: {integrity: sha512-zafg2uizgll7jdx0BNDkkzO/SowsUBsiHqYN3v9Ieq7XPDHreRGZ4G9IRY/+RslgBktpLOjLM4jlP+IVpV0BGw==}
@@ -5272,8 +5279,8 @@ packages:
     resolution: {integrity: sha512-j9ETcBGJaXxAY/b6UBpR7LZfjdU4BAO+yvr4ifqHEdyuc3UNCy91PDGkWKY5UQ4coHNYfnwFggrqD6QPeFGAlg==}
     engines: {node: '>=8.0.0'}
 
-  electron@44.9.1:
-    resolution: {integrity: sha512-x/tECFFDa2OFNjMObFH0EGKWrCnFZPOR1wP2iMIVt0STecGl8FmDXdaiaryY0kf8mtw9kSLP2yK8dfdaWkfDmw==}
+  electron@44.9.3:
+    resolution: {integrity: sha512-Cv9/yMnZxNWsMlIe8T4v//NKHdUvbeyoTJoXE3BIcRxus2meeFaO9h/P3zB5d4cBXum51IgAYrT2QjpIDWKpJA==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -7250,8 +7257,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  puppeteer-core@25.15.0:
-    resolution: {integrity: sha512-DEk7S2tlBDp4+iXdnHjFmMofoqVftlz1JO4eyE+oBSiQIfIVTYq8hWF1EsjmRvD49chxGX3oKQT5hX2dnIIDdg==}
+  puppeteer-core@25.16.0:
+    resolution: {integrity: sha512-VA5Pf54N8shfopNkZZXCdiiwfnnY8ZJYAMqFQRhlH5mGUhfwf53Ar770GPtdpTDLUqvQeYpIBtC9/G2Jij2IJw==}
     engines: {node: '>=22.12.0'}
 
   pvtsutils@1.3.6:
@@ -7440,8 +7447,8 @@ packages:
       vite:
         optional: true
 
-  rollup@4.64.12:
-    resolution: {integrity: sha512-GhAu8ZglZ61VWSX/ZW3K/qkazgURBIQL0/Yy51QsS8DPyebR5Cf/Z2PANJFpTU0aVZ9byJcyqR6xvBbkXhdGYQ==}
+  rollup@4.65.0:
+    resolution: {integrity: sha512-QVCvQUTGDN6JRwi3jVGCY3H4aTHvi9rX0LyoBMkGUvdh/Z6O51CzcLz85BWZaTCDGhl6ySGqYZs+xI1jmPqGcw==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -8550,9 +8557,6 @@ packages:
     resolution: {integrity: sha512-dSvYKdvLsAHCDqPOhIwk/q5CvuWtTB3Dgpoe0uVEFjTzIOAmsQpprX25InCvrvJsirEbu1OHyy67n/kAj1Sw/w==}
     engines: {node: '>=18'}
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
-
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
@@ -8780,7 +8784,7 @@ snapshots:
 
   '@babel/helper-string-parser@7.29.7': {}
 
-  '@babel/helper-string-parser@8.0.6': {}
+  '@babel/helper-string-parser@8.0.8': {}
 
   '@babel/helper-validator-identifier@7.29.7': {}
 
@@ -8797,9 +8801,9 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.8
 
-  '@babel/parser@8.0.7':
+  '@babel/parser@8.0.8':
     dependencies:
-      '@babel/types': 8.0.6
+      '@babel/types': 8.0.8
 
   '@babel/plugin-transform-arrow-functions@7.29.7(@babel/core@7.29.7(supports-color@8.1.1))':
     dependencies:
@@ -8831,9 +8835,9 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@babel/types@8.0.6':
+  '@babel/types@8.0.8':
     dependencies:
-      '@babel/helper-string-parser': 8.0.6
+      '@babel/helper-string-parser': 8.0.8
       '@babel/helper-validator-identifier': 8.0.6
 
   '@bcoe/v8-coverage@1.0.2': {}
@@ -10274,6 +10278,13 @@ snapshots:
     optionalDependencies:
       yauzl: 3.4.0
 
+  '@puppeteer/browsers@3.2.6(yauzl@3.4.0)':
+    dependencies:
+      modern-tar: 0.8.6
+      yargs: 18.2.0
+    optionalDependencies:
+      yauzl: 3.4.0
+
   '@releasekit/notes@0.42.1(undici@8.12.3)(ws@8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))':
     dependencies:
       '@anthropic-ai/sdk': 1.1.0(zod@4.6.7)
@@ -10402,106 +10413,106 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@rollup/plugin-node-resolve@16.0.3(rollup@4.64.12)':
+  '@rollup/plugin-node-resolve@16.0.3(rollup@4.65.0)':
     dependencies:
-      '@rollup/pluginutils': 5.3.0(rollup@4.64.12)
+      '@rollup/pluginutils': 5.3.0(rollup@4.65.0)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-module: 1.0.0
       resolve: 1.22.12
     optionalDependencies:
-      rollup: 4.64.12
+      rollup: 4.65.0
 
-  '@rollup/plugin-typescript@12.3.0(rollup@4.64.12)(tslib@2.8.1)(typescript@6.0.3)':
+  '@rollup/plugin-typescript@12.3.1(rollup@4.65.0)(tslib@2.8.1)(typescript@6.0.3)':
     dependencies:
-      '@rollup/pluginutils': 5.3.0(rollup@4.64.12)
+      '@rollup/pluginutils': 5.3.0(rollup@4.65.0)
       resolve: 1.22.12
       typescript: 6.0.3
     optionalDependencies:
-      rollup: 4.64.12
+      rollup: 4.65.0
       tslib: 2.8.1
 
-  '@rollup/pluginutils@5.3.0(rollup@4.64.12)':
+  '@rollup/pluginutils@5.3.0(rollup@4.65.0)':
     dependencies:
       '@types/estree': 1.0.9
       estree-walker: 2.0.2
       picomatch: 4.0.7
     optionalDependencies:
-      rollup: 4.64.12
+      rollup: 4.65.0
 
-  '@rollup/rollup-android-arm-eabi@4.64.12':
+  '@rollup/rollup-android-arm-eabi@4.65.0':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.64.12':
+  '@rollup/rollup-android-arm64@4.65.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.64.12':
+  '@rollup/rollup-darwin-arm64@4.65.0':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.64.12':
+  '@rollup/rollup-darwin-x64@4.65.0':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.64.12':
+  '@rollup/rollup-freebsd-arm64@4.65.0':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.64.12':
+  '@rollup/rollup-freebsd-x64@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.64.12':
+  '@rollup/rollup-linux-arm-gnueabihf@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.64.12':
+  '@rollup/rollup-linux-arm-musleabihf@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.64.12':
+  '@rollup/rollup-linux-arm64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.64.12':
+  '@rollup/rollup-linux-arm64-musl@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-gnu@4.64.12':
+  '@rollup/rollup-linux-loong64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-musl@4.64.12':
+  '@rollup/rollup-linux-loong64-musl@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-gnu@4.64.12':
+  '@rollup/rollup-linux-ppc64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-musl@4.64.12':
+  '@rollup/rollup-linux-ppc64-musl@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.64.12':
+  '@rollup/rollup-linux-riscv64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-musl@4.64.12':
+  '@rollup/rollup-linux-riscv64-musl@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.64.12':
+  '@rollup/rollup-linux-s390x-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.64.12':
+  '@rollup/rollup-linux-x64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.64.12':
+  '@rollup/rollup-linux-x64-musl@4.65.0':
     optional: true
 
-  '@rollup/rollup-openbsd-x64@4.64.12':
+  '@rollup/rollup-openbsd-x64@4.65.0':
     optional: true
 
-  '@rollup/rollup-openharmony-arm64@4.64.12':
+  '@rollup/rollup-openharmony-arm64@4.65.0':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.64.12':
+  '@rollup/rollup-win32-arm64-msvc@4.65.0':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.64.12':
+  '@rollup/rollup-win32-ia32-msvc@4.65.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-gnu@4.64.12':
+  '@rollup/rollup-win32-x64-gnu@4.65.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.64.12':
+  '@rollup/rollup-win32-x64-msvc@4.65.0':
     optional: true
 
   '@sec-ant/readable-stream@0.4.1': {}
@@ -10545,8 +10556,6 @@ snapshots:
   '@szmarczak/http-timer@4.0.6':
     dependencies:
       defer-to-connect: 2.0.1
-
-  '@tauri-apps/api@2.12.1': {}
 
   '@tauri-apps/api@2.12.4': {}
 
@@ -10942,7 +10951,7 @@ snapshots:
 
   '@vscode/sudo-prompt@9.3.2': {}
 
-  '@wdio/appium-service@10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/appium-service@10.1.0(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/logger': 10.1.0
@@ -10953,7 +10962,7 @@ snapshots:
       change-case: 5.4.4
       get-port: 7.2.0
       tree-kill: 1.2.2
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       xpath: 0.0.35
     optionalDependencies:
       appium: 3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6)
@@ -10969,14 +10978,14 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@vitest/snapshot': 5.0.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
       '@wdio/protocols': 10.0.2
-      '@wdio/session': 10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       async-exit-hook: 2.0.1
@@ -10990,7 +10999,7 @@ snapshots:
       lodash.union: 4.6.0
       read-package-up: 12.0.0
       tsx: 4.23.15
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     transitivePeerDependencies:
       - '@types/node'
@@ -11009,14 +11018,14 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@vitest/snapshot': 5.0.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
       '@wdio/protocols': 10.0.2
-      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       async-exit-hook: 2.0.1
@@ -11030,7 +11039,7 @@ snapshots:
       lodash.union: 4.6.0
       read-package-up: 12.0.0
       tsx: 4.23.15
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     transitivePeerDependencies:
       - '@types/node'
@@ -11049,14 +11058,14 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/cli@10.1.0(@types/node@26.6.5)(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@vitest/snapshot': 5.0.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
       '@wdio/protocols': 10.0.2
-      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       async-exit-hook: 2.0.1
@@ -11070,7 +11079,7 @@ snapshots:
       lodash.union: 4.6.0
       read-package-up: 12.0.0
       tsx: 4.23.15
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     transitivePeerDependencies:
       - '@types/node'
@@ -11114,12 +11123,12 @@ snapshots:
       '@wdio/types': 10.1.0
       chalk: 6.0.1
 
-  '@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.1(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
+  '@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.3(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
     dependencies:
-      '@babel/parser': 8.0.7
+      '@babel/parser': 8.0.8
       '@electron/fuses': 2.1.3
       '@electron/packager': 20.3.0(supports-color@8.1.1)
-      '@wdio/globals': 9.31.3(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 9.31.3(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 9.29.1
       '@wdio/native-cdp-bridge': 1.3.1(bufferutil@4.1.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)
       '@wdio/native-core': 1.3.1(supports-color@8.1.1)(tsx@4.23.15)
@@ -11128,16 +11137,16 @@ snapshots:
       compare-versions: 6.1.1
       debug: 4.4.3(supports-color@8.1.1)
       deepmerge-ts: 8.0.2
-      electron-to-chromium: 1.5.461
+      electron-to-chromium: 1.5.464
       fast-copy: 4.2.0
       find-versions: 6.0.0
       get-port: 7.2.0
-      puppeteer-core: 25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      puppeteer-core: 25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       recast: 0.24.0
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yaml: 2.9.1
     optionalDependencies:
-      electron: 44.9.1(supports-color@8.1.1)
+      electron: 44.9.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - bufferutil
       - expect-webdriverio
@@ -11148,21 +11157,21 @@ snapshots:
       - yauzl
     optional: true
 
-  '@wdio/globals@10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/globals@10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
-  '@wdio/globals@9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/globals@9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
-      expect-webdriverio: 5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      expect-webdriverio: 5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     optional: true
 
-  '@wdio/globals@9.31.3(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/globals@9.31.3(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     optional: true
 
   '@wdio/image-comparison-core@2.1.0':
@@ -11173,25 +11182,25 @@ snapshots:
       pixelmatch: 7.2.0
     optional: true
 
-  '@wdio/image-comparison-core@3.0.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/image-comparison-core@3.0.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
       '@wdio/logger': 10.1.0
       '@wdio/types': 10.1.0
       fast-png: 8.0.0
       pixelmatch: 8.0.0
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
-  '@wdio/local-runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
+  '@wdio/local-runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@types/split2': 4.2.3
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
       '@wdio/repl': 10.0.0
-      '@wdio/runner': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+      '@wdio/runner': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       exit-hook: 5.1.0
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       split2: 4.2.0
       stream-buffers: 3.0.3
     transitivePeerDependencies:
@@ -11211,17 +11220,17 @@ snapshots:
       - webdriverio
       - yauzl
 
-  '@wdio/local-runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
+  '@wdio/local-runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@types/split2': 4.2.3
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
       '@wdio/repl': 10.0.0
-      '@wdio/runner': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+      '@wdio/runner': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       exit-hook: 5.1.0
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       split2: 4.2.0
       stream-buffers: 3.0.3
     transitivePeerDependencies:
@@ -11241,17 +11250,17 @@ snapshots:
       - webdriverio
       - yauzl
 
-  '@wdio/local-runner@10.1.0(c1e4fe451ed73fb7fc7497e5f0d53a4d)':
+  '@wdio/local-runner@10.1.0(e7e69e48332a1a49c6efc048adba222c)':
     dependencies:
       '@types/node': 22.20.5
       '@types/split2': 4.2.3
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
       '@wdio/repl': 10.0.0
-      '@wdio/runner': 10.1.0(96132f9e94d03b4199fa7191175ba78a)
+      '@wdio/runner': 10.1.0(b01d9344e0e19c6b4a8b490cadbd89c9)
       '@wdio/types': 10.1.0
       exit-hook: 5.1.0
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       split2: 4.2.0
       stream-buffers: 3.0.3
     transitivePeerDependencies:
@@ -11356,20 +11365,20 @@ snapshots:
       diff: 9.0.0
       object-inspect: 1.13.4
 
-  '@wdio/runner@10.1.0(96132f9e94d03b4199fa7191175ba78a)':
+  '@wdio/runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/dot-reporter': 10.1.0
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
-      '@wdio/session': 10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.1(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       deepmerge-ts: 8.0.2
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       webdriver: 10.1.0(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - '@wdio/electron-service'
       - '@wdio/visual-service'
@@ -11386,20 +11395,20 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
+  '@wdio/runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/dot-reporter': 10.1.0
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
-      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       deepmerge-ts: 8.0.2
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       webdriver: 10.1.0(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - '@wdio/electron-service'
       - '@wdio/visual-service'
@@ -11416,20 +11425,20 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/runner@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)':
+  '@wdio/runner@10.1.0(b01d9344e0e19c6b4a8b490cadbd89c9)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/dot-reporter': 10.1.0
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
-      '@wdio/session': 10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/session': 10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.3(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       deepmerge-ts: 8.0.2
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       webdriver: 10.1.0(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - '@wdio/electron-service'
       - '@wdio/visual-service'
@@ -11446,13 +11455,13 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/session@10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.1(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/session@10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(electron@44.9.3(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
-      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       acorn: 8.18.0
@@ -11460,13 +11469,13 @@ snapshots:
       image-size: 2.0.4
       picomatch: 4.0.7
       semver: 7.8.5
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     optionalDependencies:
-      '@wdio/electron-service': 10.4.1(bufferutil@4.1.0)(electron@44.9.1(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
-      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/electron-service': 10.4.1(bufferutil@4.1.0)(electron@44.9.3(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       appium: 3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6)
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       tsx: 4.23.15
     transitivePeerDependencies:
       - bare-abort-controller
@@ -11480,13 +11489,13 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/session@10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/session@10.1.0(@wdio/electron-service@10.4.1(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0))(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
-      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       acorn: 8.18.0
@@ -11494,13 +11503,13 @@ snapshots:
       image-size: 2.0.4
       picomatch: 4.0.7
       semver: 7.8.5
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     optionalDependencies:
-      '@wdio/electron-service': 10.4.1(bufferutil@4.1.0)(electron@44.9.1(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
-      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/electron-service': 10.4.1(bufferutil@4.1.0)(electron@44.9.3(supports-color@8.1.1))(expect-webdriverio@8.0.0)(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))(yauzl@3.4.0)
+      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       appium: 3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6)
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       tsx: 4.23.15
     transitivePeerDependencies:
       - bare-abort-controller
@@ -11514,13 +11523,13 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/session@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/session@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
-      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       acorn: 8.18.0
@@ -11528,13 +11537,13 @@ snapshots:
       image-size: 2.0.4
       picomatch: 4.0.7
       semver: 7.8.5
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     optionalDependencies:
       '@wdio/electron-service': link:packages/electron-service
-      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/visual-service': 10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       appium: 3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6)
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       tsx: 4.23.15
     transitivePeerDependencies:
       - bare-abort-controller
@@ -11548,13 +11557,13 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/session@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/session@10.1.0(@wdio/electron-service@packages+electron-service)(@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)))(appium@3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(expect-webdriverio@8.0.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(tsx@4.23.15)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@types/node': 22.20.5
       '@wdio/config': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       '@wdio/display-server': 10.1.0
       '@wdio/logger': 10.1.0
-      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      '@wdio/snapshot': 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       '@wdio/types': 10.1.0
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
       acorn: 8.18.0
@@ -11562,13 +11571,13 @@ snapshots:
       image-size: 2.0.4
       picomatch: 4.0.7
       semver: 7.8.5
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
       yargs: 18.2.0
     optionalDependencies:
       '@wdio/electron-service': link:packages/electron-service
-      '@wdio/visual-service': 11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/visual-service': 11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       appium: 3.8.0(@types/node@26.6.5)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(utf-8-validate@6.0.6)
-      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       tsx: 4.23.15
     transitivePeerDependencies:
       - bare-abort-controller
@@ -11582,10 +11591,10 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  '@wdio/snapshot@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
+  '@wdio/snapshot@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)':
     dependencies:
       '@wdio/utils': 10.1.0(supports-color@8.1.1)(yauzl@3.4.0)
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -11625,7 +11634,7 @@ snapshots:
       decamelize: 6.0.1
       deepmerge-ts: 8.0.2
       edgedriver: 8.0.0(@wdio/logger@10.1.0)
-      electron-to-chromium: 1.5.461
+      electron-to-chromium: 1.5.464
       geckodriver: 8.0.0(@wdio/logger@10.1.0)
       get-port: 7.2.0
       import-meta-resolve: 4.2.0
@@ -11639,24 +11648,24 @@ snapshots:
       - supports-color
       - yauzl
 
-  '@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/visual-service@10.1.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
-      '@wdio/globals': 9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/image-comparison-core': 2.1.0
       '@wdio/logger': 9.29.1
       '@wdio/types': 9.31.2
-      expect-webdriverio: 5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      expect-webdriverio: 5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
     transitivePeerDependencies:
       - webdriverio
     optional: true
 
-  '@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
+  '@wdio/visual-service@11.0.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))':
     dependencies:
-      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
-      '@wdio/image-comparison-core': 3.0.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 10.1.0(expect-webdriverio@8.0.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/image-comparison-core': 3.0.0(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 10.1.0
       '@wdio/types': 10.1.0
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - expect-webdriverio
 
@@ -12372,7 +12381,7 @@ snapshots:
     dependencies:
       baseline-browser-mapping: 2.10.19
       caniuse-lite: 1.0.30001788
-      electron-to-chromium: 1.5.444
+      electron-to-chromium: 1.5.464
       node-releases: 2.0.37
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
@@ -12543,11 +12552,11 @@ snapshots:
 
   chrome-trace-event@1.0.4: {}
 
-  chromium-bidi@157.0.8090-0(devtools-protocol@0.0.1696802):
+  chromium-bidi@157.0.8090-0(devtools-protocol@0.0.1704951):
     dependencies:
-      devtools-protocol: 0.0.1696802
+      devtools-protocol: 0.0.1704951
       mitt: 3.0.1
-      zod: 4.6.5
+      zod: 4.6.7
 
   chromium-pickle-js@0.2.0: {}
 
@@ -12852,7 +12861,7 @@ snapshots:
   detect-node@2.1.0:
     optional: true
 
-  devtools-protocol@0.0.1696802: {}
+  devtools-protocol@0.0.1704951: {}
 
   devtools-protocol@0.0.1721602: {}
 
@@ -13019,9 +13028,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron-to-chromium@1.5.444: {}
-
-  electron-to-chromium@1.5.461: {}
+  electron-to-chromium@1.5.464: {}
 
   electron-vite@6.0.0(supports-color@8.1.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)):
     dependencies:
@@ -13061,7 +13068,7 @@ snapshots:
       - supports-color
     optional: true
 
-  electron@44.9.1(supports-color@8.1.1):
+  electron@44.9.3(supports-color@8.1.1):
     dependencies:
       '@electron-internal/extract-zip': 1.0.5
       '@electron/get': 5.1.0(supports-color@8.1.1)
@@ -13324,24 +13331,24 @@ snapshots:
 
   expect-type@1.4.0: {}
 
-  expect-webdriverio@5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)):
+  expect-webdriverio@5.7.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)):
     dependencies:
       '@vitest/snapshot': 4.1.11
-      '@wdio/globals': 9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
+      '@wdio/globals': 9.31.3(expect-webdriverio@5.7.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0))
       '@wdio/logger': 9.29.1
       deep-eql: 5.0.2
       expect: 30.5.2
       jest-matcher-utils: 30.5.2
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     optional: true
 
-  expect-webdriverio@8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)):
+  expect-webdriverio@8.0.0(@wdio/types@10.1.0)(webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)):
     dependencies:
       '@vitest/snapshot': 5.0.5
       '@wdio/types': 10.1.0
       expect: 30.5.2
       jest-matcher-utils: 30.5.2
-      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      webdriverio: 10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
 
   expect@30.5.2:
     dependencies:
@@ -15131,11 +15138,11 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0):
+  puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0):
     dependencies:
-      '@puppeteer/browsers': 3.2.5(yauzl@3.4.0)
-      chromium-bidi: 157.0.8090-0(devtools-protocol@0.0.1696802)
-      devtools-protocol: 0.0.1696802
+      '@puppeteer/browsers': 3.2.6(yauzl@3.4.0)
+      chromium-bidi: 157.0.8090-0(devtools-protocol@0.0.1704951)
+      devtools-protocol: 0.0.1704951
       typed-query-selector: 2.12.3
       webdriver-bidi-protocol: 1.0.1
       ws: 8.22.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -15357,41 +15364,41 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.2.12
       '@rolldown/binding-win32-x64-msvc': 1.2.12
 
-  rollup-plugin-node-externals@9.0.1(rollup@4.64.12)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)):
+  rollup-plugin-node-externals@9.0.1(rollup@4.65.0)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)):
     optionalDependencies:
-      rollup: 4.64.12
+      rollup: 4.65.0
       vite: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
 
-  rollup@4.64.12:
+  rollup@4.65.0:
     dependencies:
       '@types/estree': 1.0.9
     optionalDependencies:
       '@napi-rs/lzma-linux-x64-gnu': 1.5.1
-      '@rollup/rollup-android-arm-eabi': 4.64.12
-      '@rollup/rollup-android-arm64': 4.64.12
-      '@rollup/rollup-darwin-arm64': 4.64.12
-      '@rollup/rollup-darwin-x64': 4.64.12
-      '@rollup/rollup-freebsd-arm64': 4.64.12
-      '@rollup/rollup-freebsd-x64': 4.64.12
-      '@rollup/rollup-linux-arm-gnueabihf': 4.64.12
-      '@rollup/rollup-linux-arm-musleabihf': 4.64.12
-      '@rollup/rollup-linux-arm64-gnu': 4.64.12
-      '@rollup/rollup-linux-arm64-musl': 4.64.12
-      '@rollup/rollup-linux-loong64-gnu': 4.64.12
-      '@rollup/rollup-linux-loong64-musl': 4.64.12
-      '@rollup/rollup-linux-ppc64-gnu': 4.64.12
-      '@rollup/rollup-linux-ppc64-musl': 4.64.12
-      '@rollup/rollup-linux-riscv64-gnu': 4.64.12
-      '@rollup/rollup-linux-riscv64-musl': 4.64.12
-      '@rollup/rollup-linux-s390x-gnu': 4.64.12
-      '@rollup/rollup-linux-x64-gnu': 4.64.12
-      '@rollup/rollup-linux-x64-musl': 4.64.12
-      '@rollup/rollup-openbsd-x64': 4.64.12
-      '@rollup/rollup-openharmony-arm64': 4.64.12
-      '@rollup/rollup-win32-arm64-msvc': 4.64.12
-      '@rollup/rollup-win32-ia32-msvc': 4.64.12
-      '@rollup/rollup-win32-x64-gnu': 4.64.12
-      '@rollup/rollup-win32-x64-msvc': 4.64.12
+      '@rollup/rollup-android-arm-eabi': 4.65.0
+      '@rollup/rollup-android-arm64': 4.65.0
+      '@rollup/rollup-darwin-arm64': 4.65.0
+      '@rollup/rollup-darwin-x64': 4.65.0
+      '@rollup/rollup-freebsd-arm64': 4.65.0
+      '@rollup/rollup-freebsd-x64': 4.65.0
+      '@rollup/rollup-linux-arm-gnueabihf': 4.65.0
+      '@rollup/rollup-linux-arm-musleabihf': 4.65.0
+      '@rollup/rollup-linux-arm64-gnu': 4.65.0
+      '@rollup/rollup-linux-arm64-musl': 4.65.0
+      '@rollup/rollup-linux-loong64-gnu': 4.65.0
+      '@rollup/rollup-linux-loong64-musl': 4.65.0
+      '@rollup/rollup-linux-ppc64-gnu': 4.65.0
+      '@rollup/rollup-linux-ppc64-musl': 4.65.0
+      '@rollup/rollup-linux-riscv64-gnu': 4.65.0
+      '@rollup/rollup-linux-riscv64-musl': 4.65.0
+      '@rollup/rollup-linux-s390x-gnu': 4.65.0
+      '@rollup/rollup-linux-x64-gnu': 4.65.0
+      '@rollup/rollup-linux-x64-musl': 4.65.0
+      '@rollup/rollup-openbsd-x64': 4.65.0
+      '@rollup/rollup-openharmony-arm64': 4.65.0
+      '@rollup/rollup-win32-arm64-msvc': 4.65.0
+      '@rollup/rollup-win32-ia32-msvc': 4.65.0
+      '@rollup/rollup-win32-x64-gnu': 4.65.0
+      '@rollup/rollup-win32-x64-msvc': 4.65.0
       fsevents: 2.3.3
 
   router@2.2.0(supports-color@8.1.1):
@@ -16318,7 +16325,7 @@ snapshots:
       - utf-8-validate
       - yauzl
 
-  webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0):
+  webdriverio@10.1.0(bufferutil@4.1.0)(puppeteer-core@25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0))(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0):
     dependencies:
       '@types/node': 22.20.5
       '@types/sinonjs__fake-timers': 15.0.1
@@ -16344,7 +16351,7 @@ snapshots:
       urlpattern-polyfill: 10.1.0
       webdriver: 10.1.0(bufferutil@4.1.0)(supports-color@8.1.1)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     optionalDependencies:
-      puppeteer-core: 25.15.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
+      puppeteer-core: 25.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yauzl@3.4.0)
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -16596,7 +16603,5 @@ snapshots:
       compress-commons: 7.0.1
       normalize-path: 3.0.0
       readable-stream: 4.7.0
-
-  zod@4.6.5: {}
 
   zod@4.6.7: {}
