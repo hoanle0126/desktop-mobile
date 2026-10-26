@@ -57,13 +57,17 @@
   },
   "peerDependencies": {
     "@wdio/logger": "^9.0.0 || ^10.0.0",
-    "tsx": "^4.22.4"
+    "tsx": "^4.22.4",
+    "webdriverio": "^9.0.0 || ^10.0.0"
   },
   "peerDependenciesMeta": {
     "@wdio/logger": {
       "optional": true
     },
     "tsx": {
+      "optional": true
+    },
+    "webdriverio": {
       "optional": true
     }
   },
@@ -78,7 +82,8 @@
     "shx": "^0.4.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "webdriverio": "catalog:default"
   },
   "files": [
     "dist",

@@ -14,7 +14,7 @@ vi.mock('../src/diagnostics.js', () => ({
 }));
 
 vi.mock('@wdio/native-utils', async (importOriginal) => ({
-  errorMessage: (await importOriginal<typeof import('@wdio/native-utils')>()).errorMessage,
+  ...(await importOriginal<typeof import('@wdio/native-utils')>()),
   createLogger: () => ({ info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn() }),
   formatDiagnosticResults: vi.fn(),
   isErr: (r: { ok: boolean }) => r.ok === false,

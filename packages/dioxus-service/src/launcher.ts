@@ -9,7 +9,7 @@ import {
   probeDevServerReachable,
   startManagedDevServer,
 } from '@wdio/native-core';
-import { createLogger, errorMessage, isErr } from '@wdio/native-utils';
+import { createLogger, errorMessage, isErr, severeServiceError } from '@wdio/native-utils';
 import type { Options } from '@wdio/types';
 import { SevereServiceError } from 'webdriverio';
 
@@ -111,7 +111,7 @@ export default class DioxusLaunchService extends BaseLauncher {
           // Unmanaged: preflight the user-started server before workers navigate to it.
           const reachable = await probeDevServerReachable(devServerUrl);
           if (isErr(reachable)) {
-            throw new SevereServiceError(reachable.error.message);
+            throw severeServiceError('', reachable.error);
           }
         }
         this.#browserMode = true;
@@ -130,9 +130,7 @@ export default class DioxusLaunchService extends BaseLauncher {
         // Guard the teardown so a stop() rejection can't mask the original onPrepare failure.
         await this.#stopDevServer?.().catch(() => {});
         this.#stopDevServer = undefined;
-        throw error instanceof SevereServiceError
-          ? error
-          : new SevereServiceError(`Failed to start dev server: ${errorMessage(error)}`);
+        throw error instanceof SevereServiceError ? error : severeServiceError('Failed to start dev server', error);
       }
       log.info('Browser mode enabled — skipping driver/binary setup');
       return;
@@ -205,7 +203,7 @@ export default class DioxusLaunchService extends BaseLauncher {
         await this.stopAllEmbedded();
         throw error instanceof SevereServiceError
           ? error
-          : new SevereServiceError(`Failed to start embedded WebDriver for instance ${i}: ${errorMessage(error)}`);
+          : severeServiceError(`Failed to start embedded WebDriver for instance ${i}`, error);
       }
     }
   }
@@ -248,9 +246,7 @@ export default class DioxusLaunchService extends BaseLauncher {
         await this.stopAllEmbedded();
         throw error instanceof SevereServiceError
           ? error
-          : new SevereServiceError(
-              `Failed to start embedded WebDriver for multiremote instance "${key}": ${errorMessage(error)}`,
-            );
+          : severeServiceError(`Failed to start embedded WebDriver for multiremote instance "${key}"`, error);
       }
     }
   }

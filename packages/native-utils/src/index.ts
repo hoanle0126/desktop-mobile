@@ -41,6 +41,7 @@ export {
   PROCESS_TEARDOWN_TIMEOUT_MS,
   runBounded,
   safeDeleteSession,
+  severeServiceError,
 } from './teardown.js';
 export { getWebKitWebDriverInstallCommand, WEBKIT_WEBDRIVER_INSTALL_HINT } from './webkitWebDriver.js';
 export { waitUntilWindowAvailable } from './window.js';

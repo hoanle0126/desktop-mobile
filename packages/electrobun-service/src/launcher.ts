@@ -8,7 +8,7 @@ import {
   probeDevServerReachable,
   startManagedDevServer,
 } from '@wdio/native-core';
-import { createLogger, errorMessage, isErr } from '@wdio/native-utils';
+import { createLogger, errorMessage, isErr, severeServiceError } from '@wdio/native-utils';
 import type { Options } from '@wdio/types';
 
 import { CUSTOM_CAPABILITY_NAME, DEFAULT_DEBUG_PORT_BASE, SERVICE_NAME } from './constants.js';
@@ -156,7 +156,7 @@ export default class ElectrobunLaunchService extends BaseLauncher {
           // Unmanaged: preflight the user-started server before workers navigate to it.
           const reachable = await probeDevServerReachable(devServerUrl);
           if (isErr(reachable)) {
-            throw new SevereServiceError(reachable.error.message);
+            throw severeServiceError('', reachable.error);
           }
         }
         for (const cap of capsList) {
@@ -173,9 +173,7 @@ export default class ElectrobunLaunchService extends BaseLauncher {
         // Guard the teardown so a stop() rejection can't mask the original onPrepare failure.
         await this.#stopDevServer?.().catch(() => {});
         this.#stopDevServer = undefined;
-        throw error instanceof SevereServiceError
-          ? error
-          : new SevereServiceError(`Failed to start dev server: ${errorMessage(error)}`);
+        throw error instanceof SevereServiceError ? error : severeServiceError('Failed to start dev server', error);
       }
       this.browserMode = true;
       log.info('Browser mode enabled — skipping Electrobun binary/CDP setup');

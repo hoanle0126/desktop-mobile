@@ -11,7 +11,7 @@ import {
   probeDevServerReachable,
   startManagedDevServer,
 } from '@wdio/native-core';
-import { createLogger, errorMessage, formatDiagnosticResults, isErr } from '@wdio/native-utils';
+import { createLogger, errorMessage, formatDiagnosticResults, isErr, severeServiceError } from '@wdio/native-utils';
 import type { Options } from '@wdio/types';
 import { SevereServiceError } from 'webdriverio';
 import { resolveAppBinaryPath } from './appBinaryResolver.js';
@@ -28,7 +28,6 @@ import {
   startEmbeddedDriver,
   stopEmbeddedDriver,
 } from './embeddedProvider.js';
-import { severeServiceError } from './errors.js';
 import { mergeServiceOptions } from './serviceConfig.js';
 import type { DriverProvider, TauriCapabilities, TauriServiceGlobalOptions, TauriServiceOptions } from './types.js';
 
@@ -195,7 +194,7 @@ export default class TauriLaunchService {
           // Unmanaged: preflight the user-started server before workers navigate to it.
           const reachable = await probeDevServerReachable(devServerUrl);
           if (isErr(reachable)) {
-            throw new SevereServiceError(reachable.error.message);
+            throw severeServiceError('', reachable.error);
           }
         }
         this.browserMode = true;
@@ -214,9 +213,7 @@ export default class TauriLaunchService {
         // Guard the teardown so a stop() rejection can't mask the original onPrepare failure.
         await this.#stopDevServer?.().catch(() => {});
         this.#stopDevServer = undefined;
-        throw error instanceof SevereServiceError
-          ? error
-          : new SevereServiceError(`Failed to start dev server: ${errorMessage(error)}`);
+        throw error instanceof SevereServiceError ? error : severeServiceError('Failed to start dev server', error);
       }
       log.info('Browser mode enabled — skipping driver/binary setup');
       return;
@@ -599,7 +596,7 @@ export default class TauriLaunchService {
           log.info(`tauri-driver listening on ${hostname}:${port}`);
         } catch (error) {
           log.error(`Failed to start tauri-driver: ${error}`);
-          throw new SevereServiceError(`Failed to start tauri-driver: ${errorMessage(error)}`);
+          throw severeServiceError('Failed to start tauri-driver', error);
         }
 
         // Update the capabilities object with hostname and port so WDIO connects to tauri-driver

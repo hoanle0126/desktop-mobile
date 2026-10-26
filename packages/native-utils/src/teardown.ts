@@ -8,6 +8,7 @@
  */
 
 import type { Logger } from '@wdio/logger';
+import { SevereServiceError } from 'webdriverio';
 
 export const DEFAULT_TEARDOWN_TIMEOUT_MS = 10_000;
 
@@ -35,6 +36,20 @@ export function errorMessage(error: unknown): string {
   // Protocol/CDP layers often reject with a plain `{ message }` object.
   const message = (error as { message?: unknown } | null | undefined)?.message;
   return typeof message === 'string' ? message : String(error);
+}
+
+/**
+ * Create a `SevereServiceError` whose `cause` property is preserved.
+ * `SevereServiceError` does not forward `ErrorOptions` to `Error`, so wrapping
+ * another error's message with `new SevereServiceError(...)` would otherwise
+ * drop the `cause` chain.
+ */
+export function severeServiceError(message: string, cause: unknown): Error {
+  const detail = errorMessage(cause);
+  const error = new SevereServiceError(message ? `${message}: ${detail}` : detail);
+  // SevereServiceError does not forward ErrorOptions to Error.
+  Object.defineProperty(error, 'cause', { value: cause, configurable: true, writable: true });
+  return error;
 }
 
 export function isBenignTeardownError(error: unknown): boolean {
