@@ -184,7 +184,6 @@ export function createTauriCapabilities(
     appArgs?: string[];
     tauriDriverPort?: number;
     logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error';
-    commandTimeout?: number;
     startTimeout?: number;
     driverProvider?: 'external' | 'crabnebula' | 'embedded';
     autoInstallTauriDriver?: boolean;
@@ -200,7 +199,6 @@ export function createTauriCapabilities(
       appArgs: options.appArgs || [],
       tauriDriverPort: options.tauriDriverPort,
       logLevel: options.logLevel,
-      commandTimeout: options.commandTimeout,
       startTimeout: options.startTimeout,
       driverProvider: options.driverProvider,
       autoInstallTauriDriver: options.autoInstallTauriDriver,
