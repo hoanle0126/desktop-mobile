@@ -82,6 +82,11 @@ export interface TauriServiceGlobalOptions extends BaseTauriServiceGlobalOptions
    * (also honoured via `EDGEDRIVER_VERSION`). Windows-only. See {@link TauriServiceOptions.edgeDriverVersion}.
    */
   edgeDriverVersion?: string;
+  /**
+   * Log directory for standalone mode. A capability-level value takes precedence.
+   * See {@link TauriServiceOptions.logDir}.
+   */
+  logDir?: string;
 }
 
 /**

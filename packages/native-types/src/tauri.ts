@@ -341,11 +341,6 @@ export interface TauriServiceOptions extends BaseServiceOptions, DriverProviderC
    * @default 'main'
    */
   windowLabel?: string;
-  /**
-   * Log directory for standalone mode.
-   * Full path where log files should be written.
-   */
-  logDir?: string;
 }
 
 /**
@@ -379,12 +374,8 @@ export interface TauriServiceGlobalOptions extends BaseServiceGlobalOptions, Dri
    * @default 'main'
    */
   windowLabel?: string;
-  /** Timeout for command execution in ms. A capability-level value takes precedence. */
-  commandTimeout?: number;
   /** Timeout for app startup in ms. A capability-level value takes precedence. */
   startTimeout?: number;
-  /** Log directory for standalone mode. A capability-level value takes precedence. */
-  logDir?: string;
 }
 
 /**
