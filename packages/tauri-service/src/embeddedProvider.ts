@@ -5,6 +5,7 @@ import { createLogger } from '@wdio/native-utils';
 import { throwIfAborted } from './errors.js';
 import { createLogCapture } from './logCapture.js';
 import { signalAndWaitForExit } from './processExit.js';
+import { resolveStartTimeout } from './serviceConfig.js';
 import type { TauriServiceOptions } from './types.js';
 
 const log = createLogger('tauri-service', 'launcher');
@@ -95,7 +96,7 @@ export async function startEmbeddedDriver(
   const logHandlers: ReadlineInterface[] = [];
   const startup = new AbortController();
 
-  const startTimeout = options.startTimeout || 60000;
+  const startTimeout = resolveStartTimeout(options);
   const timer = setTimeout(
     () =>
       startup.abort(

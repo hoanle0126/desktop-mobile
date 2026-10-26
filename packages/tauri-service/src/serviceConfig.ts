@@ -17,3 +17,12 @@ export function mergeServiceOptions(
     frontendLogLevel: merged.frontendLogLevel ?? 'info',
   };
 }
+
+const DRIVER_START_TIMEOUT = 30_000;
+const EMBEDDED_START_TIMEOUT = 60_000;
+
+// Takes merged options. An unset driverProvider means embedded.
+export function resolveStartTimeout(options: TauriServiceOptions): number {
+  const embedded = (options.driverProvider ?? 'embedded') === 'embedded';
+  return options.startTimeout || (embedded ? EMBEDDED_START_TIMEOUT : DRIVER_START_TIMEOUT);
+}

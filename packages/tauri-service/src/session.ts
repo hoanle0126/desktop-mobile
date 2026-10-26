@@ -5,7 +5,7 @@ import { boundedOnComplete, createLogger, errorMessage, failStartup, safeDeleteS
 import { remote } from 'webdriverio';
 import TauriLaunchService from './launcher.js';
 import TauriWorkerService from './service.js';
-import { mergeServiceOptions } from './serviceConfig.js';
+import { mergeServiceOptions, resolveStartTimeout } from './serviceConfig.js';
 import type { TauriCapabilities, TauriServiceGlobalOptions } from './types.js';
 
 const log = createLogger('tauri-service', 'service');
@@ -122,11 +122,9 @@ export async function init(
     log.debug('Tauri service capabilities after onPrepare:', JSON.stringify(capabilities, null, 2));
 
     // Browser mode has no Tauri driver: WebdriverIO starts and manages chromedriver itself.
-    // The 30s fallback is the external and CrabNebula connection budget. Embedded readiness
-    // uses its own 60s fallback in the embedded provider.
     const remoteOptions = launcher.isBrowserMode
       ? { capabilities: browserSessionCapabilities(capabilities) }
-      : await driverRemoteOptions(capabilities, serviceOptions.startTimeout || 30000);
+      : await driverRemoteOptions(capabilities, resolveStartTimeout(serviceOptions));
 
     const service = new TauriWorkerService(globalOptions ?? {}, capabilities);
 

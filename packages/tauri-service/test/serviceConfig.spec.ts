@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeServiceOptions } from '../src/serviceConfig.js';
+import { mergeServiceOptions, resolveStartTimeout } from '../src/serviceConfig.js';
 
 describe('mergeServiceOptions', () => {
   it('should let capability options override global options', () => {
@@ -32,5 +32,26 @@ describe('mergeServiceOptions', () => {
       backendLogLevel: 'info',
       frontendLogLevel: 'info',
     });
+  });
+});
+
+describe('resolveStartTimeout', () => {
+  it('should use the embedded default when no provider is set', () => {
+    expect(resolveStartTimeout({})).toBe(60000);
+  });
+
+  it('should use the embedded default for the embedded provider', () => {
+    expect(resolveStartTimeout({ driverProvider: 'embedded' })).toBe(60000);
+  });
+
+  it.each(['external', 'crabnebula'] as const)(
+    'should use the driver default for the %s provider',
+    (driverProvider) => {
+      expect(resolveStartTimeout({ driverProvider })).toBe(30000);
+    },
+  );
+
+  it('should prefer an explicit startTimeout over the provider default', () => {
+    expect(resolveStartTimeout({ driverProvider: 'external', startTimeout: 45000 })).toBe(45000);
   });
 });

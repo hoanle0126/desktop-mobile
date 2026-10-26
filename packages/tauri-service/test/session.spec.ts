@@ -399,7 +399,7 @@ describe('session', () => {
       expect(remoteCall.connectionRetryCount).toBe(10);
     });
 
-    it('should use default startTimeout of 30000 when not specified', async () => {
+    it('should use the embedded startTimeout of 60000 when no provider or timeout is set', async () => {
       mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
         caps.port = 4444;
       });
@@ -412,7 +412,40 @@ describe('session', () => {
       const remoteCall = mockRemote.mock.calls[0][0] as {
         connectionRetryTimeout: number;
       };
-      expect(remoteCall.connectionRetryTimeout).toBe(120000);
+      expect(remoteCall.connectionRetryTimeout).toBe(240000);
+    });
+
+    it('should keep the 60000 startTimeout for createTauriCapabilities without a provider', async () => {
+      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
+        caps.port = 4444;
+      });
+
+      await init(createTauriCapabilities('/app'));
+
+      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(240000);
+    });
+
+    it.each(['external', 'crabnebula'] as const)(
+      'should use the driver startTimeout of 30000 for the %s provider',
+      async (driverProvider) => {
+        mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
+          caps.port = 4444;
+        });
+
+        await init(createTauriCapabilities('/app', { driverProvider }));
+
+        expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(120000);
+      },
+    );
+
+    it('should pick the startTimeout default from a global driverProvider', async () => {
+      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
+        caps.port = 4444;
+      });
+
+      await init(createTauriCapabilities('/app'), { driverProvider: 'external' });
+
+      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(120000);
     });
 
     it('should call service.before with the browser', async () => {
