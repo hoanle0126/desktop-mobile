@@ -399,7 +399,7 @@ describe('session', () => {
       expect(remoteCall.connectionRetryCount).toBe(10);
     });
 
-    it('should use default startTimeout of 60000 when not specified', async () => {
+    it('should use default startTimeout of 30000 when not specified', async () => {
       mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
         caps.port = 4444;
       });
@@ -412,7 +412,7 @@ describe('session', () => {
       const remoteCall = mockRemote.mock.calls[0][0] as {
         connectionRetryTimeout: number;
       };
-      expect(remoteCall.connectionRetryTimeout).toBe(240000);
+      expect(remoteCall.connectionRetryTimeout).toBe(120000);
     });
 
     it('should call service.before with the browser', async () => {
