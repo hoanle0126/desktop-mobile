@@ -14,6 +14,7 @@ export function mergeServiceOptions(
     captureBackendLogs: merged.captureBackendLogs ?? false,
     captureFrontendLogs: merged.captureFrontendLogs ?? false,
     commandTimeout: merged.commandTimeout ?? 30000,
+    logLevel: merged.logLevel ?? 'info',
     backendLogLevel: merged.backendLogLevel ?? 'info',
     frontendLogLevel: merged.frontendLogLevel ?? 'info',
   };

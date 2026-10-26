@@ -25,16 +25,25 @@ describe('mergeServiceOptions', () => {
     expect(mergeServiceOptions({}, undefined).driverProvider).toBeUndefined();
   });
 
-  it('should default commandTimeout when neither side sets it', () => {
-    expect(mergeServiceOptions().commandTimeout).toBe(30000);
+  it('should default commandTimeout and logLevel when neither side sets them', () => {
+    expect(mergeServiceOptions()).toMatchObject({ commandTimeout: 30000, logLevel: 'info' });
   });
 
   it('should let a global commandTimeout win over the default', () => {
     expect(mergeServiceOptions({ commandTimeout: 5000 }).commandTimeout).toBe(5000);
   });
 
-  it('should let a capability commandTimeout win over the global value', () => {
-    expect(mergeServiceOptions({ commandTimeout: 5000 }, { commandTimeout: 10000 }).commandTimeout).toBe(10000);
+  it('should let a capability commandTimeout and logLevel win over the global values', () => {
+    const merged = mergeServiceOptions(
+      { commandTimeout: 5000, logLevel: 'debug' },
+      { commandTimeout: 10000, logLevel: 'error' },
+    );
+
+    expect(merged).toMatchObject({ commandTimeout: 10000, logLevel: 'error' });
+  });
+
+  it('should keep a global logLevel when the capability leaves it unset', () => {
+    expect(mergeServiceOptions({ logLevel: 'debug' }, { logLevel: undefined }).logLevel).toBe('debug');
   });
 
   it('should default the log capture options', () => {
