@@ -134,22 +134,22 @@ describe('session', () => {
           appBinaryPath: '/path/to/app',
           appArgs: [],
           tauriDriverPort: undefined,
-          logLevel: 'info',
-          commandTimeout: 30000,
-          startTimeout: 60000,
+          logLevel: undefined,
+          commandTimeout: undefined,
+          startTimeout: undefined,
           driverProvider: undefined,
           autoInstallTauriDriver: undefined,
         },
       });
     });
 
-    it('should use default values for optional fields', () => {
+    it('should leave optional fields undefined so global options are not overridden', () => {
       const caps = createTauriCapabilities('/app');
       const serviceOpts = caps['wdio:tauriServiceOptions'];
 
-      expect(serviceOpts?.logLevel).toBe('info');
-      expect(serviceOpts?.commandTimeout).toBe(30000);
-      expect(serviceOpts?.startTimeout).toBe(60000);
+      expect(serviceOpts?.logLevel).toBeUndefined();
+      expect(serviceOpts?.commandTimeout).toBeUndefined();
+      expect(serviceOpts?.startTimeout).toBeUndefined();
       expect(serviceOpts?.appArgs).toEqual([]);
     });
 
@@ -399,7 +399,7 @@ describe('session', () => {
       expect(remoteCall.connectionRetryCount).toBe(10);
     });
 
-    it('should use default startTimeout of 30000 when not specified', async () => {
+    it('should use default startTimeout of 60000 when not specified', async () => {
       mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
         caps.port = 4444;
       });
@@ -412,7 +412,7 @@ describe('session', () => {
       const remoteCall = mockRemote.mock.calls[0][0] as {
         connectionRetryTimeout: number;
       };
-      expect(remoteCall.connectionRetryTimeout).toBe(120000);
+      expect(remoteCall.connectionRetryTimeout).toBe(240000);
     });
 
     it('should call service.before with the browser', async () => {
@@ -595,6 +595,65 @@ describe('session', () => {
         'wdio:tauriServiceOptions': { appBinaryPath: '/app' },
       });
       expect(mockRemote.mock.calls[0][0]).toMatchObject({ hostname: '127.0.0.1', port: 4444 });
+    });
+
+    it('should honour startTimeout from the global options', async () => {
+      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
+        caps.port = 4444;
+      });
+
+      await init(createTauriCapabilities('/app'), { startTimeout: 15000 });
+
+      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(60000);
+    });
+
+    it('should let a capability startTimeout override the global startTimeout', async () => {
+      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
+        caps.port = 4444;
+      });
+
+      await init(createTauriCapabilities('/app', { startTimeout: 20000 }), { startTimeout: 15000 });
+
+      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(80000);
+    });
+
+    it('should honour the log options from the global options', async () => {
+      await expect(
+        init(createTauriCapabilities('/app'), {
+          captureBackendLogs: true,
+          logDir: '/tmp/global-logs',
+        }),
+      ).rejects.toMatchObject({ message: expect.stringContaining('Tauri driver port was not set') });
+
+      expect(mockLogWriterInitialize).toHaveBeenCalledWith('/tmp/global-logs');
+    });
+
+    it('should honour captureFrontendLogs from the global options combined with a capability logDir', async () => {
+      await expect(
+        init(
+          {
+            'tauri:options': { application: '/app' },
+            'wdio:tauriServiceOptions': { logDir: '/tmp/cap-logs' },
+          } as unknown as TauriCapabilities,
+          { captureFrontendLogs: true },
+        ),
+      ).rejects.toMatchObject({ message: expect.stringContaining('Tauri driver port was not set') });
+
+      expect(mockLogWriterInitialize).toHaveBeenCalledWith('/tmp/cap-logs');
+    });
+
+    it('should let capability log options override the global log options', async () => {
+      await expect(
+        init(
+          {
+            'tauri:options': { application: '/app' },
+            'wdio:tauriServiceOptions': { captureBackendLogs: false, logDir: '/tmp/cap-logs' },
+          } as unknown as TauriCapabilities,
+          { captureBackendLogs: true, logDir: '/tmp/global-logs' },
+        ),
+      ).rejects.toMatchObject({ message: expect.stringContaining('Tauri driver port was not set') });
+
+      expect(mockLogWriterInitialize).not.toHaveBeenCalled();
     });
   });
 

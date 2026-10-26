@@ -24,6 +24,7 @@ import {
   startEmbeddedDriver,
   stopEmbeddedDriver,
 } from './providers/embedded.js';
+import { mergeOptions } from './serviceConfig.js';
 import type { DioxusCapabilities, DioxusServiceGlobalOptions, DioxusServiceOptions } from './types.js';
 
 const log = createLogger('dioxus-service', 'launcher');
@@ -299,22 +300,4 @@ function applyWindowLabel(cap: DioxusCapabilities, instanceOptions: DioxusServic
     return;
   }
   cap['wdio:dioxusServiceOptions'] = { ...cap['wdio:dioxusServiceOptions'], windowLabel: instanceOptions.windowLabel };
-}
-
-// Capability options win over global options unless they are undefined.
-function mergeOptions(
-  globalOptions: DioxusServiceGlobalOptions,
-  capabilityOptions?: DioxusServiceOptions,
-): DioxusServiceOptions {
-  const definedCapabilityOptions = Object.fromEntries(
-    Object.entries(capabilityOptions ?? {}).filter(([, value]) => value !== undefined),
-  ) as DioxusServiceOptions;
-  const merged: DioxusServiceOptions = { ...globalOptions, ...definedCapabilityOptions };
-  return {
-    ...merged,
-    captureBackendLogs: merged.captureBackendLogs ?? false,
-    captureFrontendLogs: merged.captureFrontendLogs ?? false,
-    backendLogLevel: merged.backendLogLevel ?? 'info',
-    frontendLogLevel: merged.frontendLogLevel ?? 'info',
-  };
 }

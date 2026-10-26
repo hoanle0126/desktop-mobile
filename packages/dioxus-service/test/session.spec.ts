@@ -32,7 +32,7 @@ vi.mock('webdriverio', () => ({
   remote: (...args: unknown[]) => remoteMock(...args),
 }));
 
-import { cleanup, init } from '../src/session.js';
+import { cleanup, createDioxusCapabilities, init } from '../src/session.js';
 import type { DioxusCapabilities } from '../src/types.js';
 
 function makeBrowser(): WebdriverIO.Browser {
@@ -66,6 +66,54 @@ describe('session', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe('createDioxusCapabilities', () => {
+    it('should create capabilities with only appBinaryPath and leave optional fields undefined', () => {
+      const caps = createDioxusCapabilities('/app/dioxus-app');
+
+      expect(caps).toEqual({
+        browserName: 'dioxus',
+        'dioxus:options': {
+          application: '/app/dioxus-app',
+          args: [],
+        },
+        'wdio:dioxusServiceOptions': {
+          appBinaryPath: '/app/dioxus-app',
+          appArgs: [],
+          driverProvider: undefined,
+          embeddedPort: undefined,
+          captureBackendLogs: undefined,
+          captureFrontendLogs: undefined,
+        },
+      });
+    });
+
+    it('should set custom options when provided', () => {
+      const caps = createDioxusCapabilities('/app/dioxus-app', {
+        appArgs: ['--dev'],
+        driverProvider: 'embedded',
+        embeddedPort: 4447,
+        captureBackendLogs: true,
+        captureFrontendLogs: true,
+      });
+
+      expect(caps).toEqual({
+        browserName: 'dioxus',
+        'dioxus:options': {
+          application: '/app/dioxus-app',
+          args: ['--dev'],
+        },
+        'wdio:dioxusServiceOptions': {
+          appBinaryPath: '/app/dioxus-app',
+          appArgs: ['--dev'],
+          driverProvider: 'embedded',
+          embeddedPort: 4447,
+          captureBackendLogs: true,
+          captureFrontendLogs: true,
+        },
+      });
+    });
   });
 
   describe('init', () => {
@@ -120,6 +168,23 @@ describe('session', () => {
 
       expect(caps).toEqual(makeCaps());
       expect(remoteMock.mock.calls[0][0]).toMatchObject({ hostname: 'localhost', port: 4445 });
+    });
+
+    it('should honour startTimeout from the global options, even when the capability leaves it undefined', async () => {
+      const caps = { ...createDioxusCapabilities('/app/dioxus-app'), port: 9515, hostname: '127.0.0.1' };
+
+      await init(caps, { startTimeout: 15_000 });
+
+      expect(remoteMock.mock.calls[0][0].connectionRetryTimeout).toBe(60_000);
+    });
+
+    it('should let a capability startTimeout override the global startTimeout', async () => {
+      const caps = makeCaps();
+      caps['wdio:dioxusServiceOptions'] = { ...caps['wdio:dioxusServiceOptions'], startTimeout: 20_000 };
+
+      await init(caps, { startTimeout: 15_000 });
+
+      expect(remoteMock.mock.calls[0][0].connectionRetryTimeout).toBe(80_000);
     });
 
     it('should stop the launcher when remote() fails', async () => {

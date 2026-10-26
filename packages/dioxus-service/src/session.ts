@@ -9,6 +9,7 @@ import type { Options } from '@wdio/types';
 import { remote } from 'webdriverio';
 import DioxusLaunchService from './launcher.js';
 import DioxusWorkerService from './service.js';
+import { mergeOptions } from './serviceConfig.js';
 import type { DioxusCapabilities, DioxusDriverProvider, DioxusServiceGlobalOptions } from './types.js';
 
 const log = createLogger('dioxus-service', 'session');
@@ -78,7 +79,8 @@ export async function init(
   log.debug('Initializing Dioxus service in standalone mode…');
 
   const capabilities = copyCapabilities(callerCapabilities);
-  const startTimeout = capabilities['wdio:dioxusServiceOptions']?.startTimeout ?? 60_000;
+  const startTimeout =
+    mergeOptions(globalOptions ?? {}, capabilities['wdio:dioxusServiceOptions']).startTimeout ?? 60_000;
   const testRunnerOpts = { capabilities: [] } as unknown as Options.Testrunner;
   const launcher = new DioxusLaunchService(globalOptions ?? {}, capabilities, testRunnerOpts);
 
@@ -166,10 +168,10 @@ export function createDioxusCapabilities(
     'wdio:dioxusServiceOptions': {
       appBinaryPath,
       appArgs: options.appArgs ?? [],
-      driverProvider: options.driverProvider ?? 'embedded',
+      driverProvider: options.driverProvider,
       embeddedPort: options.embeddedPort,
-      captureBackendLogs: options.captureBackendLogs ?? false,
-      captureFrontendLogs: options.captureFrontendLogs ?? false,
+      captureBackendLogs: options.captureBackendLogs,
+      captureFrontendLogs: options.captureFrontendLogs,
     },
   };
 }
