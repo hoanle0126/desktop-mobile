@@ -96,12 +96,6 @@ export async function init(
 
   const capabilities = copyCapabilities(callerCapabilities);
   const serviceOptions = mergeServiceOptions(globalOptions ?? {}, capabilities['wdio:tauriServiceOptions']);
-  // The helper leaves these unset so a global value can win. The session capability carries the resolved value.
-  capabilities['wdio:tauriServiceOptions'] = {
-    ...capabilities['wdio:tauriServiceOptions'],
-    logLevel: serviceOptions.logLevel,
-    commandTimeout: serviceOptions.commandTimeout,
-  };
   if (serviceOptions.captureBackendLogs || serviceOptions.captureFrontendLogs) {
     if (serviceOptions.mode === 'browser') {
       log.warn('Log capture is unavailable in browser mode: there is no Tauri app process to capture logs from');

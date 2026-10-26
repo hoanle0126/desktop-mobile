@@ -300,17 +300,10 @@ describe('session', () => {
 
       await expect(init(capabilities, { rootDir: '/my/project' })).rejects.toThrow('Tauri driver port was not set');
 
-      expect(TauriLaunchService).toHaveBeenCalledWith(
-        { rootDir: '/my/project' },
-        {
-          'tauri:options': { application: '/app' },
-          'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
-        },
-        {
-          rootDir: '/my/project',
-          capabilities: [],
-        },
-      );
+      expect(TauriLaunchService).toHaveBeenCalledWith({ rootDir: '/my/project' }, capabilities, {
+        rootDir: '/my/project',
+        capabilities: [],
+      });
     });
 
     it('should create launcher with empty global options when not provided', async () => {
@@ -320,14 +313,7 @@ describe('session', () => {
 
       await expect(init(capabilities)).rejects.toThrow('Tauri driver port was not set');
 
-      expect(TauriLaunchService).toHaveBeenCalledWith(
-        {},
-        {
-          'tauri:options': { application: '/app' },
-          'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
-        },
-        { capabilities: [] },
-      );
+      expect(TauriLaunchService).toHaveBeenCalledWith({}, capabilities, { capabilities: [] });
     });
 
     it('should call onPrepare and onWorkerStart in order', async () => {
@@ -440,15 +426,7 @@ describe('session', () => {
 
       const browser = await init(capabilities);
 
-      expect(mockBefore).toHaveBeenCalledWith(
-        {
-          ...capabilities,
-          port: 4444,
-          'wdio:tauriServiceOptions': { appBinaryPath: '/app', logLevel: 'info', commandTimeout: 30000 },
-        },
-        [],
-        browser,
-      );
+      expect(mockBefore).toHaveBeenCalledWith({ ...capabilities, port: 4444 }, [], browser);
     });
 
     it('should return the browser instance', async () => {
@@ -545,14 +523,7 @@ describe('session', () => {
 
       await init(capabilities);
 
-      expect(TauriWorkerService).toHaveBeenCalledWith(
-        {},
-        {
-          ...capabilities,
-          port: 4444,
-          'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
-        },
-      );
+      expect(TauriWorkerService).toHaveBeenCalledWith({}, { ...capabilities, port: 4444 });
     });
 
     it('should pass the global options to TauriWorkerService', async () => {
@@ -567,11 +538,7 @@ describe('session', () => {
 
       await init(capabilities, globalOptions);
 
-      expect(TauriWorkerService).toHaveBeenCalledWith(globalOptions, {
-        ...capabilities,
-        port: 4444,
-        'wdio:tauriServiceOptions': { windowLabel: 'settings', logLevel: 'info', commandTimeout: 30000 },
-      });
+      expect(TauriWorkerService).toHaveBeenCalledWith(globalOptions, { ...capabilities, port: 4444 });
     });
 
     it('should keep a global driverProvider that createTauriCapabilities leaves undefined', async () => {
@@ -628,50 +595,6 @@ describe('session', () => {
         'wdio:tauriServiceOptions': { appBinaryPath: '/app' },
       });
       expect(mockRemote.mock.calls[0][0]).toMatchObject({ hostname: '127.0.0.1', port: 4444 });
-    });
-
-    it('should put the default logLevel and commandTimeout on the session capability', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-      const caps = createTauriCapabilities('/app');
-
-      await init(caps);
-
-      expect(caps['wdio:tauriServiceOptions']).toMatchObject({ logLevel: undefined, commandTimeout: undefined });
-      expect(mockRemote.mock.calls[0][0].capabilities['wdio:tauriServiceOptions']).toMatchObject({
-        logLevel: 'info',
-        commandTimeout: 30000,
-      });
-    });
-
-    it('should honour logLevel and commandTimeout from the global options', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app'), { logLevel: 'debug', commandTimeout: 5000 });
-
-      expect(mockRemote.mock.calls[0][0].capabilities['wdio:tauriServiceOptions']).toMatchObject({
-        logLevel: 'debug',
-        commandTimeout: 5000,
-      });
-    });
-
-    it('should let a capability logLevel and commandTimeout override the global values', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app', { logLevel: 'error', commandTimeout: 10000 }), {
-        logLevel: 'debug',
-        commandTimeout: 5000,
-      });
-
-      expect(mockRemote.mock.calls[0][0].capabilities['wdio:tauriServiceOptions']).toMatchObject({
-        logLevel: 'error',
-        commandTimeout: 10000,
-      });
     });
 
     it('should honour startTimeout from the global options', async () => {
@@ -756,7 +679,7 @@ describe('session', () => {
 
     const chromeSessionCapabilities = {
       browserName: 'chrome',
-      'wdio:tauriServiceOptions': { mode: 'browser', devServerUrl, logLevel: 'info', commandTimeout: 30000 },
+      'wdio:tauriServiceOptions': { mode: 'browser', devServerUrl },
     };
 
     it('should open the session through WebdriverIO without a driver port', async () => {
@@ -770,27 +693,16 @@ describe('session', () => {
     it('should open a browser-mode session when mode comes from the global options', async () => {
       await init({} as TauriCapabilities, { mode: 'browser', devServerUrl });
 
-      expect(mockRemote).toHaveBeenCalledWith({
-        capabilities: {
-          browserName: 'chrome',
-          'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
-        },
-      });
+      expect(mockRemote).toHaveBeenCalledWith({ capabilities: { browserName: 'chrome' } });
       expect(TauriWorkerService).toHaveBeenCalledWith(expect.objectContaining({ mode: 'browser' }), {
         browserName: 'chrome',
-        'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
       });
     });
 
     it("should follow the launcher's browser-mode decision", async () => {
       await init({ 'tauri:options': { application: '/app' } } as unknown as TauriCapabilities);
 
-      expect(mockRemote).toHaveBeenCalledWith({
-        capabilities: {
-          browserName: 'chrome',
-          'wdio:tauriServiceOptions': { logLevel: 'info', commandTimeout: 30000 },
-        },
-      });
+      expect(mockRemote).toHaveBeenCalledWith({ capabilities: { browserName: 'chrome' } });
     });
 
     it("should leave the caller's capabilities untouched by the launcher's browser-mode rewrite", async () => {
