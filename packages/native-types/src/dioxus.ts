@@ -157,7 +157,7 @@ export interface DioxusServiceGlobalOptions extends BaseServiceGlobalOptions, Dr
   windowLabel?: string;
   captureBackendLogs?: boolean;
   captureFrontendLogs?: boolean;
-  /** Overall app startup budget in ms (default 60000). A capability-level value takes precedence. */
+  /** Timeout for app startup in ms. A capability-level value takes precedence. */
   startTimeout?: number;
 }
 
