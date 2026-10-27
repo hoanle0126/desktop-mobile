@@ -326,20 +326,7 @@ export const config = {
 };
 ```
 
-**Solution 2: Increase Start Timeout**
-
-```typescript
-services: [
-  [
-    '@wdio/tauri-service',
-    {
-      startTimeout: 60000, // Allow more time for app to start
-    },
-  ],
-];
-```
-
-**Solution 3: Wait for App to Be Ready**
+**Solution 2: Wait for App to Be Ready**
 
 ```typescript
 it('should wait for app', async () => {
@@ -352,7 +339,7 @@ it('should wait for app', async () => {
 });
 ```
 
-**Solution 4: Check App Logs**
+**Solution 3: Check App Logs**
 
 Enable logging to see what's happening:
 

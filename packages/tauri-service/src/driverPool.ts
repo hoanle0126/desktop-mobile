@@ -10,7 +10,7 @@ import { DriverPool as CoreDriverPool, type DriverInfo } from '@wdio/native-core
 import { isErr } from '@wdio/native-utils';
 
 import { ensureTauriDriver } from './driverManager.js';
-import { forwardDriverLine } from './logForwarder.js';
+import { forwardDriverStreamLine } from './logForwarder.js';
 import { getWebKitWebDriverPath } from './pathResolver.js';
 import type { TauriServiceOptions } from './types.js';
 
@@ -67,7 +67,7 @@ export class DriverPool {
       startupMarkers: TAURI_STARTUP_MARKERS,
       errorMarkers: TAURI_ERROR_MARKERS,
       onLogLine: (line, inst) => {
-        forwardDriverLine(line, inst, serviceOptions);
+        forwardDriverStreamLine(line, inst, serviceOptions);
       },
     });
   }

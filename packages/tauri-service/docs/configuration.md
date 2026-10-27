@@ -128,11 +128,9 @@ tauriDriverPath: 'C:\\tools\\tauri-driver.exe'; // Windows
 
 ### `logLevel` ('trace' | 'debug' | 'info' | 'warn' | 'error', optional)
 
-Log level for tauri-driver output.
+Minimum level of `tauri-driver` output to print. It filters what the driver already writes and doesn't make `tauri-driver` log more. Lines without a level count as `info`. The `logLevel` in your WebdriverIO config must also allow the level.
 
-`tauri-driver` accepts only its port options and exits if it is given anything else, so this does not pass a log flag. Instead, the service prints the lines it recognises as driver output, down to this level. Lines without a level count as `info`.
-
-Embedded mode does not run `tauri-driver`, so `logLevel` has no effect there. App logs in that mode use `backendLogLevel`.
+The embedded provider doesn't run `tauri-driver`, so `logLevel` has no effect there. For app logs, set `captureBackendLogs` and `backendLogLevel`.
 
 **Example:**
 ```typescript
@@ -165,12 +163,16 @@ windowLabel: 'settings'; // Target the settings window by default
 
 Timeout in milliseconds for the Tauri app to start and become ready.
 
+In the test runner, `startTimeout` applies to the `'embedded'` provider only, where it bounds the wait for the embedded WebDriver server. With the `'external'` and `'crabnebula'` providers, the app starts when WebdriverIO creates the session, so app startup is bounded by WebdriverIO's `connectionRetryTimeout` instead (`tauri-driver` itself gets a fixed 30s to start).
+
+In standalone `init()`, `startTimeout` applies to every provider and sets `connectionRetryTimeout` to four times `startTimeout`.
+
 **Example:**
 ```typescript
 startTimeout: 60000; // 60 seconds
 ```
 
-**Default:** `30000` for the `'external'` and `'crabnebula'` providers, `60000` for the `'embedded'` provider (the embedded WebDriver server takes longer to come up, especially on Windows CI).
+**Default:** `30000` for the `'external'` and `'crabnebula'` providers (in standalone `init()`), `60000` for the `'embedded'` provider (the embedded WebDriver server takes longer to come up, especially on Windows CI).
 
 ---
 

@@ -147,7 +147,7 @@ function emitDriverOutput(line: string, minLevel: LogLevel): void {
   loggerMethod(line.trim());
 }
 
-export function forwardDriverLine(
+export function forwardDriverStreamLine(
   line: string,
   instanceId: string | undefined,
   options: {

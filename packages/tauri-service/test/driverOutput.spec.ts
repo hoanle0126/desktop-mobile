@@ -17,7 +17,7 @@ vi.mock('@wdio/native-utils', async (importOriginal) => {
   };
 });
 
-import { forwardDriverLine } from '../src/logForwarder.js';
+import { forwardDriverStreamLine } from '../src/logForwarder.js';
 
 const infoLine = 'tauri-driver listening on 127.0.0.1:4444';
 const debugLine = 'DEBUG tauri-driver variable dump';
@@ -32,26 +32,26 @@ describe('tauri-driver output', () => {
   });
 
   it('should print info driver lines at the default level and hide debug lines', () => {
-    forwardDriverLine(infoLine, undefined, {});
-    forwardDriverLine(debugLine, undefined, {});
+    forwardDriverStreamLine(infoLine, undefined, {});
+    forwardDriverStreamLine(debugLine, undefined, {});
     expect(driverLog.info).toHaveBeenCalledWith(infoLine);
     expect(driverLog.debug).not.toHaveBeenCalled();
   });
 
   it('should print debug driver lines when the level is debug', () => {
-    forwardDriverLine(debugLine, undefined, { logLevel: 'debug' });
+    forwardDriverStreamLine(debugLine, undefined, { logLevel: 'debug' });
     expect(driverLog.debug).toHaveBeenCalledWith(debugLine);
   });
 
   it('should print only error driver lines when the level is error', () => {
-    forwardDriverLine(infoLine, undefined, { logLevel: 'error' });
-    forwardDriverLine(errorLine, undefined, { logLevel: 'error' });
+    forwardDriverStreamLine(infoLine, undefined, { logLevel: 'error' });
+    forwardDriverStreamLine(errorLine, undefined, { logLevel: 'error' });
     expect(driverLog.info).not.toHaveBeenCalled();
     expect(driverLog.error).toHaveBeenCalledWith(errorLine);
   });
 
   it('should leave app logs out of the driver logger', () => {
-    forwardDriverLine('INFO app started', undefined, { logLevel: 'trace' });
+    forwardDriverStreamLine('INFO app started', undefined, { logLevel: 'trace' });
     expect(driverLog.info).not.toHaveBeenCalled();
     expect(driverLog.debug).not.toHaveBeenCalled();
   });

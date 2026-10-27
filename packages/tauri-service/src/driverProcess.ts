@@ -11,7 +11,7 @@
 
 import { DriverProcess as CoreDriverProcess, type DriverProcessInfo } from '@wdio/native-core';
 
-import { forwardDriverLine } from './logForwarder.js';
+import { forwardDriverStreamLine } from './logForwarder.js';
 import type { TauriServiceOptions } from './types.js';
 
 export type { DriverProcessInfo };
@@ -72,7 +72,7 @@ export class DriverProcess {
       startupMarkers: TAURI_STARTUP_MARKERS,
       errorMarkers: TAURI_ERROR_MARKERS,
       onLogLine: (line, inst) => {
-        forwardDriverLine(line, inst, serviceOptions);
+        forwardDriverStreamLine(line, inst, serviceOptions);
       },
     });
   }
