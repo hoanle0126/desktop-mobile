@@ -350,7 +350,8 @@ services: [
     {
       captureBackendLogs: true,
       captureFrontendLogs: true,
-      logLevel: 'debug',
+      backendLogLevel: 'debug',
+      frontendLogLevel: 'debug',
     },
   ],
 ];
@@ -501,18 +502,16 @@ export const config = {
 
 ### Enable Debug Logging
 
-Get more detailed information about what the service is doing:
+Get more detailed information about what the service is doing by setting WebdriverIO's `logLevel`:
 
 ```typescript
-services: [
-  [
-    '@wdio/tauri-service',
-    {
-      logLevel: 'debug', // Verbose logging
-    },
-  ],
-];
+export const config = {
+  logLevel: 'debug',
+  // ...
+};
 ```
+
+The service's own `logLevel` option only filters `tauri-driver` output.
 
 ### Verbose Test Output
 
