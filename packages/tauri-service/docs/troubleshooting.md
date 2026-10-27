@@ -511,13 +511,13 @@ export const config = {
 };
 ```
 
-The service's own `logLevel` option only filters `tauri-driver` output.
-
-### Verbose Test Output
+Or pass it on the command line:
 
 ```bash
 npx wdio run wdio.conf.ts --logLevel debug
 ```
+
+The service's own `logLevel` option only filters `tauri-driver` output.
 
 ### Check Service Status
 
