@@ -25,6 +25,14 @@
  *   - .github/workflows/: core-infra list → all; meta list → none;
  *     actions/** → all; service token in filename → that service; else → unknown
  *   - scripts/: service token in filename → that service; else → all (cross-service tooling)
+ *   - package.json, when the base copy can be read: release/lint devDependencies
+ *     (@releasekit/*, @biomejs/*, eslint*, @typescript-eslint/*) → none; other devDependencies
+ *     (vitest, typescript, turbo…) → shared (build + unit, no service E2E); any non-devDependencies
+ *     change (scripts, dependencies, pnpm, engines, packageManager…) → all
+ *   - e2e/package.json, when the base copy can be read: each changed dependency maps to the
+ *     service(s) whose E2E configs/tests use it; shared runner deps or non-dependency fields → all
+ *   - pnpm-workspace.yaml, when the base copy can be read: changed catalog entries classify by the
+ *     workspace package.json files that reference `catalog:` for them; non-catalog changes → all
  *   - pnpm-lock.yaml, when the base copy can be read: a changed importer is classified like its
  *     package.json; an edited package or snapshot, or a catalog or other top-level change → all;
  *     a package or snapshot that was only added or removed → none
@@ -256,16 +264,493 @@ function serviceForToken(filename: string, services: string[]): string | undefin
 
 const LOCKFILE_ENTRY_SECTIONS = new Set(['importers', 'packages', 'snapshots']);
 
+// Root devDependencies that only feed release automation or the unconditional lint job.
+const ROOT_INERT_DEV_DEP_PREFIXES = ['@releasekit/', '@biomejs/', 'eslint', '@typescript-eslint/'];
+
+const DIFF_MANIFEST_FILES = ['package.json', 'e2e/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml'] as const;
+type DiffManifestFile = (typeof DIFF_MANIFEST_FILES)[number];
+
+export interface ManifestPair {
+  base: string;
+  head: string;
+}
+
 interface ParsedLockfile {
   entries: Record<'importers' | 'packages' | 'snapshots', Map<string, string>>;
   other: Map<string, string>;
 }
 
-interface LockfileEffect {
+interface ManifestEffect {
   all: boolean;
   unknown: boolean;
+  rootShared: boolean;
   services: Set<string>;
   sharedDirs: string[];
+}
+
+function emptyEffect(): ManifestEffect {
+  return { all: false, unknown: false, rootShared: false, services: new Set(), sharedDirs: [] };
+}
+
+function stripCodeComments(text: string): string {
+  return text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hasWordMatch(text: string, token: string): boolean {
+  return new RegExp(`(?<![a-z0-9-@/])${escapeRegex(token)}(?![a-z0-9-])`, 'i').test(text);
+}
+
+function e2eCandidateTokens(dep: string): string[] {
+  const tokens = [dep.toLowerCase()];
+  const wdioSvc = dep.match(/^@wdio\/(.+)-service$/);
+  if (wdioSvc) {
+    tokens.push(wdioSvc[1].toLowerCase());
+  }
+  const scoped = dep.match(/^@([^/]+)\/(.+)$/);
+  if (scoped && !['wdio', 'types', 'vitest'].includes(scoped[1])) {
+    tokens.push(scoped[1].toLowerCase(), scoped[2].toLowerCase());
+  }
+  if (dep.startsWith('appium-')) {
+    tokens.push('appium');
+  }
+  return tokens;
+}
+
+/**
+ * Map each dependency (and family token) in `e2e/` → the services whose E2E configs or specs
+ * reference it. Derived by scanning `e2e/**` with `classifyFile`: per-service configs and test
+ * directories map to their service, while shared E2E helpers and `e2e/package.json` scripts map
+ * to all services.
+ */
+export function buildE2eDependencyServices(repoRoot: string, services: string[]): Record<string, string[]> {
+  const e2eDir = path.join(repoRoot, 'e2e');
+  if (!fs.existsSync(e2eDir)) {
+    return {};
+  }
+  const serviceTexts: Record<string, string[]> = Object.fromEntries(services.map((svc) => [svc, []]));
+  const sharedTexts: string[] = [];
+
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === 'logs') {
+        continue;
+      }
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (/\.(ts|js|mjs)$/.test(entry.name)) {
+        const relPath = path.relative(repoRoot, fullPath).split(path.sep).join('/');
+        const verdict = classifyFile(relPath, services);
+        const text = stripCodeComments(fs.readFileSync(fullPath, 'utf8'));
+        if (services.includes(verdict)) {
+          serviceTexts[verdict].push(text);
+        } else {
+          sharedTexts.push(text);
+        }
+      }
+    }
+  };
+  walk(e2eDir);
+
+  const e2ePkgPath = path.join(e2eDir, 'package.json');
+  const depNames = new Set<string>();
+  if (fs.existsSync(e2ePkgPath)) {
+    try {
+      const e2ePkg = JSON.parse(fs.readFileSync(e2ePkgPath, 'utf8')) as {
+        scripts?: Record<string, string>;
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      sharedTexts.push(JSON.stringify(e2ePkg.scripts ?? {}));
+      for (const dep of Object.keys({ ...e2ePkg.dependencies, ...e2ePkg.devDependencies })) {
+        depNames.add(dep);
+      }
+    } catch {
+      // Ignore malformed e2e/package.json here; classifyE2ePackageJson handles parse errors.
+    }
+  }
+
+  const joinedServiceText: Record<string, string> = Object.fromEntries(
+    services.map((svc) => [svc, serviceTexts[svc].join('\n').toLowerCase()]),
+  );
+  const joinedSharedText = sharedTexts.join('\n').toLowerCase();
+  const allServices = [...services].sort();
+
+  const resolveForDep = (dep: string): string[] => {
+    const directSvc = serviceForToken(dep, services);
+    if (directSvc) {
+      return [directSvc];
+    }
+    if (dep.startsWith('@wdio/native-') || dep === '@wdio/bundler' || hasWordMatch(joinedSharedText, dep)) {
+      return allServices;
+    }
+    const tokens = e2eCandidateTokens(dep);
+    const matched = services.filter((svc) => tokens.some((tok) => hasWordMatch(joinedServiceText[svc], tok))).sort();
+    return matched.length > 0 ? matched : allServices;
+  };
+
+  const result: Record<string, string[]> = {};
+  for (const dep of depNames) {
+    result[dep] = resolveForDep(dep);
+    for (const token of e2eCandidateTokens(dep)) {
+      if (!result[token]) {
+        result[token] = resolveForDep(token);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Map each dependency name referenced via `catalog:` in workspace `package.json` files → the
+ * relative `package.json` paths that consume it.
+ */
+export function buildCatalogConsumers(repoRoot: string): Record<string, string[]> {
+  const pkgFiles: string[] = ['package.json', 'e2e/package.json'];
+  for (const group of ['packages', 'examples', 'fixtures/e2e-apps', 'fixtures/package-tests']) {
+    const groupDir = path.join(repoRoot, group);
+    if (!fs.existsSync(groupDir)) {
+      continue;
+    }
+    for (const entry of fs.readdirSync(groupDir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        pkgFiles.push(`${group}/${entry.name}/package.json`);
+      }
+    }
+  }
+
+  const consumers: Record<string, string[]> = {};
+  for (const relPath of pkgFiles) {
+    const fullPath = path.join(repoRoot, relPath);
+    if (!fs.existsSync(fullPath)) {
+      continue;
+    }
+    let pkg: {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      peerDependencies?: Record<string, string>;
+      optionalDependencies?: Record<string, string>;
+    };
+    try {
+      pkg = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+    } catch {
+      continue;
+    }
+    const deps = {
+      ...pkg.dependencies,
+      ...pkg.devDependencies,
+      ...pkg.peerDependencies,
+      ...pkg.optionalDependencies,
+    };
+    for (const [dep, spec] of Object.entries(deps)) {
+      if (typeof spec === 'string' && spec.startsWith('catalog:')) {
+        if (!consumers[dep]) {
+          consumers[dep] = [];
+        }
+        if (!consumers[dep].includes(relPath)) {
+          consumers[dep].push(relPath);
+        }
+      }
+    }
+  }
+  for (const dep of Object.keys(consumers)) {
+    consumers[dep].sort();
+  }
+  return consumers;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isInertRootDevDep(dep: string): boolean {
+  return ROOT_INERT_DEV_DEP_PREFIXES.some((prefix) => dep.startsWith(prefix));
+}
+
+function classifyRootDevDep(dep: string, effect: ManifestEffect): void {
+  if (!isInertRootDevDep(dep)) {
+    effect.rootShared = true;
+  }
+}
+
+function servicesForE2eDep(dep: string, services: string[], e2eDeps: Record<string, string[]>): string[] {
+  const fromMap = e2eDeps[dep];
+  if (fromMap && fromMap.length > 0) {
+    return fromMap;
+  }
+  const directSvc = serviceForToken(dep, services);
+  if (directSvc) {
+    return [directSvc];
+  }
+  for (const token of e2eCandidateTokens(dep)) {
+    const tokenSvcs = e2eDeps[token];
+    if (tokenSvcs && tokenSvcs.length > 0) {
+      return tokenSvcs;
+    }
+  }
+  return services;
+}
+
+function classifyE2eDep(
+  dep: string,
+  services: string[],
+  e2eDeps: Record<string, string[]>,
+  effect: ManifestEffect,
+): void {
+  const matched = servicesForE2eDep(dep, services, e2eDeps);
+  if (matched.length === 0 || matched.length >= services.length) {
+    effect.all = true;
+    return;
+  }
+  for (const svc of matched) {
+    effect.services.add(svc);
+  }
+}
+
+function classifyCatalogDep(
+  dep: string,
+  services: string[],
+  catalogConsumers: Record<string, string[]>,
+  e2eDeps: Record<string, string[]>,
+  effect: ManifestEffect,
+): void {
+  const consumers = catalogConsumers[dep] ?? [];
+  if (consumers.length === 0) {
+    effect.all = true;
+    return;
+  }
+  for (const pkgFile of consumers) {
+    if (pkgFile === 'e2e/package.json') {
+      classifyE2eDep(dep, services, e2eDeps, effect);
+      continue;
+    }
+    if (pkgFile === 'package.json') {
+      classifyRootDevDep(dep, effect);
+      continue;
+    }
+    const verdict = classifyFile(pkgFile, services);
+    if (verdict === 'shared') {
+      const dir = pkgFile.split('/')[1];
+      if (dir && !effect.sharedDirs.includes(dir)) {
+        effect.sharedDirs.push(dir);
+      }
+    } else if (services.includes(verdict)) {
+      effect.services.add(verdict);
+    } else {
+      effect.all = true;
+    }
+  }
+}
+
+function changedRecordKeys(base: Record<string, unknown>, head: Record<string, unknown>): string[] {
+  const changed: string[] = [];
+  for (const key of new Set([...Object.keys(base), ...Object.keys(head)])) {
+    if (JSON.stringify(base[key]) !== JSON.stringify(head[key])) {
+      changed.push(key);
+    }
+  }
+  return changed;
+}
+
+function classifyRootPackageJson(base: string, head: string): ManifestEffect {
+  const effect = emptyEffect();
+  let baseObj: unknown;
+  let headObj: unknown;
+  try {
+    baseObj = JSON.parse(base);
+    headObj = JSON.parse(head);
+  } catch {
+    effect.all = true;
+    effect.unknown = true;
+    return effect;
+  }
+  if (!isPlainObject(baseObj) || !isPlainObject(headObj)) {
+    effect.all = true;
+    effect.unknown = true;
+    return effect;
+  }
+  for (const key of changedRecordKeys(baseObj, headObj)) {
+    if (key !== 'devDependencies') {
+      effect.all = true;
+      return effect;
+    }
+  }
+  const baseDev = baseObj.devDependencies ?? {};
+  const headDev = headObj.devDependencies ?? {};
+  if (!isPlainObject(baseDev) || !isPlainObject(headDev)) {
+    effect.all = true;
+    return effect;
+  }
+  for (const dep of changedRecordKeys(baseDev, headDev)) {
+    classifyRootDevDep(dep, effect);
+  }
+  return effect;
+}
+
+function classifyE2ePackageJson(
+  base: string,
+  head: string,
+  services: string[],
+  e2eDeps: Record<string, string[]>,
+): ManifestEffect {
+  const effect = emptyEffect();
+  let baseObj: unknown;
+  let headObj: unknown;
+  try {
+    baseObj = JSON.parse(base);
+    headObj = JSON.parse(head);
+  } catch {
+    effect.all = true;
+    effect.unknown = true;
+    return effect;
+  }
+  if (!isPlainObject(baseObj) || !isPlainObject(headObj)) {
+    effect.all = true;
+    effect.unknown = true;
+    return effect;
+  }
+  for (const key of changedRecordKeys(baseObj, headObj)) {
+    if (key !== 'dependencies' && key !== 'devDependencies') {
+      effect.all = true;
+      return effect;
+    }
+  }
+  for (const field of ['dependencies', 'devDependencies'] as const) {
+    const baseDeps = baseObj[field] ?? {};
+    const headDeps = headObj[field] ?? {};
+    if (!isPlainObject(baseDeps) || !isPlainObject(headDeps)) {
+      effect.all = true;
+      return effect;
+    }
+    for (const dep of changedRecordKeys(baseDeps, headDeps)) {
+      classifyE2eDep(dep, services, e2eDeps, effect);
+    }
+  }
+  return effect;
+}
+
+function splitIndentedKeyLine(line: string, indent: number): { key: string; inline: string } | undefined {
+  const prefix = ' '.repeat(indent);
+  if (!line.startsWith(prefix) || line.startsWith(`${prefix} `)) {
+    return undefined;
+  }
+  const rest = line.slice(indent).trimEnd();
+  if (!rest || rest.startsWith('#')) {
+    return undefined;
+  }
+  let keyEnd: number;
+  if (rest.startsWith("'") || rest.startsWith('"')) {
+    keyEnd = rest.indexOf(rest[0] as string, 1) + 1;
+  } else {
+    const separator = rest.indexOf(': ');
+    keyEnd = separator === -1 ? rest.length - 1 : separator;
+  }
+  if (keyEnd <= 0 || rest[keyEnd] !== ':') {
+    return undefined;
+  }
+  return { key: unquoteLockKey(rest.slice(0, keyEnd)), inline: rest.slice(keyEnd + 1).trim() };
+}
+
+interface ParsedWorkspaceYaml {
+  catalogs: Map<string, { dep: string; value: string }>;
+  other: Map<string, string>;
+  valid: boolean;
+}
+
+function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
+  const catalogs = new Map<string, { dep: string; value: string }>();
+  const other = new Map<string, string>();
+  let section: string | undefined;
+  let catalogName = 'default';
+  let sawTopLevel = false;
+
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue;
+    }
+    if (!line.startsWith(' ')) {
+      const colon = line.indexOf(':');
+      if (colon <= 0) {
+        return { catalogs, other, valid: false };
+      }
+      sawTopLevel = true;
+      section = line.slice(0, colon).trim();
+      catalogName = 'default';
+      if (section !== 'catalogs' && section !== 'catalog') {
+        const prev = other.get(section);
+        other.set(section, prev === undefined ? line : `${prev}\n${line}`);
+      }
+      continue;
+    }
+    if (!section) {
+      return { catalogs, other, valid: false };
+    }
+    if (section === 'catalogs') {
+      const catEntry = splitIndentedKeyLine(line, 2);
+      if (catEntry && catEntry.inline === '') {
+        catalogName = catEntry.key;
+        continue;
+      }
+      const depEntry = splitIndentedKeyLine(line, 4);
+      if (depEntry && depEntry.inline !== '') {
+        catalogs.set(`${catalogName}\0${depEntry.key}`, { dep: depEntry.key, value: depEntry.inline });
+        continue;
+      }
+      return { catalogs, other, valid: false };
+    }
+    if (section === 'catalog') {
+      const depEntry = splitIndentedKeyLine(line, 2);
+      if (depEntry && depEntry.inline !== '') {
+        catalogs.set(`default\0${depEntry.key}`, { dep: depEntry.key, value: depEntry.inline });
+        continue;
+      }
+      return { catalogs, other, valid: false };
+    }
+    const prev = other.get(section) ?? '';
+    other.set(section, prev ? `${prev}\n${line}` : line);
+  }
+  return { catalogs, other, valid: sawTopLevel };
+}
+
+function classifyWorkspaceYaml(
+  base: string,
+  head: string,
+  services: string[],
+  catalogConsumers: Record<string, string[]>,
+  e2eDeps: Record<string, string[]>,
+): ManifestEffect {
+  const effect = emptyEffect();
+  const parsedBase = parseWorkspaceYaml(base);
+  const parsedHead = parseWorkspaceYaml(head);
+  if (!parsedBase.valid || !parsedHead.valid) {
+    effect.all = true;
+    effect.unknown = true;
+    return effect;
+  }
+  for (const key of new Set([...parsedBase.other.keys(), ...parsedHead.other.keys()])) {
+    if ((parsedBase.other.get(key) ?? '') !== (parsedHead.other.get(key) ?? '')) {
+      effect.all = true;
+      return effect;
+    }
+  }
+  for (const key of new Set([...parsedBase.catalogs.keys(), ...parsedHead.catalogs.keys()])) {
+    const baseEntry = parsedBase.catalogs.get(key);
+    const headEntry = parsedHead.catalogs.get(key);
+    if (baseEntry?.value === headEntry?.value) {
+      continue;
+    }
+    const dep = (headEntry ?? baseEntry)?.dep;
+    if (dep) {
+      classifyCatalogDep(dep, services, catalogConsumers, e2eDeps, effect);
+    }
+  }
+  return effect;
 }
 
 function unquoteLockKey(raw: string): string {
@@ -394,6 +879,112 @@ function canonicalLockfile(parsed: ParsedLockfile): string {
   ].join('\n---\n');
 }
 
+interface ParsedImporterBody {
+  sections: Map<string, Map<string, string>>;
+  other: Map<string, string>;
+  valid: boolean;
+}
+
+function parseLockImporterBody(body: string): ParsedImporterBody {
+  const sections = new Map<string, Map<string, string>>();
+  const other = new Map<string, string>();
+  if (body.trim() === '' || body.trim() === '{}') {
+    return { sections, other, valid: true };
+  }
+  let currentSection: string | undefined;
+  let currentDep: string | undefined;
+
+  for (const rawLine of body.split('\n')) {
+    const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+    if (!line.trim() || line.trim().startsWith('#')) {
+      continue;
+    }
+    const secEntry = splitIndentedKeyLine(line, 4);
+    if (secEntry) {
+      currentDep = undefined;
+      if (secEntry.inline !== '') {
+        currentSection = undefined;
+        other.set(secEntry.key, secEntry.inline);
+      } else {
+        currentSection = secEntry.key;
+        if (!sections.has(currentSection)) {
+          sections.set(currentSection, new Map());
+        }
+      }
+      continue;
+    }
+    const depEntry = splitIndentedKeyLine(line, 6);
+    if (depEntry && currentSection) {
+      currentDep = depEntry.key;
+      const bucket = sections.get(currentSection);
+      if (bucket) {
+        bucket.set(currentDep, depEntry.inline);
+      }
+      continue;
+    }
+    if (line.startsWith('        ') && currentSection && currentDep) {
+      const bucket = sections.get(currentSection);
+      if (bucket) {
+        const prev = bucket.get(currentDep) ?? '';
+        bucket.set(currentDep, prev ? `${prev}\n${line}` : line);
+      }
+      continue;
+    }
+    return { sections, other, valid: false };
+  }
+  return { sections, other, valid: true };
+}
+
+function parseLockCatalogs(text: string | undefined): {
+  entries: Map<string, { dep: string; value: string }>;
+  valid: boolean;
+} {
+  const entries = new Map<string, { dep: string; value: string }>();
+  if (!text) {
+    return { entries, valid: true };
+  }
+  let catalogName: string | undefined;
+  let currentKey: string | undefined;
+
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+    if (!line.trim() || line.trim().startsWith('#') || line === 'catalogs:') {
+      continue;
+    }
+    const catEntry = splitIndentedKeyLine(line, 2);
+    if (catEntry && catEntry.inline === '') {
+      catalogName = catEntry.key;
+      currentKey = undefined;
+      continue;
+    }
+    const depEntry = splitIndentedKeyLine(line, 4);
+    if (depEntry && catalogName) {
+      currentKey = `${catalogName}\0${depEntry.key}`;
+      entries.set(currentKey, { dep: depEntry.key, value: depEntry.inline });
+      continue;
+    }
+    if (line.startsWith('      ') && currentKey) {
+      const prev = entries.get(currentKey);
+      if (prev) {
+        prev.value = prev.value ? `${prev.value}\n${line}` : line;
+      }
+      continue;
+    }
+    return { entries, valid: false };
+  }
+  return { entries, valid: true };
+}
+
+function changedMapKeys(base: Map<string, string>, head: Map<string, string>): string[] {
+  const changed: string[] = [];
+  for (const key of new Set([...base.keys(), ...head.keys()])) {
+    if ((base.get(key) ?? '') !== (head.get(key) ?? '')) {
+      changed.push(key);
+    }
+  }
+  return changed;
+}
+
 function classifyImporterPath(importer: string, services: string[]): Verdict {
   if (importer === '.' || importer === 'e2e') {
     return 'all';
@@ -410,8 +1001,14 @@ function classifyImporterPath(importer: string, services: string[]): Verdict {
   return verdict;
 }
 
-function classifyLockfile(base: string, head: string, services: string[]): LockfileEffect {
-  const effect: LockfileEffect = { all: false, unknown: false, services: new Set(), sharedDirs: [] };
+function classifyLockfile(
+  base: string,
+  head: string,
+  services: string[],
+  e2eDeps: Record<string, string[]>,
+  catalogConsumers: Record<string, string[]>,
+): ManifestEffect {
+  const effect = emptyEffect();
   if (!looksLikeLockfile(base) || !looksLikeLockfile(head)) {
     effect.all = true;
     effect.unknown = true;
@@ -421,13 +1018,85 @@ function classifyLockfile(base: string, head: string, services: string[]): Lockf
   const parsedHead = parseLockfile(head);
 
   for (const name of new Set([...parsedBase.other.keys(), ...parsedHead.other.keys()])) {
-    if ((parsedBase.other.get(name) ?? '') !== (parsedHead.other.get(name) ?? '')) {
-      effect.all = true;
+    if ((parsedBase.other.get(name) ?? '') === (parsedHead.other.get(name) ?? '')) {
+      continue;
     }
+    if (name === 'catalogs') {
+      const baseCat = parseLockCatalogs(parsedBase.other.get('catalogs'));
+      const headCat = parseLockCatalogs(parsedHead.other.get('catalogs'));
+      if (!baseCat.valid || !headCat.valid) {
+        effect.all = true;
+        continue;
+      }
+      for (const key of new Set([...baseCat.entries.keys(), ...headCat.entries.keys()])) {
+        const b = baseCat.entries.get(key);
+        const h = headCat.entries.get(key);
+        if (b?.value !== h?.value) {
+          const dep = (h ?? b)?.dep;
+          if (dep) {
+            classifyCatalogDep(dep, services, catalogConsumers, e2eDeps, effect);
+          }
+        }
+      }
+      continue;
+    }
+    effect.all = true;
   }
 
   for (const key of new Set([...parsedBase.entries.importers.keys(), ...parsedHead.entries.importers.keys()])) {
-    if (parsedBase.entries.importers.get(key) === parsedHead.entries.importers.get(key)) {
+    const baseImpBody = parsedBase.entries.importers.get(key);
+    const headImpBody = parsedHead.entries.importers.get(key);
+    if (baseImpBody === headImpBody) {
+      continue;
+    }
+    if (key === '.') {
+      const baseImp = parseLockImporterBody(baseImpBody ?? '');
+      const headImp = parseLockImporterBody(headImpBody ?? '');
+      if (!baseImp.valid || !headImp.valid || changedMapKeys(baseImp.other, headImp.other).length > 0) {
+        effect.all = true;
+        continue;
+      }
+      for (const sec of new Set([...baseImp.sections.keys(), ...headImp.sections.keys()])) {
+        const changedDeps = changedMapKeys(
+          baseImp.sections.get(sec) ?? new Map(),
+          headImp.sections.get(sec) ?? new Map(),
+        );
+        if (changedDeps.length === 0) {
+          continue;
+        }
+        if (sec !== 'devDependencies') {
+          effect.all = true;
+        } else {
+          for (const dep of changedDeps) {
+            classifyRootDevDep(dep, effect);
+          }
+        }
+      }
+      continue;
+    }
+    if (key === 'e2e') {
+      const baseImp = parseLockImporterBody(baseImpBody ?? '');
+      const headImp = parseLockImporterBody(headImpBody ?? '');
+      if (!baseImp.valid || !headImp.valid || changedMapKeys(baseImp.other, headImp.other).length > 0) {
+        effect.all = true;
+        continue;
+      }
+      for (const sec of new Set([...baseImp.sections.keys(), ...headImp.sections.keys()])) {
+        const changedDeps = changedMapKeys(
+          baseImp.sections.get(sec) ?? new Map(),
+          headImp.sections.get(sec) ?? new Map(),
+        );
+        if (changedDeps.length === 0) {
+          continue;
+        }
+        if (sec !== 'dependencies' && sec !== 'devDependencies') {
+          effect.all = true;
+        } else {
+          for (const dep of changedDeps) {
+            classifyE2eDep(dep, services, e2eDeps, effect);
+          }
+        }
+      }
       continue;
     }
     const verdict = classifyImporterPath(key, services);
@@ -458,6 +1127,7 @@ function classifyLockfile(base: string, head: string, services: string[]): Lockf
   // The text changed but no entry the reader understands did, so it can't place the change: run everything.
   if (
     !effect.all &&
+    !effect.rootShared &&
     effect.services.size === 0 &&
     effect.sharedDirs.length === 0 &&
     base !== head &&
@@ -469,14 +1139,14 @@ function classifyLockfile(base: string, head: string, services: string[]): Lockf
   return effect;
 }
 
-function lockfileVerdict(effect: LockfileEffect): Verdict {
+function manifestVerdict(effect: ManifestEffect): Verdict {
   if (effect.unknown) {
     return 'unknown';
   }
   if (effect.all) {
     return 'all';
   }
-  if (effect.sharedDirs.length > 0) {
+  if (effect.sharedDirs.length > 0 || (effect.rootShared && effect.services.size === 0)) {
     return 'shared';
   }
   if (effect.services.size === 1) {
@@ -497,23 +1167,27 @@ function diffBaseRef(): string | undefined {
   return baseRef;
 }
 
-function readLockfilePair(files: string[]): { base: string; head: string } | undefined {
-  if (!files.includes('pnpm-lock.yaml')) {
-    return undefined;
-  }
+function readManifestPairs(files: string[]): Partial<Record<DiffManifestFile, ManifestPair>> {
   const baseRef = diffBaseRef();
   if (!baseRef) {
-    return undefined;
+    return {};
   }
-  try {
-    const base = execFileSync('git', ['show', `${baseRef}:pnpm-lock.yaml`], {
-      encoding: 'utf8',
-      maxBuffer: 32 * 1024 * 1024,
-    });
-    return { base, head: fs.readFileSync('pnpm-lock.yaml', 'utf8') };
-  } catch {
-    return undefined;
+  const pairs: Partial<Record<DiffManifestFile, ManifestPair>> = {};
+  for (const file of DIFF_MANIFEST_FILES) {
+    if (!files.includes(file)) {
+      continue;
+    }
+    try {
+      const base = execFileSync('git', ['show', `${baseRef}:${file}`], {
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024,
+      });
+      pairs[file] = { base, head: fs.readFileSync(file, 'utf8') };
+    } catch {
+      // Base or head copy unavailable — falls back to classifyFile ('all').
+    }
   }
+  return pairs;
 }
 
 /**
@@ -611,6 +1285,25 @@ function affectedServices(dir: string, services: string[], dependents: Record<st
   return dependents[dir]?.length ? dependents[dir] : services;
 }
 
+function classifyManifestFile(
+  file: DiffManifestFile,
+  pair: ManifestPair,
+  services: string[],
+  e2eDeps: Record<string, string[]>,
+  catalogConsumers: Record<string, string[]>,
+): ManifestEffect {
+  switch (file) {
+    case 'package.json':
+      return classifyRootPackageJson(pair.base, pair.head);
+    case 'e2e/package.json':
+      return classifyE2ePackageJson(pair.base, pair.head, services, e2eDeps);
+    case 'pnpm-workspace.yaml':
+      return classifyWorkspaceYaml(pair.base, pair.head, services, catalogConsumers, e2eDeps);
+    case 'pnpm-lock.yaml':
+      return classifyLockfile(pair.base, pair.head, services, e2eDeps, catalogConsumers);
+  }
+}
+
 export function classifyChanges(
   files: string[],
   services: string[],
@@ -618,13 +1311,19 @@ export function classifyChanges(
     forceAll = false,
     releaseCommit = false,
     dependents = {} as Record<string, string[]>,
+    e2eDeps = {} as Record<string, string[]>,
+    catalogConsumers = {} as Record<string, string[]>,
     lockfile,
+    manifests = {},
     commentOnly = new Set<string>(),
   }: {
     forceAll?: boolean;
     releaseCommit?: boolean;
     dependents?: Record<string, string[]>;
-    lockfile?: { base: string; head: string };
+    e2eDeps?: Record<string, string[]>;
+    catalogConsumers?: Record<string, string[]>;
+    lockfile?: ManifestPair;
+    manifests?: Partial<Record<DiffManifestFile, ManifestPair>>;
     commentOnly?: Set<string>;
   } = {},
 ): Classification {
@@ -666,6 +1365,11 @@ export function classifyChanges(
     };
   }
 
+  const manifestPairs: Partial<Record<DiffManifestFile, ManifestPair>> = {
+    ...manifests,
+    ...(lockfile ? { 'pnpm-lock.yaml': lockfile } : {}),
+  };
+
   const perFile: Array<{ file: string; verdict: Verdict }> = [];
   const commentOnlyFiles: string[] = [];
   for (const file of files) {
@@ -674,8 +1378,10 @@ export function classifyChanges(
       perFile.push({ file, verdict: 'none' });
       continue;
     }
-    if (file === 'pnpm-lock.yaml') {
-      if (!lockfile) {
+    if ((DIFF_MANIFEST_FILES as readonly string[]).includes(file)) {
+      const manifestFile = file as DiffManifestFile;
+      const pair = manifestPairs[manifestFile];
+      if (!pair) {
         perFile.push({ file, verdict: 'all' });
         triggersAll.push(file);
         for (const svc of services) {
@@ -683,7 +1389,10 @@ export function classifyChanges(
         }
         continue;
       }
-      const effect = classifyLockfile(lockfile.base, lockfile.head, services);
+      const effect = classifyManifestFile(manifestFile, pair, services, e2eDeps, catalogConsumers);
+      if (effect.rootShared) {
+        sharedChanges = true;
+      }
       if (effect.all) {
         if (effect.unknown) {
           unknownFiles.push(file);
@@ -712,7 +1421,7 @@ export function classifyChanges(
           }
         }
       }
-      perFile.push({ file, verdict: lockfileVerdict(effect) });
+      perFile.push({ file, verdict: manifestVerdict(effect) });
       continue;
     }
     const verdict = classifyFile(file, services);
@@ -764,11 +1473,21 @@ function main(): void {
   const releaseCommit = process.env.RELEASE_COMMIT === 'true';
   const services = discoverServices(process.cwd());
   const dependents = buildServiceDependents(process.cwd(), services);
-  const lockfile = readLockfilePair(files);
+  const e2eDeps = buildE2eDependencyServices(process.cwd(), services);
+  const catalogConsumers = buildCatalogConsumers(process.cwd());
+  const manifests = readManifestPairs(files);
   const commentOnly = findCommentOnlyWorkflowChanges(files, services, gitDiffReader(diffBaseRef()));
 
   const { runs, sharedChanges, lintOnly, triggersAll, unknownFiles, commentOnlyFiles, sharedDetail, perFile } =
-    classifyChanges(files, services, { forceAll, releaseCommit, dependents, lockfile, commentOnly });
+    classifyChanges(files, services, {
+      forceAll,
+      releaseCommit,
+      dependents,
+      e2eDeps,
+      catalogConsumers,
+      manifests,
+      commentOnly,
+    });
 
   let output = '';
   for (const [svc, run] of Object.entries(runs)) {

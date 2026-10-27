@@ -1,6 +1,8 @@
 import * as fs from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  buildCatalogConsumers,
+  buildE2eDependencyServices,
   buildServiceDependents,
   classifyChanges,
   classifyFile,
@@ -14,9 +16,16 @@ const REPO_ROOT = new URL('../..', import.meta.url).pathname;
 // Use the REAL workspace dependency graph so the narrowing tests reflect production exactly (and
 // double as a guard: if a service's native-* deps change, the asserted closures below shift).
 const DEPENDENTS = buildServiceDependents(REPO_ROOT, SERVICES);
+const E2E_DEPS = buildE2eDependencyServices(REPO_ROOT, SERVICES);
+const CATALOG_CONSUMERS = buildCatalogConsumers(REPO_ROOT);
 
 function decide(files: string[], forceAll = false) {
-  return classifyChanges(files, SERVICES, { forceAll, dependents: DEPENDENTS });
+  return classifyChanges(files, SERVICES, {
+    forceAll,
+    dependents: DEPENDENTS,
+    e2eDeps: E2E_DEPS,
+    catalogConsumers: CATALOG_CONSUMERS,
+  });
 }
 
 describe('discoverServices', () => {
@@ -34,6 +43,29 @@ describe('buildServiceDependents', () => {
     // Universally-depended-on packages still map to every service.
     expect(DEPENDENTS['native-utils']).toEqual([...SERVICES].sort());
     expect(DEPENDENTS['native-core']).toEqual([...SERVICES].sort());
+  });
+});
+
+describe('buildE2eDependencyServices', () => {
+  it('should map each e2e dependency to the services whose E2E configs or specs reference it', () => {
+    expect(E2E_DEPS['@crabnebula/tauri-driver']).toEqual(['tauri']);
+    expect(E2E_DEPS['@crabnebula/test-runner-backend']).toEqual(['tauri']);
+    expect(E2E_DEPS['appium-flutter-driver']).toEqual(['flutter']);
+    expect(E2E_DEPS['@wdio/appium-service']).toEqual(['flutter', 'react-native']);
+    expect(E2E_DEPS['appium-uiautomator2-driver']).toEqual(['flutter', 'react-native']);
+    expect(E2E_DEPS['appium-xcuitest-driver']).toEqual(['flutter', 'react-native']);
+    expect(E2E_DEPS['@wdio/electron-service']).toEqual(['electron']);
+    expect(E2E_DEPS['@wdio/visual-service']).toEqual(['dioxus']);
+    expect(E2E_DEPS['@wdio/cli']).toEqual([...SERVICES].sort());
+    expect(E2E_DEPS.webdriverio).toEqual([...SERVICES].sort());
+  });
+});
+
+describe('buildCatalogConsumers', () => {
+  it('should map catalog dependencies to the package.json files that reference catalog:', () => {
+    expect(CATALOG_CONSUMERS['@wdio/utils']).toEqual(['packages/electron-service/package.json']);
+    expect(CATALOG_CONSUMERS['@wdio/visual-service']).toEqual(['e2e/package.json']);
+    expect(CATALOG_CONSUMERS['@wdio/appium-service']).toEqual(['e2e/package.json']);
   });
 });
 
@@ -378,6 +410,8 @@ function snapshotBlock(name: string, dependency: string): string {
 function classifyLock(base: string, head: string) {
   return classifyChanges(['pnpm-lock.yaml'], SERVICES, {
     dependents: DEPENDENTS,
+    e2eDeps: E2E_DEPS,
+    catalogConsumers: CATALOG_CONSUMERS,
     lockfile: { base, head },
   });
 }
@@ -607,5 +641,382 @@ describe('classifyChanges with comment-only workflow changes', () => {
       commentOnly: new Set(['.github/workflows/ci.yml']),
     });
     expect(d.lintOnly).toBe(true);
+  });
+});
+
+function classifyManifest(
+  file: 'package.json' | 'e2e/package.json' | 'pnpm-workspace.yaml',
+  base: string,
+  head: string,
+) {
+  return classifyChanges([file], SERVICES, {
+    dependents: DEPENDENTS,
+    e2eDeps: E2E_DEPS,
+    catalogConsumers: CATALOG_CONSUMERS,
+    manifests: { [file]: { base, head } },
+  });
+}
+
+describe('root package.json', () => {
+  const pkgJson = (overrides: Record<string, unknown> = {}) =>
+    JSON.stringify({
+      name: '@wdio/desktop-mobile',
+      private: true,
+      scripts: { build: 'turbo run build' },
+      devDependencies: {
+        '@biomejs/biome': '2.6.2',
+        '@releasekit/release': '^0.42.0',
+        eslint: '^10.3.0',
+        vitest: '^4.1.0',
+        typescript: '^5.9.3',
+        turbo: '^2.9.6',
+      },
+      ...overrides,
+    });
+
+  it('should run every pipeline when no base copy is available', () => {
+    const d = decide(['package.json']);
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+    expect(d.triggersAll).toEqual(['package.json']);
+  });
+
+  it('should stay lint-only when only release or lint devDependencies change', () => {
+    const base = pkgJson();
+    const head = pkgJson({
+      devDependencies: {
+        '@biomejs/biome': '2.6.3',
+        '@releasekit/release': '^0.42.1',
+        eslint: '^10.3.1',
+        vitest: '^4.1.0',
+        typescript: '^5.9.3',
+        turbo: '^2.9.6',
+      },
+    });
+    const d = classifyManifest('package.json', base, head);
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.sharedChanges).toBe(false);
+    expect(d.lintOnly).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'none' }]);
+  });
+
+  it('should run build + unit (sharedChanges) with no service E2E when build/test devDependencies change', () => {
+    const base = pkgJson();
+    const head = pkgJson({
+      devDependencies: {
+        '@biomejs/biome': '2.6.2',
+        '@releasekit/release': '^0.42.0',
+        eslint: '^10.3.0',
+        vitest: '^4.2.0',
+        typescript: '^5.9.3',
+        turbo: '^2.9.6',
+      },
+    });
+    const d = classifyManifest('package.json', base, head);
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.sharedChanges).toBe(true);
+    expect(d.lintOnly).toBe(false);
+    expect(d.triggersAll).toEqual([]);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'shared' }]);
+  });
+
+  it('should run every pipeline when scripts, engines, or packageManager change', () => {
+    const base = pkgJson();
+    for (const head of [
+      pkgJson({ scripts: { build: 'turbo run build --force' } }),
+      pkgJson({ engines: { node: '>=24' } }),
+      pkgJson({ packageManager: 'pnpm@12.16.0' }),
+    ]) {
+      const d = classifyManifest('package.json', base, head);
+      expect(Object.values(d.runs).every(Boolean)).toBe(true);
+      expect(d.triggersAll).toEqual(['package.json']);
+      expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'all' }]);
+    }
+  });
+
+  it('should run every pipeline and flag unknown when package.json cannot be parsed', () => {
+    const d = classifyManifest('package.json', pkgJson(), '{not-json');
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+    expect(d.unknownFiles).toEqual(['package.json']);
+  });
+});
+
+describe('e2e/package.json', () => {
+  const e2eJson = (
+    deps: Record<string, string> = {},
+    devDeps: Record<string, string> = {},
+    extra: Record<string, unknown> = {},
+  ) =>
+    JSON.stringify({
+      name: '@wdio/native-e2e',
+      private: true,
+      scripts: { test: 'wdio run ./wdio.electron.conf.ts' },
+      dependencies: {
+        '@wdio/appium-service': 'catalog:',
+        '@wdio/cli': 'catalog:',
+        '@wdio/electron-service': 'workspace:*',
+        '@wdio/visual-service': 'catalog:',
+        ...deps,
+      },
+      devDependencies: {
+        '@crabnebula/tauri-driver': '^2.0.9',
+        '@crabnebula/test-runner-backend': '^0.3.0',
+        'appium-flutter-driver': '3.2.0',
+        'appium-uiautomator2-driver': '^6.0.0',
+        ...devDeps,
+      },
+      ...extra,
+    });
+
+  it('should run every pipeline when no base copy is available', () => {
+    const d = decide(['e2e/package.json']);
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+    expect(d.triggersAll).toEqual(['e2e/package.json']);
+  });
+
+  it('should narrow @crabnebula/* changes to tauri only', () => {
+    const base = e2eJson();
+    for (const head of [
+      e2eJson({}, { '@crabnebula/tauri-driver': '^2.0.10' }),
+      e2eJson({}, { '@crabnebula/test-runner-backend': '^0.3.1' }),
+    ]) {
+      const d = classifyManifest('e2e/package.json', base, head);
+      expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'tauri'])));
+      expect(d.triggersAll).toEqual([]);
+      expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'tauri' }]);
+    }
+  });
+
+  it('should narrow appium-flutter-driver to flutter only', () => {
+    const d = classifyManifest('e2e/package.json', e2eJson(), e2eJson({}, { 'appium-flutter-driver': '3.3.0' }));
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'flutter'])));
+    expect(d.triggersAll).toEqual([]);
+    expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'flutter' }]);
+  });
+
+  it('should narrow @wdio/appium-service and mobile appium drivers to flutter + react-native', () => {
+    const base = e2eJson();
+    for (const head of [
+      e2eJson({ '@wdio/appium-service': '^10.2.0' }),
+      e2eJson({}, { 'appium-uiautomator2-driver': '^6.1.0' }),
+    ]) {
+      const d = classifyManifest('e2e/package.json', base, head);
+      expect(d.runs).toEqual({
+        dioxus: false,
+        electrobun: false,
+        electron: false,
+        flutter: true,
+        'react-native': true,
+        tauri: false,
+      });
+      expect(d.triggersAll).toEqual([]);
+      expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'flutter,react-native' }]);
+    }
+  });
+
+  it('should narrow @wdio/visual-service to dioxus only', () => {
+    const d = classifyManifest('e2e/package.json', e2eJson(), e2eJson({ '@wdio/visual-service': '^11.1.0' }));
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'dioxus'])));
+    expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'dioxus' }]);
+  });
+
+  it('should union services when multiple service-specific E2E dependencies change', () => {
+    const d = classifyManifest(
+      'e2e/package.json',
+      e2eJson(),
+      e2eJson({}, { '@crabnebula/tauri-driver': '^2.0.10', 'appium-flutter-driver': '3.3.0' }),
+    );
+    expect(d.runs).toEqual({
+      dioxus: false,
+      electrobun: false,
+      electron: false,
+      flutter: true,
+      'react-native': false,
+      tauri: true,
+    });
+    expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'flutter,tauri' }]);
+  });
+
+  it('should run every pipeline for shared runner dependencies, unknown dependencies, or scripts edits', () => {
+    const base = e2eJson();
+    for (const head of [
+      e2eJson({ '@wdio/cli': '^10.2.0' }),
+      e2eJson({}, { 'some-unrecognised-runner-pkg': '^1.0.0' }),
+      e2eJson({}, {}, { scripts: { test: 'wdio run ./wdio.tauri.conf.ts' } }),
+    ]) {
+      const d = classifyManifest('e2e/package.json', base, head);
+      expect(Object.values(d.runs).every(Boolean)).toBe(true);
+      expect(d.triggersAll).toEqual(['e2e/package.json']);
+      expect(d.perFile).toEqual([{ file: 'e2e/package.json', verdict: 'all' }]);
+    }
+  });
+});
+
+describe('pnpm-workspace.yaml', () => {
+  const workspaceYaml = (catalogOverrides: Record<string, string> = {}, extraSection = '') => {
+    const catalogEntries = {
+      '@wdio/utils': '^10.1.0',
+      '@wdio/appium-service': '^10.1.0',
+      '@wdio/visual-service': '^11.0.0',
+      '@wdio/cli': '^10.1.0',
+      ...catalogOverrides,
+    };
+    return [
+      'packages:',
+      '  - packages/*',
+      '  - e2e',
+      '',
+      'catalogs:',
+      '  default:',
+      ...Object.entries(catalogEntries).map(([k, v]) => `    '${k}': ${v}`),
+      extraSection,
+    ].join('\n');
+  };
+
+  it('should run every pipeline when no base copy is available', () => {
+    const d = decide(['pnpm-workspace.yaml']);
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+    expect(d.triggersAll).toEqual(['pnpm-workspace.yaml']);
+  });
+
+  it('should narrow @wdio/utils catalog changes to electron (its only consumer)', () => {
+    const d = classifyManifest('pnpm-workspace.yaml', workspaceYaml(), workspaceYaml({ '@wdio/utils': '^10.2.0' }));
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'electron'])));
+    expect(d.triggersAll).toEqual([]);
+    expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'electron' }]);
+  });
+
+  it('should narrow @wdio/appium-service catalog changes to flutter + react-native', () => {
+    const d = classifyManifest(
+      'pnpm-workspace.yaml',
+      workspaceYaml(),
+      workspaceYaml({ '@wdio/appium-service': '^10.2.0' }),
+    );
+    expect(d.runs).toEqual({
+      dioxus: false,
+      electrobun: false,
+      electron: false,
+      flutter: true,
+      'react-native': true,
+      tauri: false,
+    });
+    expect(d.triggersAll).toEqual([]);
+    expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'flutter,react-native' }]);
+  });
+
+  it('should narrow @wdio/visual-service catalog changes to dioxus', () => {
+    const d = classifyManifest(
+      'pnpm-workspace.yaml',
+      workspaceYaml(),
+      workspaceYaml({ '@wdio/visual-service': '^11.1.0' }),
+    );
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'dioxus'])));
+    expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'dioxus' }]);
+  });
+
+  it('should narrow a shared-package catalog consumer via its runtime dependents', () => {
+    const d = classifyChanges(['pnpm-workspace.yaml'], SERVICES, {
+      dependents: DEPENDENTS,
+      e2eDeps: E2E_DEPS,
+      catalogConsumers: {
+        ...CATALOG_CONSUMERS,
+        'mobile-only-dep': ['packages/native-mobile-core/package.json'],
+      },
+      manifests: {
+        'pnpm-workspace.yaml': {
+          base: workspaceYaml({ 'mobile-only-dep': '^1.0.0' }),
+          head: workspaceYaml({ 'mobile-only-dep': '^1.1.0' }),
+        },
+      },
+    });
+    expect(d.runs).toEqual({
+      dioxus: false,
+      electrobun: false,
+      electron: false,
+      flutter: true,
+      'react-native': true,
+      tauri: false,
+    });
+    expect(d.sharedChanges).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'shared' }]);
+  });
+
+  it('should run every pipeline for cross-service catalog deps, unreferenced catalog deps, or non-catalog sections', () => {
+    const base = workspaceYaml();
+    for (const head of [
+      workspaceYaml({ '@wdio/cli': '^10.2.0' }),
+      workspaceYaml({ 'unreferenced-pkg': '^1.0.0' }),
+      workspaceYaml({}, '\noverrides:\n  foo: 1.0.0'),
+    ]) {
+      const d = classifyManifest('pnpm-workspace.yaml', base, head);
+      expect(Object.values(d.runs).every(Boolean)).toBe(true);
+      expect(d.triggersAll).toEqual(['pnpm-workspace.yaml']);
+      expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'all' }]);
+    }
+  });
+});
+
+describe('pnpm-lock.yaml root/e2e importer and catalog narrowing', () => {
+  it('should stay lint-only when the root importer only bumps release or lint devDependencies', () => {
+    const rootDevBlock = (version: string) =>
+      [
+        '  .:',
+        '    devDependencies:',
+        "      '@biomejs/biome':",
+        `        specifier: ${version}`,
+        `        version: ${version}`,
+      ].join('\n');
+    const d = classifyLock(
+      lockfileText({ importers: rootDevBlock('2.6.2') }),
+      lockfileText({ importers: rootDevBlock('2.6.3') }),
+    );
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.sharedChanges).toBe(false);
+    expect(d.lintOnly).toBe(true);
+  });
+
+  it('should flag sharedChanges with no service E2E when the root importer bumps build/test devDependencies', () => {
+    const rootDevBlock = (version: string) =>
+      [
+        '  .:',
+        '    devDependencies:',
+        '      vitest:',
+        `        specifier: ${version}`,
+        `        version: ${version}`,
+      ].join('\n');
+    const d = classifyLock(
+      lockfileText({ importers: rootDevBlock('4.1.0') }),
+      lockfileText({ importers: rootDevBlock('4.2.0') }),
+    );
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.sharedChanges).toBe(true);
+    expect(d.lintOnly).toBe(false);
+  });
+
+  it('should narrow an e2e importer dependency change to the affected service', () => {
+    const e2eBlock = (version: string) =>
+      [
+        '  e2e:',
+        '    devDependencies:',
+        "      '@crabnebula/test-runner-backend':",
+        `        specifier: ^${version}`,
+        `        version: ${version}`,
+      ].join('\n');
+    const d = classifyLock(
+      lockfileText({ importers: e2eBlock('0.2.9') }),
+      lockfileText({ importers: e2eBlock('0.3.0') }),
+    );
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'tauri'])));
+    expect(d.triggersAll).toEqual([]);
+  });
+
+  it('should narrow a lockfile catalog entry change to its workspace consumers', () => {
+    const catalog = (version: string) =>
+      ['  default:', "    '@wdio/utils':", `      specifier: ^${version}`, `      version: ${version}`].join('\n');
+    const d = classifyLock(
+      lockfileText({ catalogs: catalog('10.1.0') }),
+      lockfileText({ catalogs: catalog('10.2.0') }),
+    );
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'electron'])));
+    expect(d.triggersAll).toEqual([]);
   });
 });
