@@ -86,4 +86,76 @@ describe('Tauri API', () => {
       expect(result.hasTauri).toBe(true);
     });
   });
+
+  describe('emitEvent', () => {
+    it('should emit an event to listeners when target is omitted', async () => {
+      await browser.tauri.execute(async ({ core }) => {
+        const g = globalThis as unknown as {
+          __wdioEmittedEvents?: unknown[];
+          __TAURI_INTERNALS__: { transformCallback: (cb: (ev: { payload: unknown }) => void) => number };
+        };
+        g.__wdioEmittedEvents = [];
+        const handler = g.__TAURI_INTERNALS__.transformCallback((ev) => {
+          g.__wdioEmittedEvents?.push(ev.payload);
+        });
+        await core.invoke('plugin:event|listen', {
+          event: 'wdio:test-emit',
+          target: { kind: 'Any' },
+          handler,
+        });
+      });
+
+      await browser.tauri.emitEvent('wdio:test-emit', { message: 'hello from emitEvent' });
+
+      await browser.waitUntil(
+        async () => {
+          const events = await browser.tauri.execute(() => {
+            return (globalThis as unknown as { __wdioEmittedEvents?: unknown[] }).__wdioEmittedEvents ?? [];
+          });
+          return events.length === 1;
+        },
+        { timeout: 5000, timeoutMsg: 'expected wdio:test-emit listener to receive event' },
+      );
+
+      const events = await browser.tauri.execute(() => {
+        return (globalThis as unknown as { __wdioEmittedEvents?: unknown[] }).__wdioEmittedEvents;
+      });
+      expect(events).toEqual([{ message: 'hello from emitEvent' }]);
+    });
+
+    it('should emit an event to a target window label when target is provided', async () => {
+      await browser.tauri.execute(async ({ core }) => {
+        const g = globalThis as unknown as {
+          __wdioTargetedEvents?: unknown[];
+          __TAURI_INTERNALS__: { transformCallback: (cb: (ev: { payload: unknown }) => void) => number };
+        };
+        g.__wdioTargetedEvents = [];
+        const handler = g.__TAURI_INTERNALS__.transformCallback((ev) => {
+          g.__wdioTargetedEvents?.push(ev.payload);
+        });
+        await core.invoke('plugin:event|listen', {
+          event: 'wdio:test-emit-to',
+          target: { kind: 'Any' },
+          handler,
+        });
+      });
+
+      await browser.tauri.emitEvent('wdio:test-emit-to', { count: 42 }, 'main');
+
+      await browser.waitUntil(
+        async () => {
+          const events = await browser.tauri.execute(() => {
+            return (globalThis as unknown as { __wdioTargetedEvents?: unknown[] }).__wdioTargetedEvents ?? [];
+          });
+          return events.length === 1;
+        },
+        { timeout: 5000, timeoutMsg: 'expected wdio:test-emit-to listener on main to receive event' },
+      );
+
+      const events = await browser.tauri.execute(() => {
+        return (globalThis as unknown as { __wdioTargetedEvents?: unknown[] }).__wdioTargetedEvents;
+      });
+      expect(events).toEqual([{ count: 42 }]);
+    });
+  });
 });

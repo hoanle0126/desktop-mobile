@@ -567,11 +567,7 @@ export default class TauriWorkerService {
             browser,
             (tauri: TauriAPIs, ...a: unknown[]) => {
               const [ev, p] = a as [string, unknown];
-              const ev2 = tauri.event as { emit: (name: string, payload?: unknown) => Promise<void> } | undefined;
-              if (!ev2) {
-                throw new Error('Tauri event API not available — is @tauri-apps/api loaded?');
-              }
-              return ev2.emit(ev, p);
+              return tauri.core.invoke('plugin:event|emit', { event: ev, payload: p });
             },
             eventName,
             payload,
@@ -580,14 +576,12 @@ export default class TauriWorkerService {
           await execute(
             browser,
             (tauri: TauriAPIs, ...a: unknown[]) => {
-              const [ev, p, t] = a as [string, unknown, unknown];
-              const ev2 = tauri.event as
-                | { emitTo: (target: unknown, name: string, payload?: unknown) => Promise<void> }
-                | undefined;
-              if (!ev2) {
-                throw new Error('Tauri event API not available — is @tauri-apps/api loaded?');
-              }
-              return ev2.emitTo(t, ev, p);
+              const [ev, p, t] = a as [string, unknown, string | TauriEventTarget];
+              return tauri.core.invoke('plugin:event|emit_to', {
+                target: typeof t === 'string' ? { kind: 'AnyLabel', label: t } : t,
+                event: ev,
+                payload: p,
+              });
             },
             eventName,
             payload,
