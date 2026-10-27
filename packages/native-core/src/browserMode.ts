@@ -66,6 +66,14 @@ const DEV_SERVER_READY_POLL_MS = 500;
 
 const activeManagedServers = new Set<string>();
 
+function trimTrailingSlashes(url: string): string {
+  let end = url.length;
+  while (end > 0 && url.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return end === url.length ? url : url.slice(0, end);
+}
+
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
@@ -129,7 +137,7 @@ export async function startManagedDevServer(
   const config = typeof devServer === 'string' ? { command: devServer } : devServer;
   const isCI = deps.isCI ?? Boolean(process.env.CI);
   const reuseExisting = config.reuseExistingServer ?? !isCI;
-  const resolvedUrl = devServerUrl.replace(/\/+$/, '');
+  const resolvedUrl = trimTrailingSlashes(devServerUrl);
   if (reuseExisting) {
     if (activeManagedServers.has(resolvedUrl)) {
       throw new Error(
