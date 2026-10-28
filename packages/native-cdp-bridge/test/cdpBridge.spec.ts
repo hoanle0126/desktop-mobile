@@ -142,23 +142,17 @@ describe('CdpBridge (single-target)', () => {
     await expect(bridge.connect()).rejects.toThrow();
   });
 
-  it('should not retry when the debugger port never opens (timeout or unresolvable host)', async () => {
+  it('should not retry when the debugger port never opens', async () => {
     h.isPortOpened = false;
     h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
     expect(h.listCalls).toBe(1);
+  });
 
-    h.listCalls = 0;
-    h.listError = new Error("The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222");
-    await expect(bridge.connect()).rejects.toThrow(
-      "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
-    );
-    expect(h.listCalls).toBe(1);
-
-    h.listCalls = 0;
-    h.isPortOpened = true;
+  it('should retry a failed request once the debugger port is open', async () => {
     h.listError = new Error('Request Error: socket hang up');
+    const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow('Request Error: socket hang up');
     expect(h.listCalls).toBe(4);
   });

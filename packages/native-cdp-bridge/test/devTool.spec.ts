@@ -26,11 +26,12 @@ describe('DevTool', () => {
     await expect(devTool.list()).rejects.toMatchObject(timeout);
   });
 
-  it('should report wait-port rejection with its message and address when the host cannot be resolved', async () => {
-    const devTool = new DevTool({ host: 'unresolvable.invalid', port: 9222, timeout: 100 });
+  it("should report the port wait's own error with the address", async () => {
+    // Fails the port wait at once, as a host that can't be resolved does, without a DNS lookup.
+    const devTool = new DevTool({ host: 'localhost', port: 70000, timeout: 100 });
 
     await expect(devTool.list()).rejects.toMatchObject({
-      message: "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
+      message: "'port' must not be greater than 65535.: localhost:70000",
       cause: expect.any(Error),
     });
     expect(devTool.isPortOpened).toBe(false);
