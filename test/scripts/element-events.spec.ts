@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 // jsdom has no delegatesFocus, so the E2E specs cover shadow hosts that keep focus.
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const TAURI_COPY = 'packages/tauri-plugin-webdriver/src/platform/element-events.js';
+const DIOXUS_COPY = 'packages/dioxus-embedded-driver/src/server/handlers/element-events.js';
 
 type ElementEvents = {
   wdioRecordPendingChange(el: HTMLElement, value: string): void;
@@ -69,6 +70,12 @@ function click(el: HTMLElement) {
   events.wdioPress(el);
   events.wdioRelease(el);
 }
+
+describe('element-events.js', () => {
+  it('should be the same in both embedded driver crates', () => {
+    expect(readFileSync(join(REPO_ROOT, DIOXUS_COPY), 'utf8'), `copy ${TAURI_COPY} over ${DIOXUS_COPY}`).toBe(source);
+  });
+});
 
 beforeEach(() => {
   events.wdioTakePendingChange();
