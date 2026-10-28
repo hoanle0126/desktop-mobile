@@ -327,7 +327,7 @@ pub async fn click(
   Path((session_id, element_id)): Path<(String, String)>,
 ) -> WebDriverResult {
   let (timeout, var) = element_var(&state, &session_id, &element_id).await?;
-  eval_for_element(&var, format!("window.{var}.click(); null"), timeout).await?;
+  eval_for_element(&var, format!("return {}", click_element_script(&var)), timeout).await?;
   Ok(WebDriverResponse::null())
 }
 
@@ -337,7 +337,13 @@ pub async fn clear(
   Path((session_id, element_id)): Path<(String, String)>,
 ) -> WebDriverResult {
   let (timeout, var) = element_var(&state, &session_id, &element_id).await?;
-  eval_for_element(&var, format!("window.{var}.value=''; null"), timeout).await?;
+  let result =
+    eval_for_element(&var, format!("return {}", clear_element_script(&var)), timeout).await?;
+  if result.as_str() == Some("not editable") {
+    return Err(WebDriverErrorResponse::invalid_element_state(
+      "element is disabled or read-only, so it cannot be cleared",
+    ));
+  }
   Ok(WebDriverResponse::null())
 }
 
@@ -348,14 +354,7 @@ pub async fn send_keys(
   Json(req): Json<SendKeysRequest>,
 ) -> WebDriverResult {
   let (timeout, var) = element_var(&state, &session_id, &element_id).await?;
-  let text = req.text.replace('\\', "\\\\").replace('`', "\\`").replace("${", "\\${");
-  eval_for_element(
-    &var,
-    format!(
-      "(function(){{ var el=window.{var}; el.focus(); el.value+=`{text}`; el.dispatchEvent(new Event('input',{{bubbles:true}})); el.dispatchEvent(new Event('change',{{bubbles:true}})); }})()"
-    ),
-    timeout,
-  ).await?;
+  eval_for_element(&var, format!("return {}", send_keys_script(&var, &req.text)), timeout).await?;
   Ok(WebDriverResponse::null())
 }
 
@@ -494,6 +493,176 @@ pub async fn take_screenshot(
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
+/// Where the page records the field Send Keys edited and its value from before the edit: a browser
+/// fires `change` when focus leaves an edited field, so the driver fires it then.
+const PENDING_CHANGE: &str = "window.__wdio_pending_change";
+
+/// A JS string literal for `text` that is safe to splice into a script.
+fn js_string(text: &str) -> String {
+  Value::from(text).to_string()
+}
+
+/// JS binding `var` to the focused element, looking through open shadow roots.
+fn deep_active_element_js(var: &str) -> String {
+  format!(
+    r"var {var} = document.activeElement || document.body;
+                while ({var}.shadowRoot && {var}.shadowRoot.activeElement) {{
+                    {var} = {var}.shadowRoot.activeElement;
+                }}"
+  )
+}
+
+/// JS expression that is true when `el` takes typed text: a textarea or a text-like input.
+fn is_text_field_js(el: &str) -> String {
+  format!(
+    "({el}.tagName === 'TEXTAREA' || ({el}.tagName === 'INPUT' && \
+     ['text', 'search', 'url', 'tel', 'email', 'password', 'number'].indexOf({el}.type) !== -1))"
+  )
+}
+
+/// JS firing the `change` a field still owes from Send Keys, unless `keeps_focus` (a JS expression
+/// over `pendingField`) holds. The driver runs it before it moves focus, so `change` precedes `blur`.
+fn commit_pending_change_js(keeps_focus: &str) -> String {
+  format!(
+    r"var pendingChange = {PENDING_CHANGE};
+                if (pendingChange) {{
+                    var pendingField = pendingChange.el;
+                    if (!({keeps_focus})) {{
+                        {PENDING_CHANGE} = null;
+                        if (pendingField.isConnected && pendingField.value !== pendingChange.value) {{
+                            pendingField.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        }}
+                    }}
+                }}"
+  )
+}
+
+/// JS recording that `el` owes a `change` if its value differs from `initial_value` once focus
+/// leaves it. An earlier record for the same field wins, as it holds the value from before the first
+/// edit. A `blur` listener covers focus the page moves; there `change` follows `blur`.
+fn record_pending_change_js(el: &str, initial_value: &str) -> String {
+  let commit_other_field = commit_pending_change_js(&format!("pendingField === {el}"));
+  format!(
+    r"{commit_other_field}
+                if (!{PENDING_CHANGE}) {{
+                    var record = {{ el: {el}, value: {initial_value} }};
+                    {PENDING_CHANGE} = record;
+                    {el}.addEventListener('blur', function onBlur() {{
+                        record.el.removeEventListener('blur', onBlur);
+                        if ({PENDING_CHANGE} === record) {{
+                            {PENDING_CHANGE} = null;
+                            if (record.el.value !== record.value) {{
+                                record.el.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                            }}
+                        }}
+                    }});
+                }}"
+  )
+}
+
+/// JS clicking `el` and focusing it, firing first any `change` a field owes from Send Keys if the
+/// click moves focus away from it.
+fn click_element_script(js_var: &str) -> String {
+  let active_element = deep_active_element_js("activeEl");
+  let text_field = is_text_field_js("el");
+  let commit_change =
+    commit_pending_change_js("pendingField === el || el.control === pendingField");
+  format!(
+    r"(function() {{
+              var el = window.{js_var};
+              if (!el || !el.isConnected) {{
+                  throw '__wdio_stale__';
+              }}
+              {active_element}
+              // A caret set before focus stops WebKit selecting a fresh field's text (or putting a
+              // textarea's caret first), while a select-on-focus handler still picks its own selection.
+              if (activeEl !== el && {text_field}) {{
+                  try {{
+                      el.setSelectionRange(el.value.length, el.value.length);
+                  }} catch (e) {{}}
+              }}
+              {commit_change}
+              el.scrollIntoView({{ block: 'center', inline: 'center' }});
+              el.click();
+              // Explicitly focus the element after click - programmatic click()
+              // doesn't always trigger focus like a real click would
+              if (typeof el.focus === 'function') {{
+                  el.focus();
+              }}
+              return true;
+          }})()"
+  )
+}
+
+/// JS for Element Clear with W3C's focusing and unfocusing steps: `el` takes focus, clears with an
+/// `input` event, then blurs, firing `change` first if its value differs from its last committed one.
+fn clear_element_script(js_var: &str) -> String {
+  let commit_change = commit_pending_change_js("pendingField === el");
+  format!(
+    r"(function() {{
+              var el = window.{js_var};
+              if (!el || !el.isConnected) {{
+                  throw '__wdio_stale__';
+              }}
+              if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && (el.disabled || el.readOnly)) {{
+                  return 'not editable';
+              }}
+              {commit_change}
+              var committedValue = el.value;
+              if ({PENDING_CHANGE} && {PENDING_CHANGE}.el === el) {{
+                  committedValue = {PENDING_CHANGE}.value;
+                  {PENDING_CHANGE} = null;
+              }}
+              el.focus();
+              if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {{
+                  var nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                      el.tagName === 'INPUT' ? window.HTMLInputElement.prototype : window.HTMLTextAreaElement.prototype,
+                      'value'
+                  ).set;
+                  nativeInputValueSetter.call(el, '');
+                  var inputEvent = new InputEvent('input', {{
+                      bubbles: true,
+                      cancelable: true,
+                      inputType: 'deleteContentBackward'
+                  }});
+                  el.dispatchEvent(inputEvent);
+                  if (el.value !== committedValue) {{
+                      el.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                  }}
+              }} else if (el.isContentEditable) {{
+                  el.innerHTML = '';
+              }}
+              el.blur();
+              return true;
+          }})()"
+  )
+}
+
+/// JS for Element Send Keys: focuses `el`, appends `text` with an `input` event, and records that
+/// `el` owes a `change` once focus leaves it if its value differs from before the edit.
+fn send_keys_script(js_var: &str, text: &str) -> String {
+  let text = js_string(text);
+  let commit_change = commit_pending_change_js("pendingField === el");
+  let record_change = record_pending_change_js("el", "initialValue");
+  format!(
+    r"(function() {{
+              var el = window.{js_var};
+              if (!el || !el.isConnected) {{
+                  throw '__wdio_stale__';
+              }}
+              {commit_change}
+              var initialValue = typeof el.value === 'string' ? el.value : null;
+              el.focus();
+              el.value += {text};
+              el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+              if (initialValue !== null) {{
+                  {record_change}
+              }}
+              return true;
+          }})()"
+  )
+}
+
 async fn element_var(
   state: &Arc<AppState>,
   session_id: &str,
@@ -507,4 +676,72 @@ async fn element_var(
     .ok_or_else(WebDriverErrorResponse::stale_element_reference)?
     .to_string();
   Ok((session.timeouts.script_ms, var))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn click_commits_a_pending_change_unless_it_clicks_that_field_or_its_label() {
+    let script = click_element_script("__wdio_elem_abc");
+    let commit = script.find(&format!("var pendingChange = {PENDING_CHANGE};")).unwrap();
+    assert!(commit < script.find("el.click();").unwrap());
+    assert!(commit < script.find("el.focus();").unwrap());
+    assert!(script.contains("if (!(pendingField === el || el.control === pendingField)) {"));
+  }
+
+  #[test]
+  fn clear_fires_input_then_change_against_the_committed_value_then_blurs() {
+    let script = clear_element_script("__wdio_elem_abc");
+    let commit = script.find("if (!(pendingField === el)) {").unwrap();
+    let committed = script.find(&format!("committedValue = {PENDING_CHANGE}.value;")).unwrap();
+    let focus = script.find("el.focus();").unwrap();
+    let input = script.find("el.dispatchEvent(inputEvent);").unwrap();
+    let change = script.find("if (el.value !== committedValue) {").unwrap();
+    let blur = script.find("el.blur();").unwrap();
+    assert!(commit < committed && committed < focus && focus < input);
+    assert!(input < change && change < blur);
+    assert_eq!(script.matches("new Event('change'").count(), 2, "{script}");
+  }
+
+  #[test]
+  fn send_keys_commits_a_pending_change_before_focus_and_defers_its_own_change_to_blur() {
+    let script = send_keys_script("__wdio_elem_abc", "it's\n");
+    let commit = script.find(&format!("var pendingChange = {PENDING_CHANGE};")).unwrap();
+    let focus = script.find("el.focus();").unwrap();
+    let input = script.find("el.dispatchEvent(new Event('input'").unwrap();
+    let record = script.find("var record = { el: el, value: initialValue };").unwrap();
+    assert!(commit < focus && focus < input && input < record);
+    assert!(script.contains(&format!("el.value += {};", js_string("it's\n"))));
+    assert_eq!(
+      script.matches("dispatchEvent(new Event('change'").count(),
+      script.matches("pendingField.dispatchEvent(new Event('change'").count()
+        + script.matches("record.el.dispatchEvent(new Event('change'").count(),
+    );
+  }
+
+  #[test]
+  fn commit_pending_change_fires_change_once_and_only_for_a_changed_value() {
+    let script = commit_pending_change_js("pendingField === el");
+    let keeps = script.find("if (!(pendingField === el)) {").unwrap();
+    let cleared = script.find(&format!("{PENDING_CHANGE} = null;")).unwrap();
+    let changed = script.find("pendingField.value !== pendingChange.value").unwrap();
+    let change = script.find("pendingField.dispatchEvent(new Event('change'").unwrap();
+    assert!(keeps < cleared && cleared < changed && changed < change);
+    assert!(script.contains("pendingField.isConnected"));
+  }
+
+  #[test]
+  fn record_pending_change_keeps_the_first_edit_and_commits_on_blur() {
+    let script = record_pending_change_js("el", "initialValue");
+    let other_field = script.find("if (!(pendingField === el)) {").unwrap();
+    let only_if_none = script.find(&format!("if (!{PENDING_CHANGE}) {{")).unwrap();
+    let blur = script.find("el.addEventListener('blur'").unwrap();
+    assert!(other_field < only_if_none && only_if_none < blur);
+    let listener = &script[blur..];
+    assert!(listener.contains(&format!("if ({PENDING_CHANGE} === record) {{")));
+    assert!(listener.contains("record.el.value !== record.value"));
+    assert!(listener.contains("record.el.removeEventListener('blur', onBlur);"));
+  }
 }
