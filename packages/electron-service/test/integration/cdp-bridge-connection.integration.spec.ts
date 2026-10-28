@@ -65,8 +65,8 @@ describe('CDP bridge connection failure', () => {
     expect(hookResult).not.toBeInstanceOf(Error);
     const error = apiError(browser);
     expect(error).toBeInstanceOf(Error);
-    expect((error as Error).message).toMatch(
-      /^CDP bridge could not connect to the main process, API is disabled: .*ECONNREFUSED/,
+    expect((error as Error).message).toBe(
+      `CDP bridge could not connect to the main process, API is disabled: Timeout exceeded while waiting for debugger port to open: localhost:${port}`,
     );
     expect((error as Error).cause).toBeInstanceOf(Error);
     expect(logger.error).toHaveBeenCalledWith(

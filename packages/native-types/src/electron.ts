@@ -270,15 +270,15 @@ export interface ElectronServiceGlobalOptions
    */
   rendererLogLevel?: LogLevel;
   /**
-   * Timeout for any request using CdpBridge to a node debugger.
+   * Timeout in milliseconds for the node debugger port to open, and for each request to the debugger.
    */
   cdpBridgeTimeout?: number;
   /**
-   * Interval in milliseconds to wait between attempts to connect to the node debugger.
+   * Interval in milliseconds between attempts to connect to the node debugger once its port is open.
    */
   cdpBridgeWaitInterval?: number;
   /**
-   * Number of attempts to connect to the node debugger before giving up.
+   * Number of times to retry connecting to the node debugger once its port is open.
    */
   cdpBridgeRetryCount?: number;
   /**
