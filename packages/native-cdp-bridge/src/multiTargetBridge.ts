@@ -291,6 +291,7 @@ export class MultiTargetCdpBridge extends EventEmitter {
           return;
         }
       } catch (error) {
+        // `timeout` bounds the whole port wait, so a port that didn't open isn't retried.
         if (
           this.#closed ||
           (error instanceof Error && error.message.startsWith(ERROR_MESSAGE.TIMEOUT_WAIT_PORT)) ||

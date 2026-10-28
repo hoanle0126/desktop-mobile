@@ -171,8 +171,7 @@ export class CdpBridge extends EventEmitter {
           throw new Error(ERROR_MESSAGE.DEBUGGER_NOT_FOUND);
         }
       } catch (error) {
-        // BRIDGE_CLOSED is terminal — never swallow it back into a retry.
-        // So is TIMEOUT_WAIT_PORT: the port wait already used the whole `timeout`.
+        // `timeout` bounds the whole port wait, so a port that didn't open isn't retried.
         if (
           this.#closed ||
           (error instanceof Error && error.message.startsWith(ERROR_MESSAGE.TIMEOUT_WAIT_PORT)) ||
