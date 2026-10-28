@@ -5,6 +5,7 @@ import type { Debugger } from '../src/types.js';
 const h = vi.hoisted(() => ({
   targets: [] as Debugger[],
   listError: undefined as Error | undefined,
+  isPortOpened: true,
   listCalls: 0,
   ctors: [] as Array<{ url: string; opts: unknown }>,
   sent: [] as string[],
@@ -20,6 +21,9 @@ const h = vi.hoisted(() => ({
 
 vi.mock('../src/devTool.js', () => ({
   DevTool: class {
+    get isPortOpened() {
+      return h.isPortOpened;
+    }
     list = async () => {
       h.listCalls++;
       if (h.listError) {
@@ -94,6 +98,7 @@ const target = (id: string, url: string, ws = `ws://localhost:8081/inspector/deb
 beforeEach(() => {
   h.targets = [];
   h.listError = undefined;
+  h.isPortOpened = true;
   h.listCalls = 0;
   h.ctors.length = 0;
   h.sent.length = 0;
@@ -137,11 +142,25 @@ describe('CdpBridge (single-target)', () => {
     await expect(bridge.connect()).rejects.toThrow();
   });
 
-  it('should not retry when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
+  it('should not retry when the debugger port never opens (timeout or unresolvable host)', async () => {
+    h.isPortOpened = false;
     h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
     expect(h.listCalls).toBe(1);
+
+    h.listCalls = 0;
+    h.listError = new Error("The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222");
+    await expect(bridge.connect()).rejects.toThrow(
+      "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
+    );
+    expect(h.listCalls).toBe(1);
+
+    h.listCalls = 0;
+    h.isPortOpened = true;
+    h.listError = new Error('Request Error: socket hang up');
+    await expect(bridge.connect()).rejects.toThrow('Request Error: socket hang up');
+    expect(h.listCalls).toBe(4);
   });
 
   it('should send after connect and proxy the result', async () => {
