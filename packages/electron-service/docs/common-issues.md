@@ -76,7 +76,7 @@ The `EnableNodeCliInspectArguments` fuse is enabled, but the service could not r
 
 Check that:
 - The app is still running after it starts. If it exits or crashes during startup, its inspector goes with it.
-- The inspector has time to start. On a slow machine, raise [`cdpBridgeRetryCount`](./configuration.md#cdpbridgeretrycount) or [`cdpBridgeWaitInterval`](./configuration.md#cdpbridgewaitinterval).
+- The inspector has time to start. On a slow machine, raise [`cdpBridgeTimeout`](./configuration.md#cdpbridgetimeout), [`cdpBridgeRetryCount`](./configuration.md#cdpbridgeretrycount), or [`cdpBridgeWaitInterval`](./configuration.md#cdpbridgewaitinterval).
 
 ## DevToolsActivePort file doesn't exist
 

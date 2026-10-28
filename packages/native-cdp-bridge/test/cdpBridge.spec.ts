@@ -4,6 +4,8 @@ import type { Debugger } from '../src/types.js';
 
 const h = vi.hoisted(() => ({
   targets: [] as Debugger[],
+  listError: undefined as Error | undefined,
+  listCalls: 0,
   ctors: [] as Array<{ url: string; opts: unknown }>,
   sent: [] as string[],
   closeGate: undefined as Promise<void> | undefined,
@@ -18,7 +20,13 @@ const h = vi.hoisted(() => ({
 
 vi.mock('../src/devTool.js', () => ({
   DevTool: class {
-    list = async () => h.targets;
+    list = async () => {
+      h.listCalls++;
+      if (h.listError) {
+        throw h.listError;
+      }
+      return h.targets;
+    };
     version = async () => ({ browser: 'Hermes', protocolVersion: '1.3' });
   },
 }));
@@ -69,7 +77,7 @@ vi.mock('../src/connection.js', async () => {
 });
 
 import { CdpBridge } from '../src/cdpBridge.js';
-import { CDP_DISCONNECT_EVENT } from '../src/constants.js';
+import { CDP_DISCONNECT_EVENT, ERROR_MESSAGE } from '../src/constants.js';
 
 const target = (id: string, url: string, ws = `ws://localhost:8081/inspector/debug?page=${id}`): Debugger => ({
   id,
@@ -85,6 +93,8 @@ const target = (id: string, url: string, ws = `ws://localhost:8081/inspector/deb
 
 beforeEach(() => {
   h.targets = [];
+  h.listError = undefined;
+  h.listCalls = 0;
   h.ctors.length = 0;
   h.sent.length = 0;
   h.closeGate = undefined;
@@ -125,6 +135,13 @@ describe('CdpBridge (single-target)', () => {
     h.targets = [{ ...target('A', 'http://app/a'), webSocketDebuggerUrl: '' }];
     const bridge = new CdpBridge({ connectionRetryCount: 0, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow();
+  });
+
+  it('should not retry when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
+    h.listError = new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
+    await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    expect(h.listCalls).toBe(1);
   });
 
   it('should send after connect and proxy the result', async () => {

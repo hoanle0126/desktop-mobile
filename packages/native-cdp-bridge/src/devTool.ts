@@ -11,6 +11,10 @@ const log = createLogger('cdp-bridge', 'bridge');
 export type DevToolOptions = {
   host?: string;
   port?: number;
+  /**
+   * Timeout in ms for waiting for the debugger port to open (once per connect)
+   * and for individual HTTP/CDP requests.
+   */
   timeout?: number;
 };
 
@@ -68,7 +72,11 @@ export class DevTool {
           interval: BRIDGE_RETRY_INTERVAL,
         };
         waitPort(waitOptions)
-          .then(() => {
+          .then(({ open }) => {
+            if (!open) {
+              reject(new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT));
+              return;
+            }
             this.#isPortOpened = true;
             resolve();
           })

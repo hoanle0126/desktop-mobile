@@ -123,11 +123,11 @@ export interface ElectrobunServiceOptions extends BaseServiceOptions {
    * pinned port — set this only to force one instance onto a known fixed port.
    */
   remoteDebuggingPort?: number;
-  /** Per-instance CDP connection timeout in ms. @default 10000 */
+  /** Per-instance timeout in ms for waiting for the CDP port to open (once per connect) and for CDP requests. @default 10000 */
   cdpConnectionTimeout?: number;
-  /** Number of CDP connection retries before failing. @default 3 */
+  /** Number of target discovery / attach retries after the CDP port opens before failing. @default 3 */
   cdpConnectionRetryCount?: number;
-  /** Interval between CDP connection retries in ms. @default 100 */
+  /** Interval between CDP target discovery / attach retries in ms after the port opens. @default 100 */
   cdpConnectionRetryInterval?: number;
   /** Default window/target label for execute/mock calls. */
   windowLabel?: string;

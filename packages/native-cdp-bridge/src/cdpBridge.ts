@@ -28,7 +28,9 @@ type SendParams<T extends Methods> = MethodParams<T> extends [] ? [] : [MethodPa
 export type SelectTarget = (targets: DebuggerList) => Debugger | undefined;
 
 export type CdpBridgeOptions = DevToolOptions & {
+  /** Interval in ms between target discovery / attach retries after the debugger port opens. */
   waitInterval?: number;
+  /** Number of target discovery / attach retries after the debugger port opens. */
   connectionRetryCount?: number;
   /** WebSocket `Origin` header (e.g. for React Native's Fusebox CSRF check). */
   origin?: string;
@@ -170,7 +172,14 @@ export class CdpBridge extends EventEmitter {
         }
       } catch (error) {
         // BRIDGE_CLOSED is terminal — never swallow it back into a retry.
-        if (this.#closed || retries >= this.#options.connectionRetryCount) {
+        // TIMEOUT_WAIT_PORT is also terminal for this connect(): waitPort already
+        // polled the port for the full `timeout` budget, so connectionRetryCount
+        // only retries target discovery / attach after the port opens.
+        if (
+          this.#closed ||
+          (error instanceof Error && error.message === ERROR_MESSAGE.TIMEOUT_WAIT_PORT) ||
+          retries >= this.#options.connectionRetryCount
+        ) {
           throw error;
         }
         log.warn(`Connection attempt ${retries + 1} failed: ${(error as Error).message}`);
