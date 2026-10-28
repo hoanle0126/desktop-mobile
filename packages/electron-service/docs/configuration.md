@@ -177,21 +177,21 @@ Default: `false`
 
 ### `cdpBridgeTimeout`:
 
-Timeout in milliseconds for waiting for the node debugger port to open (bounded once per connection attempt) and for individual requests using CdpBridge.
+Timeout in milliseconds for the node debugger port to open, and for each request to the debugger.
 
 Type: `number`
 Default: `10000` (10 seconds)
 
 ### `cdpBridgeWaitInterval`:
 
-Interval in milliseconds to wait between target discovery and attachment retries after the node debugger port has opened.
+Interval in milliseconds between attempts to connect to the node debugger once its port is open.
 
 Type: `number`
 Default: `100`
 
 ### `cdpBridgeRetryCount`:
 
-Number of retries for target discovery and attachment after the node debugger port opens before giving up.
+Number of times to retry connecting to the node debugger once its port is open.
 
 Type: `number`
 Default: `3`

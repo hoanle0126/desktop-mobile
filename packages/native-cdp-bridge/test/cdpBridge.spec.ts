@@ -138,7 +138,7 @@ describe('CdpBridge (single-target)', () => {
   });
 
   it('should not retry when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
-    h.listError = new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
     expect(h.listCalls).toBe(1);

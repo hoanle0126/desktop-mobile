@@ -18,10 +18,11 @@ describe('DevTool', () => {
     const port = await closedPort();
     const devTool = new DevTool({ host: 'localhost', port, timeout: 100 });
 
-    await expect(devTool.list()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    const timeout = { message: `${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:${port}` };
+    await expect(devTool.list()).rejects.toMatchObject(timeout);
     // A second call must still wait on the port (and time out with TIMEOUT_WAIT_PORT)
     // rather than skipping waitPort and failing with ECONNREFUSED.
-    await expect(devTool.list()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    await expect(devTool.list()).rejects.toMatchObject(timeout);
   });
 
   it('should name the refused address when the debugger port closes after opening', async () => {

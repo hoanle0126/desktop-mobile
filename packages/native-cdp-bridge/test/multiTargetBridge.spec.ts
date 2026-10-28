@@ -152,7 +152,7 @@ describe('MultiTargetCdpBridge multi-target routing', () => {
   });
 
   it('should not retry discovery when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
-    h.listError = new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = makeBridge({ connectionRetryCount: 3, waitInterval: 1 });
 
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
