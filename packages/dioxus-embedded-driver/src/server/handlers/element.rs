@@ -327,7 +327,8 @@ pub async fn click(
   Path((session_id, element_id)): Path<(String, String)>,
 ) -> WebDriverResult {
   let (timeout, var) = element_var(&state, &session_id, &element_id).await?;
-  eval_for_element(&var, format!("return {}", click_element_script(&var)), timeout).await?;
+  eval_for_element(&var, format!("return {}", click_press_script(&var)), timeout).await?;
+  eval_for_element(&var, format!("return {}", click_release_script(&var)), timeout).await?;
   Ok(WebDriverResponse::null())
 }
 
@@ -514,8 +515,7 @@ fn js_string(text: &str) -> String {
   Value::from(text).to_string()
 }
 
-/// JS clicking `el` after moving focus as a mousedown on it would.
-fn click_element_script(js_var: &str) -> String {
+fn click_press_script(js_var: &str) -> String {
   format!(
     r"(function() {{
               {ELEMENT_EVENTS_JS}
@@ -523,10 +523,19 @@ fn click_element_script(js_var: &str) -> String {
               if (!el || !el.isConnected) {{
                   throw '__wdio_stale__';
               }}
-              el.scrollIntoView({{ block: 'center', inline: 'center' }});
-              // `click()` doesn't move focus, so focus moves first, as on a real mousedown.
-              wdioFocusForClick(el);
-              el.click();
+              el.scrollIntoView({{ behavior: 'instant', block: 'center', inline: 'center' }});
+              wdioPress(el);
+              return true;
+          }})()"
+  )
+}
+
+/// JS releasing the press, in its own script so that the page reacts to the press first.
+fn click_release_script(js_var: &str) -> String {
+  format!(
+    r"(function() {{
+              {ELEMENT_EVENTS_JS}
+              wdioRelease(window.{js_var});
               return true;
           }})()"
   )
@@ -563,7 +572,7 @@ fn send_keys_script(js_var: &str, text: &str) -> String {
               if (valueControlStatus) {{
                   return valueControlStatus;
               }}
-              el.focus();
+              wdioFocus(el);
               if (wdioDeepActiveElement() !== el) {{
                   return 'unfocused';
               }}
@@ -574,10 +583,9 @@ fn send_keys_script(js_var: &str, text: &str) -> String {
                   el.dispatchEvent(new Event('input', {{ bubbles: true }}));
                   el.dispatchEvent(new Event('change', {{ bubbles: true }}));
               }} else if (!el.readOnly && text !== '') {{
-                  var initialValue = el.value;
+                  wdioRecordPendingChange(el, el.value);
                   el.value += text;
                   el.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                  wdioRecordPendingChange(el, initialValue);
               }}
               return 'done';
           }})()"
@@ -610,14 +618,14 @@ mod tests {
   }
 
   #[test]
-  fn click_moves_focus_before_clicking_and_leaves_it_to_the_page_after() {
-    let script = click_element_script("__wdio_elem_abc");
-    let body = body(&script);
-    let scroll = body.find("el.scrollIntoView(").unwrap();
-    let focus = body.find("wdioFocusForClick(el);").unwrap();
-    let click = body.find("el.click();").unwrap();
-    assert!(scroll < focus && focus < click);
-    assert!(!body[click..].contains("focus()"));
+  fn click_scrolls_and_presses_then_releases_in_a_later_script() {
+    let press = click_press_script("__wdio_elem_abc");
+    let pressing = body(&press);
+    let scroll = pressing.find("el.scrollIntoView({ behavior: 'instant',").unwrap();
+    assert!(scroll < pressing.find("wdioPress(el);").unwrap());
+    assert!(!pressing.contains("wdioRelease("));
+    let release = click_release_script("__wdio_elem_abc");
+    assert!(body(&release).contains("wdioRelease(window.__wdio_elem_abc);"));
   }
 
   #[test]
@@ -629,16 +637,18 @@ mod tests {
   }
 
   #[test]
-  fn send_keys_sets_value_controls_and_defers_a_text_fields_change_to_blur() {
+  fn send_keys_sets_value_controls_and_records_a_text_fields_change_before_typing() {
     let script = send_keys_script("__wdio_elem_abc", "it's\n");
     let body = body(&script);
     assert!(body.contains(&format!("var text = {};", js_string("it's\n"))));
     let set = body.find("wdioSetValueControl(el, text);").unwrap();
-    let focus = body.find("el.focus();").unwrap();
+    let focus = body.find("wdioFocus(el);").unwrap();
     let unfocused = body.find("return 'unfocused';").unwrap();
-    let record = body.find("wdioRecordPendingChange(el, initialValue);").unwrap();
-    assert!(set < focus && focus < unfocused && unfocused < record);
     let text_field = body.find("} else if (!el.readOnly && text !== '') {").unwrap();
+    let record = body.find("wdioRecordPendingChange(el, el.value);").unwrap();
+    let typed = text_field + body[text_field..].find("el.value += text;").unwrap();
+    assert!(set < focus && focus < unfocused && unfocused < text_field);
+    assert!(text_field < record && record < typed);
     assert!(!body[text_field..].contains("new Event('change'"));
   }
 }

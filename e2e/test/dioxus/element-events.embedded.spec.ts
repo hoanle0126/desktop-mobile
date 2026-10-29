@@ -62,6 +62,30 @@ describe('Dioxus element events (embedded)', () => {
     expect(await fieldEvents()).toEqual(['input x', 'change x', 'blur x']);
   });
 
+  it('should fire change when an input handler moves focus on', async () => {
+    await fillChangeScratch();
+    await browser.execute(
+      'document.querySelector("#fresh-field").addEventListener("input", function () {' +
+        'document.querySelector("#fresh-other").focus(); });',
+    );
+    await browser.$('#fresh-field').addValue('1');
+    expect(await fieldEvents()).toEqual(['input 1', 'change 1', 'blur 1']);
+  });
+
+  it("should let the page react to a click's press before its release, as real input does", async () => {
+    await fillChangeScratch();
+    await browser.execute(
+      `var button = document.querySelector("#fresh-other");
+      window.__pressReacted = false;
+      button.addEventListener("pointerdown", function () {
+        Promise.resolve().then(function () { window.__pressReacted = true; });
+      });
+      button.addEventListener("pointerup", function () { window.__releaseSawPress = window.__pressReacted; });`,
+    );
+    await browser.$('#fresh-other').click();
+    expect(await browser.execute('return window.__releaseSawPress')).toBe(true);
+  });
+
   it('should take focus off the field when a click lands on an element that cannot take it', async () => {
     await fillChangeScratch();
     await addToScratch('<div id="fresh-plain">plain</div>');
