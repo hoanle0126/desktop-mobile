@@ -13,7 +13,7 @@ import {
   ERROR_MESSAGE,
   REQUEST_TIMEOUT,
 } from './constants.js';
-import { DevTool, type DevToolOptions } from './devTool.js';
+import { DevTool, type DevToolOptions, PortWaitError } from './devTool.js';
 import type { Debugger, DebuggerList } from './types.js';
 
 const log = createLogger('cdp-bridge', 'bridge');
@@ -171,12 +171,9 @@ export class CdpBridge extends EventEmitter {
           throw new Error(ERROR_MESSAGE.DEBUGGER_NOT_FOUND);
         }
       } catch (error) {
-        // `timeout` bounds the whole port wait, so a port that didn't open isn't retried.
-        if (
-          this.#closed ||
-          (error instanceof Error && error.message.startsWith(ERROR_MESSAGE.TIMEOUT_WAIT_PORT)) ||
-          retries >= this.#options.connectionRetryCount
-        ) {
+        // Port-wait failures (timeout or a wait-port rejection such as an unresolvable
+        // host or invalid port) happen before the debugger port opens and aren't retried.
+        if (this.#closed || error instanceof PortWaitError || retries >= this.#options.connectionRetryCount) {
           throw error;
         }
         log.warn(`Connection attempt ${retries + 1} failed: ${(error as Error).message}`);

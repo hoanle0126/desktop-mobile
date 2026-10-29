@@ -18,18 +18,22 @@ const h = vi.hoisted(() => ({
   removedListeners: [] as Array<Array<{ event: string; listener: (...args: unknown[]) => void }>>,
 }));
 
-vi.mock('../src/devTool.js', () => ({
-  DevTool: class {
-    list = async () => {
-      h.listCalls++;
-      if (h.listError) {
-        throw h.listError;
-      }
-      return h.targets;
-    };
-    version = async () => ({ browser: 'Hermes', protocolVersion: '1.3' });
-  },
-}));
+vi.mock('../src/devTool.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/devTool.js')>();
+  return {
+    ...actual,
+    DevTool: class {
+      list = async () => {
+        h.listCalls++;
+        if (h.listError) {
+          throw h.listError;
+        }
+        return h.targets;
+      };
+      version = async () => ({ browser: 'Hermes', protocolVersion: '1.3' });
+    },
+  };
+});
 
 vi.mock('../src/connection.js', async () => {
   const { CDP_DISCONNECT_EVENT } = await import('../src/constants.js');
@@ -78,6 +82,7 @@ vi.mock('../src/connection.js', async () => {
 
 import { CdpBridge } from '../src/cdpBridge.js';
 import { CDP_DISCONNECT_EVENT, ERROR_MESSAGE } from '../src/constants.js';
+import { PortWaitError } from '../src/devTool.js';
 
 const target = (id: string, url: string, ws = `ws://localhost:8081/inspector/debug?page=${id}`): Debugger => ({
   id,
@@ -137,10 +142,19 @@ describe('CdpBridge (single-target)', () => {
     await expect(bridge.connect()).rejects.toThrow();
   });
 
-  it('should not retry when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
-    h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
+  it('should not retry when waiting for the debugger port fails (PortWaitError)', async () => {
+    h.listError = new PortWaitError(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    expect(h.listCalls).toBe(1);
+  });
+
+  it('should not retry when the debugger host cannot be resolved', async () => {
+    h.listError = new PortWaitError("The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222");
+    const bridge = new CdpBridge({ connectionRetryCount: 3, waitInterval: 1 });
+    await expect(bridge.connect()).rejects.toThrow(
+      "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
+    );
     expect(h.listCalls).toBe(1);
   });
 

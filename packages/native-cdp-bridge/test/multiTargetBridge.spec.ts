@@ -22,21 +22,25 @@ const h = vi.hoisted(() => ({
   removedListeners: new Map<string, Array<{ event: string; listener: (...args: unknown[]) => void }>>(),
 }));
 
-vi.mock('../src/devTool.js', () => ({
-  DevTool: class {
-    list = async () => {
-      h.listCalls++;
-      if (h.listGate) {
-        await h.listGate;
-      }
-      if (h.listError) {
-        throw h.listError;
-      }
-      return h.targets;
-    };
-    version = async () => ({ browser: 'CEF', protocolVersion: '1.3' });
-  },
-}));
+vi.mock('../src/devTool.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/devTool.js')>();
+  return {
+    ...actual,
+    DevTool: class {
+      list = async () => {
+        h.listCalls++;
+        if (h.listGate) {
+          await h.listGate;
+        }
+        if (h.listError) {
+          throw h.listError;
+        }
+        return h.targets;
+      };
+      version = async () => ({ browser: 'CEF', protocolVersion: '1.3' });
+    },
+  };
+});
 
 vi.mock('../src/connection.js', async () => {
   const { CDP_DISCONNECT_EVENT } = await import('../src/constants.js');
@@ -88,6 +92,7 @@ vi.mock('../src/connection.js', async () => {
 });
 
 import { CDP_DISCONNECT_EVENT, ERROR_MESSAGE } from '../src/constants.js';
+import { PortWaitError } from '../src/devTool.js';
 import { MultiTargetCdpBridge, type MultiTargetCdpBridgeOptions } from '../src/multiTargetBridge.js';
 
 const classify: ClassifyTarget = (t) => {
@@ -151,11 +156,21 @@ describe('MultiTargetCdpBridge multi-target routing', () => {
     expect(h.closed).toBe(1);
   });
 
-  it('should not retry discovery when waiting for the debugger port times out (TIMEOUT_WAIT_PORT)', async () => {
-    h.listError = new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
+  it('should not retry discovery when waiting for the debugger port fails (PortWaitError)', async () => {
+    h.listError = new PortWaitError(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:9222`);
     const bridge = makeBridge({ connectionRetryCount: 3, waitInterval: 1 });
 
     await expect(bridge.connect()).rejects.toThrow(ERROR_MESSAGE.TIMEOUT_WAIT_PORT);
+    expect(h.listCalls).toBe(1);
+  });
+
+  it('should not retry discovery when the debugger host cannot be resolved', async () => {
+    h.listError = new PortWaitError("The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222");
+    const bridge = makeBridge({ connectionRetryCount: 3, waitInterval: 1 });
+
+    await expect(bridge.connect()).rejects.toThrow(
+      "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
+    );
     expect(h.listCalls).toBe(1);
   });
 

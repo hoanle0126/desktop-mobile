@@ -42,4 +42,22 @@ describe('DevTool', () => {
       message: expect.stringMatching(new RegExp(`^Request Error: .*ECONNREFUSED .*:${port}`)),
     });
   });
+
+  it('should report wait-port rejection with its message and address when the debugger host cannot be resolved', async () => {
+    const devTool = new DevTool({ host: 'unresolvable.invalid', port: 9222, timeout: 500 });
+
+    await expect(devTool.list()).rejects.toMatchObject({
+      message: "The address 'unresolvable.invalid' cannot be found: unresolvable.invalid:9222",
+      cause: expect.any(Error),
+    });
+  });
+
+  it('should report wait-port validation errors with their message and address', async () => {
+    const devTool = new DevTool({ host: 'localhost', port: 70000, timeout: 500 });
+
+    await expect(devTool.list()).rejects.toMatchObject({
+      message: "'port' must not be greater than 65535.: localhost:70000",
+      cause: expect.any(Error),
+    });
+  });
 });

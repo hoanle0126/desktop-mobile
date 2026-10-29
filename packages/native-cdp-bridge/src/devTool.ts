@@ -28,6 +28,10 @@ type WaitOptions = Parameters<typeof waitPort>[0];
 
 const BRIDGE_RETRY_INTERVAL = 100;
 
+export class PortWaitError extends Error {
+  override name = 'PortWaitError';
+}
+
 /**
  * Discovers CDP targets from a runtime's HTTP debugger endpoint (`/json`). Returns
  * **every** entry the endpoint lists; the caller (single- or multi-target bridge)
@@ -71,13 +75,22 @@ export class DevTool {
         waitPort(waitOptions)
           .then(({ open }) => {
             if (!open) {
-              reject(new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT));
+              reject(
+                new PortWaitError(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: ${this.#options.host}:${this.#options.port}`),
+              );
               return;
             }
             this.#isPortOpened = true;
             resolve();
           })
-          .catch(reject);
+          .catch((error) => {
+            const detail = error instanceof Error ? requestErrorDetail(error) : String(error);
+            reject(
+              new PortWaitError(`${detail}: ${this.#options.host}:${this.#options.port}`, {
+                cause: error,
+              }),
+            );
+          });
       } else {
         resolve();
       }
@@ -125,9 +138,7 @@ export class DevTool {
 
           req.end();
         })
-        .catch(() => {
-          reject(new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: ${this.#options.host}:${this.#options.port}`));
-        });
+        .catch(reject);
     });
   }
 

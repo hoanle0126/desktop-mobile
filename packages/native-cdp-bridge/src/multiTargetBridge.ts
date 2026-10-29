@@ -13,7 +13,7 @@ import {
   ERROR_MESSAGE,
   REQUEST_TIMEOUT,
 } from './constants.js';
-import { DevTool, type DevToolOptions } from './devTool.js';
+import { DevTool, type DevToolOptions, PortWaitError } from './devTool.js';
 import { TargetRegistry } from './targetRegistry.js';
 import type { ClassifyTarget, TargetRegistryEntry } from './types.js';
 
@@ -291,12 +291,9 @@ export class MultiTargetCdpBridge extends EventEmitter {
           return;
         }
       } catch (error) {
-        // `timeout` bounds the whole port wait, so a port that didn't open isn't retried.
-        if (
-          this.#closed ||
-          (error instanceof Error && error.message.startsWith(ERROR_MESSAGE.TIMEOUT_WAIT_PORT)) ||
-          retries >= this.#options.connectionRetryCount
-        ) {
+        // Port-wait failures (timeout or a wait-port rejection such as an unresolvable
+        // host or invalid port) happen before the debugger port opens and aren't retried.
+        if (this.#closed || error instanceof PortWaitError || retries >= this.#options.connectionRetryCount) {
           throw error;
         }
         log.warn(`Target discovery attempt ${retries + 1} failed: ${(error as Error).message}`);
