@@ -20,9 +20,21 @@ describe('DevTool', () => {
 
     const timeout = { message: `${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: localhost:${port}` };
     await expect(devTool.list()).rejects.toMatchObject(timeout);
+    expect(devTool.isPortOpened).toBe(false);
     // A second call must still wait on the port (and time out with TIMEOUT_WAIT_PORT)
     // rather than skipping waitPort and failing with ECONNREFUSED.
     await expect(devTool.list()).rejects.toMatchObject(timeout);
+  });
+
+  it("should report the port wait's own error with the address", async () => {
+    // Fails the port wait at once, as a host that can't be resolved does, without a DNS lookup.
+    const devTool = new DevTool({ host: 'localhost', port: 70000, timeout: 100 });
+
+    await expect(devTool.list()).rejects.toMatchObject({
+      message: "'port' must not be greater than 65535.: localhost:70000",
+      cause: expect.any(Error),
+    });
+    expect(devTool.isPortOpened).toBe(false);
   });
 
   it('should name the refused address when the debugger port closes after opening', async () => {

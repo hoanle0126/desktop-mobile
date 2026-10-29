@@ -47,6 +47,10 @@ export class DevTool {
     };
   }
 
+  get isPortOpened(): boolean {
+    return this.#isPortOpened;
+  }
+
   list() {
     return this.#executeRequest<DebuggerList>({ path: '/json' });
   }
@@ -63,6 +67,7 @@ export class DevTool {
   #waitDebuggerPort() {
     return new Promise<void>((resolve, reject) => {
       if (!this.#isPortOpened) {
+        const address = `${this.#options.host}:${this.#options.port}`;
         const waitOptions: WaitOptions = {
           ...this.#options,
           output: 'silent',
@@ -71,13 +76,16 @@ export class DevTool {
         waitPort(waitOptions)
           .then(({ open }) => {
             if (!open) {
-              reject(new Error(ERROR_MESSAGE.TIMEOUT_WAIT_PORT));
+              reject(new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: ${address}`));
               return;
             }
             this.#isPortOpened = true;
             resolve();
           })
-          .catch(reject);
+          .catch((error: unknown) => {
+            const detail = error instanceof Error ? requestErrorDetail(error) : String(error);
+            reject(new Error(`${detail}: ${address}`, { cause: error }));
+          });
       } else {
         resolve();
       }
@@ -125,9 +133,7 @@ export class DevTool {
 
           req.end();
         })
-        .catch(() => {
-          reject(new Error(`${ERROR_MESSAGE.TIMEOUT_WAIT_PORT}: ${this.#options.host}:${this.#options.port}`));
-        });
+        .catch(reject);
     });
   }
 

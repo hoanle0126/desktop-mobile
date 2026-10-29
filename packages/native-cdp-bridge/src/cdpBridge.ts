@@ -171,12 +171,8 @@ export class CdpBridge extends EventEmitter {
           throw new Error(ERROR_MESSAGE.DEBUGGER_NOT_FOUND);
         }
       } catch (error) {
-        // `timeout` bounds the whole port wait, so a port that didn't open isn't retried.
-        if (
-          this.#closed ||
-          (error instanceof Error && error.message.startsWith(ERROR_MESSAGE.TIMEOUT_WAIT_PORT)) ||
-          retries >= this.#options.connectionRetryCount
-        ) {
+        // A port that didn't open isn't retried: its wait used the whole `timeout`, or hit an error retrying won't fix.
+        if (this.#closed || !this.#devTool.isPortOpened || retries >= this.#options.connectionRetryCount) {
           throw error;
         }
         log.warn(`Connection attempt ${retries + 1} failed: ${(error as Error).message}`);
