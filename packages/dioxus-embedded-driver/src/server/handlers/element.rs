@@ -555,10 +555,9 @@ fn clear_element_script(js_var: &str) -> String {
   )
 }
 
-/// JS for Element Send Keys. A date, colour or similar input gets `text` as its value at once.
-/// Otherwise `el` takes focus, and the field or editor that receives it takes the text; a text
-/// field owes a `change` until focus leaves it. Returns 'immutable', 'invalid' or 'unfocused' for
-/// the errors.
+/// JS for Element Send Keys. A date, colour or similar input gets `text` as its value at once;
+/// otherwise the element takes focus, and whatever receives it takes the text. A text field owes
+/// a `change` until focus leaves it. Returns 'immutable', 'invalid' or 'unfocused' on error.
 fn send_keys_script(js_var: &str, text: &str) -> String {
   let text = js_string(text);
   format!(

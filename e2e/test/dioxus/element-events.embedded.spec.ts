@@ -37,7 +37,7 @@ async function fillChangeScratch(initialValue = '') {
 
 describe('Dioxus element events (embedded)', () => {
   beforeEach(async () => {
-    // Blurring first fires any change a field still owes, before the event logs reset.
+    // Blur first, so a field's owed change fires before the scratch area is emptied.
     await browser.execute(
       'if (document.activeElement) { document.activeElement.blur(); }' +
         'var scratch = document.querySelector("#change-scratch");' +
