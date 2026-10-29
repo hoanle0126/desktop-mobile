@@ -1164,17 +1164,7 @@ describe('TauriWorkerService', () => {
       expect(mockStore.clear).toHaveBeenCalled();
     });
 
-    it('should delete session for standard browser', async () => {
-      const mockBrowser = createMockBrowser();
-      const service = new TauriWorkerService({}, { 'wdio:tauriServiceOptions': {} });
-      (service as any).browser = mockBrowser;
-
-      await service.afterSession({}, {} as any, []);
-
-      expect(mockBrowser.deleteSession).toHaveBeenCalled();
-    });
-
-    it('should clear window state with session ID for standard browser', async () => {
+    it('should clear window state with session ID for standard browser without deleting the session', async () => {
       const mockBrowser = createMockBrowser({ sessionId: 'sess-abc' });
       const service = new TauriWorkerService({}, { 'wdio:tauriServiceOptions': {} });
       (service as any).browser = mockBrowser;
@@ -1182,6 +1172,7 @@ describe('TauriWorkerService', () => {
       await service.afterSession({}, {} as any, []);
 
       expect(clearWindowState).toHaveBeenCalledWith('sess-abc');
+      expect(mockBrowser.deleteSession).not.toHaveBeenCalled();
     });
 
     it('should handle gracefully when no browser exists', async () => {
@@ -1189,16 +1180,6 @@ describe('TauriWorkerService', () => {
 
       await expect(service.afterSession({}, {} as any, [])).resolves.not.toThrow();
       expect(clearWindowState).toHaveBeenCalledWith();
-    });
-
-    it('should handle deleteSession errors gracefully', async () => {
-      const mockBrowser = createMockBrowser({
-        deleteSession: vi.fn().mockRejectedValue(new Error('session error')),
-      });
-      const service = new TauriWorkerService({}, { 'wdio:tauriServiceOptions': {} });
-      (service as any).browser = mockBrowser;
-
-      await expect(service.afterSession({}, {} as any, [])).resolves.not.toThrow();
     });
 
     it('should not talk to the app once the runner has deleted the session', async () => {
@@ -1214,7 +1195,7 @@ describe('TauriWorkerService', () => {
       expect(mockStore.clear).toHaveBeenCalled();
     });
 
-    it('should delete each instance session and clear its window state for multiremote', async () => {
+    it('should clear window state for each instance in multiremote without deleting the session', async () => {
       const instanceA = createMockBrowser({ sessionId: 'sess-a' });
       const instanceB = createMockBrowser({ sessionId: 'sess-b' });
       const mrBrowser = {
@@ -1227,30 +1208,10 @@ describe('TauriWorkerService', () => {
 
       await service.afterSession({}, {} as TauriCapabilities, []);
 
-      expect(instanceA.deleteSession).toHaveBeenCalledTimes(1);
-      expect(instanceB.deleteSession).toHaveBeenCalledTimes(1);
+      expect(instanceA.deleteSession).not.toHaveBeenCalled();
+      expect(instanceB.deleteSession).not.toHaveBeenCalled();
       expect(clearWindowState).toHaveBeenCalledWith('sess-a');
       expect(clearWindowState).toHaveBeenCalledWith('sess-b');
-    });
-
-    it('should keep deleting the remaining instances when one instance delete fails', async () => {
-      const failing = createMockBrowser({
-        sessionId: 'sess-a',
-        deleteSession: vi.fn().mockRejectedValue(new Error('instance a boom')),
-      });
-      const healthy = createMockBrowser({ sessionId: 'sess-b' });
-      const mrBrowser = {
-        isMultiremote: true,
-        instances: ['browserA', 'browserB'],
-        getInstance: vi.fn((name: string) => (name === 'browserA' ? failing : healthy)),
-      } as unknown as WebdriverIO.MultiRemoteBrowser;
-      const service = new TauriWorkerService({}, { 'wdio:tauriServiceOptions': {} });
-      (service as unknown as { browser: WebdriverIO.MultiRemoteBrowser }).browser = mrBrowser;
-
-      await expect(service.afterSession({}, {} as TauriCapabilities, [])).resolves.not.toThrow();
-
-      expect(failing.deleteSession).toHaveBeenCalledTimes(1);
-      expect(healthy.deleteSession).toHaveBeenCalledTimes(1);
     });
 
     it('should keep cleaning up the remaining instances when getInstance throws for one', async () => {
@@ -1270,7 +1231,6 @@ describe('TauriWorkerService', () => {
 
       await expect(service.afterSession({}, {} as TauriCapabilities, [])).resolves.not.toThrow();
 
-      expect(healthy.deleteSession).toHaveBeenCalledTimes(1);
       expect(clearWindowState).toHaveBeenCalledWith('sess-b');
     });
   });

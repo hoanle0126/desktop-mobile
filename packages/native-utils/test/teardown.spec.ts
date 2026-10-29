@@ -8,6 +8,7 @@ import {
   PROCESS_TEARDOWN_TIMEOUT_MS,
   runBounded,
   safeDeleteSession,
+  standaloneRequestTimeout,
 } from '../src/teardown.js';
 
 describe('isBenignTeardownError', () => {
@@ -374,5 +375,19 @@ describe('boundedOnComplete', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('standaloneRequestTimeout', () => {
+  it('should return an empty object when options or connectionRetryTimeout is omitted', () => {
+    expect(standaloneRequestTimeout()).toEqual({});
+    expect(standaloneRequestTimeout({})).toEqual({});
+    expect(standaloneRequestTimeout({ connectionRetryTimeout: undefined })).toEqual({});
+  });
+
+  it('should return connectionRetryTimeout when set', () => {
+    expect(standaloneRequestTimeout({ connectionRetryTimeout: 60_000 })).toEqual({
+      connectionRetryTimeout: 60_000,
+    });
   });
 });

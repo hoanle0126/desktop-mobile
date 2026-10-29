@@ -1,11 +1,18 @@
 import http from 'node:http';
 import { join } from 'node:path';
 import { getLogWriter } from '@wdio/native-core';
-import { boundedOnComplete, createLogger, errorMessage, failStartup, safeDeleteSession } from '@wdio/native-utils';
+import {
+  boundedOnComplete,
+  createLogger,
+  errorMessage,
+  failStartup,
+  safeDeleteSession,
+  standaloneRequestTimeout,
+} from '@wdio/native-utils';
 import { remote } from 'webdriverio';
 import TauriLaunchService from './launcher.js';
 import TauriWorkerService from './service.js';
-import { mergeServiceOptions, resolveStartTimeout } from './serviceConfig.js';
+import { mergeServiceOptions } from './serviceConfig.js';
 import type { TauriCapabilities, TauriServiceGlobalOptions } from './types.js';
 
 const log = createLogger('tauri-service', 'service');
@@ -29,7 +36,7 @@ async function checkDriverHealth(hostname: string, port: number): Promise<boolea
 
 async function driverRemoteOptions(
   capabilities: TauriCapabilities,
-  startTimeout: number,
+  globalOptions?: TauriServiceGlobalOptions,
 ): Promise<Parameters<typeof remote>[0]> {
   const hostname = (capabilities as { hostname?: string }).hostname || 'localhost';
   const port = (capabilities as { port?: number }).port;
@@ -53,14 +60,11 @@ async function driverRemoteOptions(
     log.warn('tauri-driver health check failed before session creation');
   }
 
-  log.debug(`Starting remote session with startTimeout=${startTimeout}ms`);
-
   return {
     hostname,
     port,
     capabilities: driverCapabilities,
-    // native desktop apps can be slow to start
-    connectionRetryTimeout: startTimeout * 4,
+    ...standaloneRequestTimeout(globalOptions),
     connectionRetryCount: 10,
   };
 }
@@ -123,8 +127,8 @@ export async function init(
 
     // Browser mode has no Tauri driver: WebdriverIO starts and manages chromedriver itself.
     const remoteOptions = launcher.isBrowserMode
-      ? { capabilities: browserSessionCapabilities(capabilities) }
-      : await driverRemoteOptions(capabilities, resolveStartTimeout(serviceOptions));
+      ? { capabilities: browserSessionCapabilities(capabilities), ...standaloneRequestTimeout(globalOptions) }
+      : await driverRemoteOptions(capabilities, globalOptions);
 
     const service = new TauriWorkerService(globalOptions ?? {}, capabilities);
 
@@ -158,7 +162,14 @@ export async function cleanup(browser: WebdriverIO.Browser): Promise<void> {
   const launcher = activeLaunchers.get(browser);
   if (launcher) {
     const service = activeServices.get(browser);
-    const svc = service as unknown as { afterSession?: () => Promise<void> } | undefined;
+    const svc = service as unknown as
+      | { after?: () => void | Promise<void>; afterSession?: () => Promise<void> }
+      | undefined;
+    try {
+      await svc?.after?.();
+    } catch (e) {
+      log.warn(`service.after() failed during cleanup: ${errorMessage(e)}`);
+    }
     try {
       await svc?.afterSession?.();
     } catch (e) {
@@ -166,6 +177,8 @@ export async function cleanup(browser: WebdriverIO.Browser): Promise<void> {
     } finally {
       activeServices.delete(browser);
     }
+
+    await safeDeleteSession(browser, 'cleanup', log);
 
     await boundedOnComplete(launcher, 'cleanup', log);
     activeLaunchers.delete(browser);

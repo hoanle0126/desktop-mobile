@@ -57,4 +57,5 @@ export {
   errorMessage,
   isBenignTeardownError,
   runBounded,
+  standaloneRequestTimeout,
 } from '../../../native-utils/src/teardown.js';

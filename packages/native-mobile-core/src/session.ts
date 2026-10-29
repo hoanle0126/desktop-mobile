@@ -6,6 +6,7 @@ import {
   errorMessage,
   failStartup as failStartupShared,
   safeDeleteSession,
+  standaloneRequestTimeout,
 } from '@wdio/native-utils';
 import type { Options } from '@wdio/types';
 import { remote } from 'webdriverio';
@@ -32,6 +33,7 @@ interface MobileLauncherLike<TCap> {
 interface MobileWorkerLike<TCap> {
   before(capability: TCap, specs: string[], browser: WebdriverIO.Browser): Promise<void>;
   after(): Promise<void>;
+  afterSession?(): Promise<void>;
 }
 
 export interface MobileSessionDeps<TOptions, TCap> {
@@ -103,6 +105,7 @@ export function createMobileSession<TOptions extends object, TCap extends object
       path: '/',
       ...deps.defaultConnection,
       ...connection,
+      ...standaloneRequestTimeout(globalOptions as { connectionRetryTimeout?: number } | undefined),
       capabilities: capability as WebdriverIO.Capabilities,
     }).catch((error: unknown) => {
       log.error(`Failed to create remote session: ${errorMessage(error)}`);
@@ -138,6 +141,11 @@ export function createMobileSession<TOptions extends object, TCap extends object
       await service?.after();
     } catch (e) {
       log.warn(`service.after() failed during cleanup: ${errorMessage(e)}`);
+    }
+    try {
+      await service?.afterSession?.();
+    } catch (e) {
+      log.warn(`service.afterSession() failed during cleanup: ${errorMessage(e)}`);
     } finally {
       activeServices.delete(browser);
     }

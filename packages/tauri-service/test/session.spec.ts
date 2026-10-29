@@ -7,6 +7,8 @@ const {
   mockOnWorkerEnd,
   mockOnComplete,
   mockBefore,
+  mockAfter,
+  mockAfterSession,
   mockLogWriterInitialize,
   mockLogWriterGetLogDir,
   mockLogWriterGetLogFile,
@@ -20,6 +22,8 @@ const {
   mockOnWorkerEnd: vi.fn().mockResolvedValue(undefined),
   mockOnComplete: vi.fn().mockResolvedValue(undefined),
   mockBefore: vi.fn().mockResolvedValue(undefined),
+  mockAfter: vi.fn().mockResolvedValue(undefined),
+  mockAfterSession: vi.fn().mockResolvedValue(undefined),
   mockLogWriterInitialize: vi.fn(),
   mockLogWriterGetLogDir: vi.fn().mockReturnValue('/tmp/logs'),
   mockLogWriterGetLogFile: vi.fn().mockReturnValue('/tmp/logs/test.log'),
@@ -61,6 +65,8 @@ vi.mock('../src/service.js', () => ({
   default: vi.fn().mockImplementation(function MockService() {
     return {
       before: mockBefore,
+      after: mockAfter,
+      afterSession: mockAfterSession,
     };
   }),
 }));
@@ -118,6 +124,8 @@ describe('session', () => {
     mockOnWorkerEnd.mockResolvedValue(undefined);
     mockOnComplete.mockResolvedValue(undefined);
     mockBefore.mockResolvedValue(undefined);
+    mockAfter.mockResolvedValue(undefined);
+    mockAfterSession.mockResolvedValue(undefined);
     launcherState.isBrowserMode = false;
   });
 
@@ -368,7 +376,7 @@ describe('session', () => {
       expect(remoteCall.hostname).toBe('localhost');
     });
 
-    it('should pass connectionRetryTimeout as startTimeout * 4', async () => {
+    it('should leave connectionRetryTimeout unset on remote() by default even when startTimeout is set', async () => {
       mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
         caps.port = 4444;
       });
@@ -383,60 +391,22 @@ describe('session', () => {
       await init(capabilities);
 
       const remoteCall = mockRemote.mock.calls[0][0] as {
-        connectionRetryTimeout: number;
+        connectionRetryTimeout?: number;
         connectionRetryCount: number;
       };
-      expect(remoteCall.connectionRetryTimeout).toBe(60000);
+      expect(remoteCall).not.toHaveProperty('connectionRetryTimeout');
       expect(remoteCall.connectionRetryCount).toBe(10);
     });
 
-    it('should use the embedded startTimeout of 60000 when no provider or timeout is set', async () => {
+    it('should forward connectionRetryTimeout from globalOptions to remote()', async () => {
       mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
         caps.port = 4444;
       });
-      const capabilities = {
-        'tauri:options': { application: '/app' },
-      } as unknown as TauriCapabilities;
+      const capabilities = createTauriCapabilities('/app');
 
-      await init(capabilities);
+      await init(capabilities, { connectionRetryTimeout: 180000 });
 
-      const remoteCall = mockRemote.mock.calls[0][0] as {
-        connectionRetryTimeout: number;
-      };
-      expect(remoteCall.connectionRetryTimeout).toBe(240000);
-    });
-
-    it('should keep the 60000 startTimeout for createTauriCapabilities without a provider', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app'));
-
-      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(240000);
-    });
-
-    it.each(['external', 'crabnebula'] as const)(
-      'should use the driver startTimeout of 30000 for the %s provider',
-      async (driverProvider) => {
-        mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-          caps.port = 4444;
-        });
-
-        await init(createTauriCapabilities('/app', { driverProvider }));
-
-        expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(120000);
-      },
-    );
-
-    it('should pick the startTimeout default from a global driverProvider', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app'), { driverProvider: 'external' });
-
-      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(120000);
+      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(180000);
     });
 
     it('should call service.before with the browser', async () => {
@@ -621,26 +591,6 @@ describe('session', () => {
       expect(mockRemote.mock.calls[0][0]).toMatchObject({ hostname: '127.0.0.1', port: 4444 });
     });
 
-    it('should honour startTimeout from the global options', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app'), { startTimeout: 15000 });
-
-      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(60000);
-    });
-
-    it('should let a capability startTimeout override the global startTimeout', async () => {
-      mockOnPrepare.mockImplementation(async (_config: unknown, [caps]: [Record<string, unknown>]) => {
-        caps.port = 4444;
-      });
-
-      await init(createTauriCapabilities('/app', { startTimeout: 20000 }), { startTimeout: 15000 });
-
-      expect(mockRemote.mock.calls[0][0].connectionRetryTimeout).toBe(80000);
-    });
-
     it('should honour the log options from the global options', async () => {
       await expect(
         init(createTauriCapabilities('/app'), {
@@ -712,6 +662,15 @@ describe('session', () => {
       expect(mockRemote).toHaveBeenCalledWith({ capabilities: chromeSessionCapabilities });
       expect(mockHttpGet).not.toHaveBeenCalled();
       expect(mockBefore).toHaveBeenCalledWith(chromeSessionCapabilities, [], browser);
+    });
+
+    it('should forward connectionRetryTimeout from globalOptions in browser mode', async () => {
+      await init(browserModeCapabilities(), { connectionRetryTimeout: 90000 });
+
+      expect(mockRemote).toHaveBeenCalledWith({
+        capabilities: chromeSessionCapabilities,
+        connectionRetryTimeout: 90000,
+      });
     });
 
     it('should open a browser-mode session when mode comes from the global options', async () => {
@@ -896,7 +855,7 @@ describe('session', () => {
       });
     });
 
-    it('should stop the launcher via onComplete alone when launcher is found', async () => {
+    it('should run after, afterSession, deleteSession, and onComplete in order during cleanup', async () => {
       const capabilities = {
         'tauri:options': { application: '/app' },
       } as unknown as TauriCapabilities;
@@ -908,7 +867,17 @@ describe('session', () => {
       await cleanup(browser);
 
       expect(mockOnWorkerEnd).not.toHaveBeenCalled();
-      expect(mockOnComplete).toHaveBeenCalled();
+      expect(mockAfter).toHaveBeenCalledTimes(1);
+      expect(mockAfterSession).toHaveBeenCalledTimes(1);
+      expect(browser.deleteSession).toHaveBeenCalledTimes(1);
+      expect(mockOnComplete).toHaveBeenCalledTimes(1);
+      expect(mockAfter.mock.invocationCallOrder[0]).toBeLessThan(mockAfterSession.mock.invocationCallOrder[0]);
+      expect(mockAfterSession.mock.invocationCallOrder[0]).toBeLessThan(
+        vi.mocked(browser.deleteSession).mock.invocationCallOrder[0],
+      );
+      expect(vi.mocked(browser.deleteSession).mock.invocationCallOrder[0]).toBeLessThan(
+        mockOnComplete.mock.invocationCallOrder[0],
+      );
     });
 
     it('should swallow a launcher.onComplete failure during cleanup', async () => {

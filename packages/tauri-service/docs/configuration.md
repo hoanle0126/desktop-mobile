@@ -161,16 +161,14 @@ windowLabel: 'settings'; // Target the settings window by default
 
 ### `startTimeout` (number, optional)
 
-Timeout in milliseconds for the Tauri app to start and become ready. Where it applies depends on the provider and mode:
-- **Test runner:** only the `'embedded'` provider uses it, to bound the wait for the embedded WebDriver server. With the `'external'` and `'crabnebula'` providers, the app starts when WebdriverIO creates the session, so app startup is bounded by WebdriverIO's `connectionRetryTimeout` instead.
-- **Standalone `init()`:** every provider uses it, and `connectionRetryTimeout` is set to four times `startTimeout`.
+Timeout in milliseconds for the Tauri app to start and become ready. Only the `'embedded'` provider uses it, to bound the wait for the embedded WebDriver server. With the `'external'` and `'crabnebula'` providers, the app starts when WebdriverIO creates the session, so app startup is bounded by WebdriverIO's `connectionRetryTimeout` instead.
 
 **Example:**
 ```typescript
 startTimeout: 60000; // 60 seconds
 ```
 
-**Default:** `30000` for the `'external'` and `'crabnebula'` providers (in standalone `init()`), `60000` for the `'embedded'` provider (the embedded WebDriver server takes longer to come up, especially on Windows CI).
+**Default:** `60000` (the embedded WebDriver server takes longer to come up, especially on Windows CI).
 
 ---
 

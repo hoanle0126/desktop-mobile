@@ -255,6 +255,11 @@ export interface BaseServiceGlobalOptions extends LogCaptureConfig, MockLifecycl
    * tear down on completion). Ignored outside browser mode.
    */
   devServer?: DevServer;
+  /**
+   * Timeout in milliseconds for each WebDriver request in standalone `init()` sessions.
+   * When omitted, WebdriverIO's default (`120000`) is used.
+   */
+  connectionRetryTimeout?: number;
 }
 
 // ============================================================================

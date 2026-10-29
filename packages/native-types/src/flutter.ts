@@ -206,7 +206,13 @@ export interface FlutterServiceOptions extends LogCaptureConfig, MockLifecycleCo
 /**
  * Flutter service global options (service-level; merged under per-capability options).
  */
-export type FlutterServiceGlobalOptions = FlutterServiceOptions;
+export interface FlutterServiceGlobalOptions extends FlutterServiceOptions {
+  /**
+   * Timeout in milliseconds for each WebDriver request in standalone `init()` sessions.
+   * When omitted, WebdriverIO's default (`120000`) is used.
+   */
+  connectionRetryTimeout?: number;
+}
 
 /**
  * Flutter service result type (standard Result pattern).

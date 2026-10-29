@@ -329,7 +329,7 @@ Operations take too long or timeout unexpectedly.
 
 **Solution 1: Increase the Request Timeout**
 
-WebdriverIO's `connectionRetryTimeout` bounds each WebDriver request. The default is 120000 (2 minutes). Standalone sessions use four times `startTimeout` instead.
+WebdriverIO's `connectionRetryTimeout` bounds each WebDriver request. The default is 120000 (2 minutes).
 
 ```typescript
 export const config = {

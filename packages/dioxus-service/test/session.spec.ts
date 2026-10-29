@@ -170,21 +170,21 @@ describe('session', () => {
       expect(remoteMock.mock.calls[0][0]).toMatchObject({ hostname: 'localhost', port: 4445 });
     });
 
-    it('should honour startTimeout from the global options, even when the capability leaves it undefined', async () => {
-      const caps = { ...createDioxusCapabilities('/app/dioxus-app'), port: 9515, hostname: '127.0.0.1' };
-
-      await init(caps, { startTimeout: 15_000 });
-
-      expect(remoteMock.mock.calls[0][0].connectionRetryTimeout).toBe(60_000);
-    });
-
-    it('should let a capability startTimeout override the global startTimeout', async () => {
+    it('should leave connectionRetryTimeout unset on remote() by default even when startTimeout is set', async () => {
       const caps = makeCaps();
       caps['wdio:dioxusServiceOptions'] = { ...caps['wdio:dioxusServiceOptions'], startTimeout: 20_000 };
 
       await init(caps, { startTimeout: 15_000 });
 
-      expect(remoteMock.mock.calls[0][0].connectionRetryTimeout).toBe(80_000);
+      expect(remoteMock.mock.calls[0][0]).not.toHaveProperty('connectionRetryTimeout');
+    });
+
+    it('should forward connectionRetryTimeout from globalOptions to remote()', async () => {
+      const caps = { ...createDioxusCapabilities('/app/dioxus-app'), port: 9515, hostname: '127.0.0.1' };
+
+      await init(caps, { connectionRetryTimeout: 180_000 });
+
+      expect(remoteMock.mock.calls[0][0].connectionRetryTimeout).toBe(180_000);
     });
 
     it('should stop the launcher when remote() fails', async () => {
@@ -275,6 +275,14 @@ describe('session', () => {
       expect(serviceBeforeMock).toHaveBeenCalledWith(caps, [], browser);
     });
 
+    it('should forward connectionRetryTimeout from globalOptions in browser mode', async () => {
+      const caps = makeBrowserModeCaps();
+
+      await init(caps, { connectionRetryTimeout: 90_000 });
+
+      expect(remoteMock).toHaveBeenCalledWith({ capabilities: caps, connectionRetryTimeout: 90_000 });
+    });
+
     it('should open a browser-mode session when mode comes from the global options', async () => {
       const caps = { browserName: 'chrome' } as DioxusCapabilities;
 
@@ -340,13 +348,22 @@ describe('session', () => {
   });
 
   describe('cleanup', () => {
-    it('should run service teardown and stop the launcher', async () => {
+    it('should run after, afterSession, deleteSession, and onComplete in order', async () => {
       const browser = await init(makeCaps());
 
       await cleanup(browser);
 
       expect(serviceAfterMock).toHaveBeenCalledTimes(1);
+      expect(serviceAfterSessionMock).toHaveBeenCalledTimes(1);
+      expect(deleteSessionMock).toHaveBeenCalledTimes(1);
       expect(onCompleteMock).toHaveBeenCalledTimes(1);
+      expect(serviceAfterMock.mock.invocationCallOrder[0]).toBeLessThan(
+        serviceAfterSessionMock.mock.invocationCallOrder[0],
+      );
+      expect(serviceAfterSessionMock.mock.invocationCallOrder[0]).toBeLessThan(
+        deleteSessionMock.mock.invocationCallOrder[0],
+      );
+      expect(deleteSessionMock.mock.invocationCallOrder[0]).toBeLessThan(onCompleteMock.mock.invocationCallOrder[0]);
     });
 
     it('should resolve when launcher.onComplete rejects (best-effort teardown)', async () => {

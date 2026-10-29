@@ -11,6 +11,7 @@ import {
   errorMessage,
   failStartup as failStartupShared,
   safeDeleteSession,
+  standaloneRequestTimeout,
 } from '@wdio/native-utils';
 
 const log = createLogger('electron-service', 'service');
@@ -73,6 +74,7 @@ export async function init(
 
   const browser = await remote({
     capabilities: capability,
+    ...standaloneRequestTimeout(globalOptions),
   }).catch((error: unknown) => {
     log.error(`Failed to create remote session: ${errorMessage(error)}`);
     return failStartup(launcher, error);

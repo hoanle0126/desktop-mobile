@@ -334,9 +334,14 @@ export interface ReactNativeServiceOptions extends LogCaptureConfig, MockLifecyc
 
 /**
  * React Native service global options (service-level; merged under per-capability options).
- * Identical shape to {@link ReactNativeServiceOptions} — alias so the two types stay in sync.
  */
-export type ReactNativeServiceGlobalOptions = ReactNativeServiceOptions;
+export interface ReactNativeServiceGlobalOptions extends ReactNativeServiceOptions {
+  /**
+   * Timeout in milliseconds for each WebDriver request in standalone `init()` sessions.
+   * When omitted, WebdriverIO's default (`120000`) is used.
+   */
+  connectionRetryTimeout?: number;
+}
 
 /**
  * React Native service result type.
