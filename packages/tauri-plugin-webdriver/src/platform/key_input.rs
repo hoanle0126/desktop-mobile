@@ -149,17 +149,8 @@ pub fn is_editable_text_field_js(el: &str) -> String {
   format!("({text_field} && !{el}.readOnly && !{el}.disabled)")
 }
 
-/// JS expression that is true when `el` is a non-typeable form control whose value Send Keys sets
-/// directly (W3C), such as a date or colour input.
-pub fn is_value_control_js(el: &str) -> String {
-  format!(
-        "({el}.tagName === 'INPUT' && \
-         ['color', 'date', 'datetime-local', 'month', 'range', 'time', 'week'].indexOf({el}.type) !== -1)"
-    )
-}
-
-/// JS dispatching a synthetic special-key `KeyboardEvent` plus the editing, radio and line-break
-/// side-effects an untrusted event can't drive itself, skipped when a handler cancels the keydown.
+/// JS dispatching a special-key `KeyboardEvent`. Synthetic events have no default action, so
+/// unless a handler cancels the keydown, the script performs the key's action itself.
 pub fn build_special_key_script(
   js_key: &str,
   js_code: &str,
@@ -172,9 +163,7 @@ pub fn build_special_key_script(
     "Backspace" | "Delete" => delete_js(js_key == "Backspace"),
     "ArrowDown" | "ArrowRight" => radio_step_js(true),
     "ArrowUp" | "ArrowLeft" => radio_step_js(false),
-    "Enter" if !(modifiers.ctrl || modifiers.meta || modifiers.alt) => {
-      line_break_js(modifiers.shift)
-    }
+    "Enter" if !(modifiers.ctrl || modifiers.meta || modifiers.alt) => enter_js(modifiers.shift),
     _ => String::new(),
   };
   key_event_script(js_key, js_code, key_code, is_down, modifiers, &default_action)
@@ -331,8 +320,8 @@ fn radio_step_js(forward: bool) -> String {
 }
 
 /// JS for Enter: a line break in a textarea or contenteditable (Shift+Enter inserts a `<br>`
-/// rather than a new paragraph). Inputs get none.
-fn line_break_js(shift: bool) -> String {
+/// rather than a new paragraph); in an input, the `change` the field owes.
+fn enter_js(shift: bool) -> String {
   let insert_newline = insert_text_js("activeEl", &js_string("\n"));
   let command = if shift { "insertLineBreak" } else { "insertParagraph" };
   format!(
@@ -340,6 +329,9 @@ fn line_break_js(shift: bool) -> String {
                     {insert_newline}
                 }} else if (activeEl.isContentEditable) {{
                     document.execCommand('{command}', false, null);
+                }} else {{
+                    {ELEMENT_EVENTS_JS}
+                    wdioCommitOnEnter(activeEl);
                 }}"
   )
 }
@@ -560,33 +552,36 @@ pub fn plain_text(steps: &[SendKeysStep]) -> Option<&str> {
   }
 }
 
-/// JS starting send keys: sets a value control's value to `typed`, or focuses the element once and,
-/// for a `plain` request, types it too. Returns `{ status, value }` and never throws.
+/// Page-side helpers for focus moves and form events.
+pub const ELEMENT_EVENTS_JS: &str = include_str!("element-events.js");
+
+/// The script after the shared helpers, so a test can't match their definitions.
+#[cfg(test)]
+pub(crate) fn after_helpers(script: &str) -> &str {
+  &script[script.find(ELEMENT_EVENTS_JS).unwrap() + ELEMENT_EVENTS_JS.len()..]
+}
+
+/// JS starting send keys: sets a value control's value to `typed`, or focuses the element once,
+/// records that a text field owes a `change`, and types `plain` if given. Returns `{ status }` and
+/// never throws.
 pub fn build_send_keys_start_script(js_var: &str, typed: &str, plain: Option<&str>) -> String {
   let active_element = deep_active_element_js("activeEl");
-  let text_field = is_text_field_js("el");
-  let receiver_text_field = is_text_field_js("receiver");
-  let value_control = is_value_control_js("el");
+  let receiver_editable = is_editable_text_field_js("receiver");
   let typed = js_string(typed);
   let finish = match plain {
-    None => format!(
-      r"window.{js_var}__receiver = receiver;
-                return {{ status: 'focused', value: initialValue }};"
-    ),
+    None => "return { status: 'focused' };".to_string(),
     Some(text) => {
       let insert_text =
         if text.is_empty() { String::new() } else { insert_text_js("receiver", &js_string(text)) };
       format!(
         r"{insert_text}
-                if (initialValue !== null && receiver.value !== initialValue) {{
-                    receiver.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                }}
                 return {{ status: 'done' }};"
       )
     }
   };
   format!(
     r"(function() {{
+                {ELEMENT_EVENTS_JS}
                 var el = window.{js_var};
                 if (!el || !el.isConnected) {{
                     return {{ status: 'stale' }};
@@ -594,24 +589,9 @@ pub fn build_send_keys_start_script(js_var: &str, typed: &str, plain: Option<&st
                 if (el.tagName === 'INPUT' && el.type === 'file') {{
                     return {{ status: 'file' }};
                 }}
-                var typed = {typed};
-                if ({value_control} && typed !== '') {{
-                    if (el.readOnly || el.disabled) {{
-                        return {{ status: 'immutable' }};
-                    }}
-                    el.focus();
-                    var setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                    var previousValue = el.value;
-                    setValue.call(el, typed);
-                    if (el.value === '') {{
-                        setValue.call(el, previousValue);
-                        return {{ status: 'invalid' }};
-                    }}
-                    if (el.value !== previousValue) {{
-                        el.dispatchEvent(new Event('input', {{ bubbles: true, composed: true }}));
-                        el.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                    }}
-                    return {{ status: 'set' }};
+                var valueControlStatus = wdioSetValueControl(el, {typed});
+                if (valueControlStatus) {{
+                    return {{ status: valueControlStatus }};
                 }}
                 {active_element}
                 var wasFocused = activeEl === el;
@@ -621,14 +601,8 @@ pub fn build_send_keys_start_script(js_var: &str, typed: &str, plain: Option<&st
                     && focusTarget.parentElement.isContentEditable) {{
                     focusTarget = focusTarget.parentElement;
                 }}
-                // Text fields get the caret at the end before focus: typing appends, yet a select-on-focus
-                // handler still wins.
-                if ({text_field}) {{
-                    try {{
-                        el.setSelectionRange(el.value.length, el.value.length);
-                    }} catch (e) {{}}
-                }}
-                focusTarget.focus();
+                wdioCaretToEnd(el);
+                wdioFocus(focusTarget);
                 if (!wasFocused && el.isContentEditable) {{
                     try {{
                         var range = document.createRange();
@@ -641,21 +615,19 @@ pub fn build_send_keys_start_script(js_var: &str, typed: &str, plain: Option<&st
                 }}
                 {active_element}
                 // The body, focus-delegating hosts and an editing host holding the element count as focus.
-                var focused = el === document.body || el === document.documentElement || activeEl === focusTarget;
-                for (var node = activeEl; node && !focused; node = node.parentNode || node.host) {{
-                    focused = node === el;
-                }}
+                var focused = el === document.body || el === document.documentElement || activeEl === focusTarget
+                    || wdioContains(el, activeEl);
                 if (!focused) {{
                     return {{ status: 'unfocused' }};
                 }}
                 var receiver = activeEl;
-                // A field that focus was delegated to is only known now, so its caret moves after focus.
-                if (receiver !== el && {receiver_text_field}) {{
-                    try {{
-                        receiver.setSelectionRange(receiver.value.length, receiver.value.length);
-                    }} catch (e) {{}}
+                if ({receiver_editable}) {{
+                    // A field that focus was delegated to is only known now, so its caret moves after focus.
+                    if (receiver !== el) {{
+                        wdioCaretToEnd(receiver);
+                    }}
+                    wdioRecordPendingChange(receiver, receiver.value);
                 }}
-                var initialValue = {receiver_text_field} ? receiver.value : null;
                 {finish}
             }})()"
   )
@@ -670,22 +642,6 @@ pub fn build_insert_run_script(run: &str) -> String {
     r"(function() {{
                 {active_element}
                 {insert_text}
-                return true;
-            }})()"
-  )
-}
-
-/// JS firing one `change` if the field that received the text no longer holds `initial_value`; it
-/// skips a detached field so a retry can't duplicate keystrokes that already committed.
-pub fn build_send_keys_change_script(js_var: &str, initial_value: &str) -> String {
-  let initial_value = js_string(initial_value);
-  format!(
-    r"(function() {{
-                var el = window.{js_var}__receiver;
-                delete window.{js_var}__receiver;
-                if (el && el.isConnected && el.value !== {initial_value}) {{
-                    el.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                }}
                 return true;
             }})()"
   )
@@ -1203,33 +1159,27 @@ mod tests {
   #[test]
   fn build_send_keys_start_script_appends_to_the_field_that_receives_the_text() {
     let script = build_send_keys_start_script("__wd_el_abc", "", None);
-    let field_caret =
-      script.find("el.setSelectionRange(el.value.length, el.value.length)").unwrap();
-    let focus = script.find("focusTarget.focus()").unwrap();
-    let editor_caret = script.find("range.collapse(false)").unwrap();
-    let delegated_caret = script
-      .find("receiver.setSelectionRange(receiver.value.length, receiver.value.length)")
-      .unwrap();
+    let body = after_helpers(&script);
+    let field_caret = body.find("wdioCaretToEnd(el);").unwrap();
+    let focus = body.find("wdioFocus(focusTarget)").unwrap();
+    let editor_caret = body.find("range.collapse(false)").unwrap();
+    let delegated_caret = body.find("wdioCaretToEnd(receiver);").unwrap();
     assert!(field_caret < focus && focus < editor_caret && editor_caret < delegated_caret);
-    assert!(script.contains("if (!wasFocused && el.isContentEditable)"));
-    assert!(script.contains(&format!(
-      "var initialValue = {} ? receiver.value : null;",
-      is_text_field_js("receiver")
-    )));
-    assert!(script.contains("window.__wd_el_abc__receiver = receiver;"));
-    let plain = build_send_keys_start_script("__wd_el_abc", "x", Some("x"));
-    assert!(plain.contains("receiver.value !== initialValue"));
-    assert!(plain.contains("receiver.dispatchEvent(new Event('change'"));
+    assert!(body.contains("if (!wasFocused && el.isContentEditable)"));
+    assert!(body.contains(&format!("if ({}) {{", is_editable_text_field_js("receiver"))));
+    let record = body.find("wdioRecordPendingChange(receiver, receiver.value);").unwrap();
+    assert!(delegated_caret < record);
+    assert!(record < body.find("return { status: 'focused' };").unwrap());
   }
 
   #[test]
   fn build_send_keys_start_script_accepts_the_body_editing_hosts_and_focus_inside() {
     let script = build_send_keys_start_script("__wd_el_abc", "", None);
     assert!(script.contains(
-      "el === document.body || el === document.documentElement || activeEl === focusTarget;"
+      "el === document.body || el === document.documentElement || activeEl === focusTarget"
     ));
     assert!(script.contains("focusTarget = focusTarget.parentElement;"));
-    assert!(script.contains("node = node.parentNode || node.host"));
+    assert!(script.contains("|| wdioContains(el, activeEl);"));
     assert!(script.contains("return { status: 'unfocused' };"));
   }
 
@@ -1243,10 +1193,10 @@ mod tests {
   #[test]
   fn build_send_keys_start_script_types_plain_text_in_the_same_script() {
     let plain = build_send_keys_start_script("__wd_el_abc", "hi", Some("hi"));
-    let focus = plain.find("focusTarget.focus()").unwrap();
+    let focus = plain.find("wdioFocus(focusTarget)").unwrap();
+    let record = plain.find("wdioRecordPendingChange(receiver").unwrap();
     let insert = plain.find("var insertedText = \"hi\"").unwrap();
-    let change = plain.rfind("new Event('change'").unwrap();
-    assert!(focus < insert && insert < change);
+    assert!(focus < record && record < insert);
     assert!(plain.contains("return { status: 'done' };"));
     let empty = build_send_keys_start_script("__wd_el_abc", "", Some(""));
     assert!(!empty.contains("insertedText") && empty.contains("return { status: 'done' };"));
@@ -1263,12 +1213,31 @@ mod tests {
   }
 
   #[test]
-  fn build_send_keys_change_script_fires_change_only_for_a_changed_value() {
-    let script = build_send_keys_change_script("__wd_el_abc", "it's\n");
-    assert!(script.contains("var el = window.__wd_el_abc__receiver;"));
-    assert!(script.contains(&format!("el.value !== {}", js_string("it's\n"))));
-    assert!(script.contains("new Event('change'"));
-    assert!(!script.contains("throw"));
+  fn enter_commits_the_change_the_focused_field_owes() {
+    let none = mods(false, false, false, false);
+    let shift = mods(false, true, false, false);
+    for modifiers in [none, shift] {
+      let enter = build_special_key_script("Enter", "Enter", 13, true, &modifiers);
+      let dispatch = enter.find("if (!activeEl.dispatchEvent(keyEvent))").unwrap();
+      let commit = enter.find("wdioCommitOnEnter(activeEl);").unwrap();
+      assert!(dispatch < commit && enter.contains(ELEMENT_EVENTS_JS));
+    }
+    let enter_up = build_special_key_script("Enter", "Enter", 13, false, &none);
+    assert!(!enter_up.contains("wdioCommitOnEnter"));
+    let ctrl_enter =
+      build_special_key_script("Enter", "Enter", 13, true, &mods(true, false, false, false));
+    assert!(!ctrl_enter.contains("wdioCommitOnEnter"));
+  }
+
+  #[test]
+  fn send_keys_start_records_the_change_after_focusing() {
+    for plain in [None, Some("x")] {
+      let script = build_send_keys_start_script("__wd_el_abc", "x", plain);
+      let body = after_helpers(&script);
+      let focus = body.find("wdioFocus(focusTarget);").unwrap();
+      assert!(focus < body.find("wdioRecordPendingChange(receiver, receiver.value);").unwrap());
+      assert!(!body.contains("new Event('change'"));
+    }
   }
 
   #[test]
@@ -1305,31 +1274,19 @@ mod tests {
   }
 
   #[test]
-  fn value_controls_get_their_value_set_directly() {
-    let control = is_value_control_js("el");
-    for kind in ["color", "date", "datetime-local", "month", "range", "time", "week"] {
-      assert!(control.contains(&format!("'{kind}'")));
-    }
-    for typeable in ["text", "checkbox", "radio", "file", "button"] {
-      assert!(!control.contains(&format!("'{typeable}'")));
-    }
+  fn send_keys_start_sets_a_value_controls_value_before_focusing_a_text_field() {
     let script = build_send_keys_start_script("__wd_el_abc", "2026-10-21", Some("2026-10-21"));
-    assert!(script.contains(&format!("var typed = {};", js_string("2026-10-21"))));
-    assert!(script.contains(&format!("if ({control} && typed !== '')")));
-    assert!(script.contains("return { status: 'immutable' };"));
-    let input = script.find("new Event('input'").unwrap();
-    let change = script.find("new Event('change'").unwrap();
-    assert!(script.contains("if (el.value !== previousValue)") && input < change);
-  }
-
-  #[test]
-  fn send_keys_start_refuses_file_inputs_and_invalid_values() {
-    let script = build_send_keys_start_script("__wd_el_abc", "not-a-date", Some("not-a-date"));
     let file = script.find("el.type === 'file'").unwrap();
-    assert!(file < script.find("var typed").unwrap());
-    let invalid = script.find("if (el.value === '') {").unwrap();
-    let restore = script.find("setValue.call(el, previousValue);").unwrap();
-    assert!(invalid < restore && restore < script.find("status: 'invalid'").unwrap());
+    let set = script
+      .find(&format!(
+        "var valueControlStatus = wdioSetValueControl(el, {});",
+        js_string("2026-10-21")
+      ))
+      .unwrap();
+    let returned = script.find("return { status: valueControlStatus };").unwrap();
+    assert!(
+      file < set && set < returned && returned < script.find("wdioFocus(focusTarget);").unwrap()
+    );
   }
 
   #[test]
