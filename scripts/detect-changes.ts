@@ -27,8 +27,9 @@
  *   - scripts/: service token in filename → that service; else → all (cross-service tooling)
  *   - package.json, when the base copy can be read: release/lint devDependencies
  *     (@releasekit/*, @biomejs/*, eslint*, @typescript-eslint/*) → none; other devDependencies
- *     (vitest, typescript, turbo…) → shared (build + unit, no service E2E); any non-devDependencies
- *     change (scripts, dependencies, pnpm, engines, packageManager…) → all
+ *     (vitest, typescript, turbo…) → shared (build + unit, no service E2E); scripts only the lint
+ *     job runs (test:scripts, typecheck:scripts) → none; any other change (other scripts,
+ *     dependencies, pnpm, engines, packageManager…) → all
  *   - e2e/package.json, when the base copy can be read: each changed dependency maps to the
  *     service(s) whose E2E configs/tests use it; shared runner deps or non-dependency fields → all
  *   - pnpm-workspace.yaml, when the base copy can be read: changed catalog entries classify by the
@@ -36,6 +37,7 @@
  *   - pnpm-lock.yaml, when the base copy can be read: a changed importer is classified like its
  *     package.json; an edited package or snapshot, or a catalog or other top-level change → all;
  *     a package or snapshot that was only added or removed → none
+ *   - tsconfig.scripts*.json → none (only typecheck:scripts, in the lint job, reads them)
  *   - root infra files (package.json, lockfile, turbo.json, tsconfig*…) → all
  *   - biome.jsonc, eslint.config.js → none (the lint job has no `if:` gate)
  *   - everything else (docs/, .claude/, dotfiles…) → none
@@ -106,6 +108,9 @@ const ROOT_INFRA_FILES = new Set([
 
 // The lint job runs unconditionally, so lint config alone never needs pipelines.
 const LINT_ONLY_FILES = new Set(['biome.jsonc', 'eslint.config.js']);
+// Root scripts that only the lint job runs (the tests check this), and the tsconfigs only they read.
+export const LINT_JOB_SCRIPTS = new Set(['test:scripts', 'typecheck:scripts']);
+export const SCRIPTS_TSCONFIG = /^tsconfig\.scripts(\.[^/]+)?\.json$/;
 
 const SHARED_PACKAGE_PREFIXES = ['native-'];
 const SHARED_PACKAGES = new Set(['bundler']);
@@ -556,6 +561,15 @@ function changedRecordKeys(base: Record<string, unknown>, head: Record<string, u
   return changed;
 }
 
+function onlyLintJobScriptsChanged(base: unknown, head: unknown): boolean {
+  const baseScripts = base ?? {};
+  const headScripts = head ?? {};
+  if (!isPlainObject(baseScripts) || !isPlainObject(headScripts)) {
+    return false;
+  }
+  return changedRecordKeys(baseScripts, headScripts).every((name) => LINT_JOB_SCRIPTS.has(name));
+}
+
 function classifyRootPackageJson(base: string, head: string): ManifestEffect {
   const effect = emptyEffect();
   let baseObj: unknown;
@@ -574,6 +588,9 @@ function classifyRootPackageJson(base: string, head: string): ManifestEffect {
     return effect;
   }
   for (const key of changedRecordKeys(baseObj, headObj)) {
+    if (key === 'scripts' && onlyLintJobScriptsChanged(baseObj.scripts, headObj.scripts)) {
+      continue;
+    }
     if (key !== 'devDependencies') {
       effect.all = true;
       return effect;
@@ -1259,6 +1276,9 @@ export function classifyFile(file: string, services: string[]): Verdict {
     }
     if (ROOT_INFRA_FILES.has(file)) {
       return 'all';
+    }
+    if (SCRIPTS_TSCONFIG.test(file)) {
+      return 'none';
     }
     if (file.startsWith('tsconfig') && file.endsWith('.json')) {
       return 'all';

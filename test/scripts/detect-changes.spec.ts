@@ -9,6 +9,8 @@ import {
   discoverServices,
   findCommentOnlyWorkflowChanges,
   isCommentOnlyYamlDiff,
+  LINT_JOB_SCRIPTS,
+  SCRIPTS_TSCONFIG,
 } from '../../scripts/detect-changes.ts';
 
 const SERVICES = ['dioxus', 'electrobun', 'electron', 'flutter', 'react-native', 'tauri'];
@@ -141,6 +143,8 @@ describe('classifyFile', () => {
     ['package.json', 'all'],
     ['pnpm-lock.yaml', 'all'],
     ['tsconfig.base.json', 'all'],
+    ['tsconfig.scripts.json', 'none'],
+    ['tsconfig.scripts.dom.json', 'none'],
     ['turbo.json', 'all'],
     ['biome.jsonc', 'none'],
     ['eslint.config.js', 'none'],
@@ -719,10 +723,34 @@ describe('root package.json', () => {
     expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'shared' }]);
   });
 
+  it('should stay lint-only when only scripts the lint job runs change', () => {
+    const base = pkgJson();
+    const head = pkgJson({
+      scripts: { build: 'turbo run build', 'typecheck:scripts': 'tsc --noEmit -p tsconfig.scripts.json' },
+    });
+    const d = classifyManifest('package.json', base, head);
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.lintOnly).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'none' }]);
+  });
+
+  it('should run build + unit with no service E2E when a lint-job script and a test devDependency change', () => {
+    const base = pkgJson();
+    const head = pkgJson({
+      scripts: { build: 'turbo run build', 'typecheck:scripts': 'tsc --noEmit -p tsconfig.scripts.json' },
+      devDependencies: { ...JSON.parse(base).devDependencies, jsdom: '^30.1.3' },
+    });
+    const d = classifyManifest('package.json', base, head);
+    expect(Object.values(d.runs).every((v) => !v)).toBe(true);
+    expect(d.sharedChanges).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'shared' }]);
+  });
+
   it('should run every pipeline when scripts, engines, or packageManager change', () => {
     const base = pkgJson();
     for (const head of [
       pkgJson({ scripts: { build: 'turbo run build --force' } }),
+      pkgJson({ scripts: { build: 'turbo run build --force', 'test:scripts': 'vitest run' } }),
       pkgJson({ engines: { node: '>=24' } }),
       pkgJson({ packageManager: 'pnpm@12.16.0' }),
     ]) {
@@ -737,6 +765,41 @@ describe('root package.json', () => {
     const d = classifyManifest('package.json', pkgJson(), '{not-json');
     expect(Object.values(d.runs).every(Boolean)).toBe(true);
     expect(d.unknownFiles).toEqual(['package.json']);
+  });
+});
+
+describe('scripts only the lint job runs', () => {
+  const workflowsDir = `${REPO_ROOT}.github/workflows`;
+  // Comment lines can name a script without running it.
+  const workflows = fs
+    .readdirSync(workflowsDir)
+    .filter((name) => name.endsWith('.yml'))
+    .map((name) => ({
+      name,
+      text: fs
+        .readFileSync(`${workflowsDir}/${name}`, 'utf8')
+        .split('\n')
+        .filter((line) => !line.trimStart().startsWith('#'))
+        .join('\n'),
+    }));
+  const rootScripts: Record<string, string> = JSON.parse(fs.readFileSync(`${REPO_ROOT}package.json`, 'utf8')).scripts;
+
+  it.each([...LINT_JOB_SCRIPTS])('should run %s from the lint job alone', (name) => {
+    const runs = new RegExp(`\\bpnpm (run )?${name}(?![\\w:-])`);
+    expect(workflows.filter((w) => runs.test(w.text)).map((w) => w.name)).toEqual(['_ci-lint.reusable.yml']);
+    expect(Object.keys(rootScripts).filter((key) => key !== name && rootScripts[key]?.includes(name))).toEqual([]);
+  });
+
+  it('should read the scripts tsconfigs only from those scripts', () => {
+    const readers = Object.keys(rootScripts).filter((key) => rootScripts[key]?.includes('tsconfig.scripts'));
+    expect(readers).not.toEqual([]);
+    expect(readers.filter((key) => !LINT_JOB_SCRIPTS.has(key))).toEqual([]);
+    const otherTsconfigs = fs
+      .readdirSync(REPO_ROOT)
+      .filter((file) => file.startsWith('tsconfig') && file.endsWith('.json') && !SCRIPTS_TSCONFIG.test(file));
+    for (const file of otherTsconfigs) {
+      expect(fs.readFileSync(`${REPO_ROOT}${file}`, 'utf8')).not.toContain('tsconfig.scripts');
+    }
   });
 });
 
