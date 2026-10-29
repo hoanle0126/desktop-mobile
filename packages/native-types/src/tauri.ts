@@ -19,19 +19,13 @@ import type {
 // ============================================================================
 
 /**
- * Tauri APIs object type - matches window.__TAURI__ structure
+ * The first argument of a `browser.tauri.execute()` script. Its `core.invoke` goes through any mocks
+ * set up with `browser.tauri.mock()`.
  */
 export interface TauriAPIs {
   core: {
     invoke: (command: string, ...args: unknown[]) => Promise<unknown>;
   };
-  app?: {
-    getName: () => Promise<string>;
-    getVersion: () => Promise<string>;
-  };
-  window?: unknown;
-  event?: unknown;
-  [key: string]: unknown;
 }
 
 /**
@@ -136,7 +130,7 @@ export interface TauriServiceAPI {
    * const result = await browser.tauri.execute(({ core }) => core.invoke('get_platform_info'));
    * ```
    *
-   * @param script - Function to execute (receives Tauri APIs as first parameter) or string
+   * @param script - Function to execute (receives `{ core: { invoke } }` as first parameter) or string
    * @param args - Additional arguments passed to the script
    */
   execute<ReturnValue, InnerArguments extends unknown[]>(

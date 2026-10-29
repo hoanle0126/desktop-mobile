@@ -11,22 +11,20 @@ The following methods are available on the `browser.tauri` object when connected
 Execute JavaScript code in the Tauri frontend context with access to Tauri APIs. Requires tauri-plugin-wdio to be installed and configured.
 
 **Parameters:**
-- `script` (Function | string) - JavaScript code to execute. If a function, receives Tauri APIs as the first parameter
+- `script` (Function | string) - JavaScript code to execute. If a function, it receives `{ core: { invoke } }` as the first parameter. `core.invoke` goes through any mocks set up with `browser.tauri.mock()`.
 - `...args` (any[]) - Additional arguments passed to the script
 
 **Returns:** `Promise<ReturnValue>`
 
 **Example:**
 ```typescript
-// Execute with destructured Tauri APIs
+// Call your app's commands
 const result = await browser.tauri.execute(({ core }) => {
   return core.invoke('get_platform_info');
 });
 
-// Execute with full Tauri APIs object
-const version = await browser.tauri.execute(async (tauri) => {
-  return tauri.app?.getVersion();
-});
+// Tauri's built-in commands work too: @tauri-apps/api's getVersion() calls this one
+const version = await browser.tauri.execute(({ core }) => core.invoke('plugin:app|version'));
 
 // Execute with arguments
 const result = await browser.tauri.execute((tauri, name) => tauri.core.invoke('greet', { name }), 'World');
