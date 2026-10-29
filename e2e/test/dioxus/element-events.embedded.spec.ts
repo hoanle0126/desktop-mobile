@@ -143,6 +143,35 @@ describe('Dioxus element events (embedded)', () => {
     expect((await errorOf(browser.$('#fresh-disabled').addValue('x')))?.message).toMatch(/interactable/);
   });
 
+  it('should type into a contenteditable, and into an element inside one', async () => {
+    await fillChangeScratch();
+    await addToScratch('<div id="fresh-editor" contenteditable="true"><b id="fresh-bold">bold</b></div>');
+    const editorText = () => browser.execute('return document.querySelector("#fresh-editor").textContent');
+    await browser.$('#fresh-bold').addValue('er');
+    expect(await editorText()).toBe('bolder');
+    await browser.$('#fresh-editor').setValue('hello');
+    expect(await editorText()).toBe('hello');
+  });
+
+  it('should type into the field a host delegates focus to, which then owes its change', async () => {
+    await fillChangeScratch();
+    await browser.execute(
+      `var host = document.createElement("div");
+      host.id = "fresh-host";
+      document.querySelector("#change-scratch").appendChild(host);
+      var root = host.attachShadow({ mode: "open", delegatesFocus: true });
+      root.innerHTML = '<input id="inner">';
+      for (var type of ["input", "change", "blur"]) {
+        root.querySelector("#inner").addEventListener(type, function (ev) {
+          window.__fieldEvents.push(ev.type + " inner " + ev.target.value);
+        });
+      }`,
+    );
+    await browser.$('#fresh-host').addValue('x');
+    await browser.$('#fresh-other').click();
+    expect(await fieldEvents()).toEqual(['input inner x', 'change inner x', 'blur inner x']);
+  });
+
   it('should clear with input, then change, then blur', async () => {
     await fillChangeScratch('old');
     await browser.$('#fresh-field').clearValue();

@@ -556,8 +556,9 @@ fn clear_element_script(js_var: &str) -> String {
 }
 
 /// JS for Element Send Keys. A date, colour or similar input gets `text` as its value at once.
-/// Otherwise `el` takes focus and the text, and a text field owes a `change` until focus leaves it.
-/// Returns 'immutable', 'invalid' or 'unfocused' for the errors.
+/// Otherwise `el` takes focus, and the field or editor that receives it takes the text; a text
+/// field owes a `change` until focus leaves it. Returns 'immutable', 'invalid' or 'unfocused' for
+/// the errors.
 fn send_keys_script(js_var: &str, text: &str) -> String {
   let text = js_string(text);
   format!(
@@ -572,20 +573,43 @@ fn send_keys_script(js_var: &str, text: &str) -> String {
               if (valueControlStatus) {{
                   return valueControlStatus;
               }}
-              wdioFocus(el);
-              if (wdioDeepActiveElement() !== el) {{
+              var wasFocused = wdioDeepActiveElement() === el;
+              // Text inside a contenteditable is focused through its editing host.
+              var focusTarget = el;
+              while (focusTarget.isContentEditable && focusTarget.parentElement
+                  && focusTarget.parentElement.isContentEditable) {{
+                  focusTarget = focusTarget.parentElement;
+              }}
+              wdioFocus(focusTarget);
+              var receiver = wdioDeepActiveElement();
+              // The body, focus-delegating hosts and an editing host holding the element count as focus.
+              var focused = el === document.body || el === document.documentElement || receiver === focusTarget
+                  || wdioContains(el, receiver);
+              if (!focused) {{
                   return 'unfocused';
               }}
-              var textField = el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' &&
-                  ['text', 'search', 'url', 'tel', 'email', 'password', 'number'].indexOf(el.type) !== -1);
-              if (!textField) {{
-                  el.value += text;
-                  el.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                  el.dispatchEvent(new Event('change', {{ bubbles: true }}));
-              }} else if (!el.readOnly && text !== '') {{
-                  wdioRecordPendingChange(el, el.value);
-                  el.value += text;
-                  el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+              var textField = receiver.tagName === 'TEXTAREA' || (receiver.tagName === 'INPUT' &&
+                  ['text', 'search', 'url', 'tel', 'email', 'password', 'number'].indexOf(receiver.type) !== -1);
+              if (receiver.isContentEditable) {{
+                  if (!wasFocused) {{
+                      var range = document.createRange();
+                      range.selectNodeContents(el);
+                      range.collapse(false);
+                      var selection = window.getSelection();
+                      selection.removeAllRanges();
+                      selection.addRange(range);
+                  }}
+                  if (text !== '') {{
+                      document.execCommand('insertText', false, text);
+                  }}
+              }} else if (!textField) {{
+                  receiver.value += text;
+                  receiver.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                  receiver.dispatchEvent(new Event('change', {{ bubbles: true }}));
+              }} else if (!receiver.readOnly && text !== '') {{
+                  wdioRecordPendingChange(receiver, receiver.value);
+                  receiver.value += text;
+                  receiver.dispatchEvent(new Event('input', {{ bubbles: true }}));
               }}
               return 'done';
           }})()"
@@ -642,13 +666,24 @@ mod tests {
     let body = body(&script);
     assert!(body.contains(&format!("var text = {};", js_string("it's\n"))));
     let set = body.find("wdioSetValueControl(el, text);").unwrap();
-    let focus = body.find("wdioFocus(el);").unwrap();
+    let focus = body.find("wdioFocus(focusTarget);").unwrap();
     let unfocused = body.find("return 'unfocused';").unwrap();
-    let text_field = body.find("} else if (!el.readOnly && text !== '') {").unwrap();
-    let record = body.find("wdioRecordPendingChange(el, el.value);").unwrap();
-    let typed = text_field + body[text_field..].find("el.value += text;").unwrap();
+    let text_field = body.find("} else if (!receiver.readOnly && text !== '') {").unwrap();
+    let record = body.find("wdioRecordPendingChange(receiver, receiver.value);").unwrap();
+    let typed = text_field + body[text_field..].find("receiver.value += text;").unwrap();
     assert!(set < focus && focus < unfocused && unfocused < text_field);
     assert!(text_field < record && record < typed);
     assert!(!body[text_field..].contains("new Event('change'"));
+  }
+
+  #[test]
+  fn send_keys_types_into_the_field_or_editor_that_takes_focus() {
+    let script = send_keys_script("__wdio_elem_abc", "x");
+    let body = body(&script);
+    assert!(body.contains("focusTarget = focusTarget.parentElement;"));
+    assert!(body.contains("|| wdioContains(el, receiver);"));
+    let editor = body.find("if (receiver.isContentEditable) {").unwrap();
+    let insert = body.find("document.execCommand('insertText', false, text);").unwrap();
+    assert!(body.find("return 'unfocused';").unwrap() < editor && editor < insert);
   }
 }
