@@ -364,7 +364,7 @@ fn key_code(value: &str) -> String {
 }
 
 /// JS for a `KeyboardEvent` of `event_type` for `value` on the active element. An uncanceled
-/// Enter keydown in an input commits its value, firing the `change` Send Keys left it owing.
+/// Enter keydown in an input commits its value, firing the `change` that Send Keys deferred.
 fn key_event_js(event_type: &str, value: &str, mods: Modifiers) -> String {
   let key = normalize_key(value);
   let code = key_code(value);
