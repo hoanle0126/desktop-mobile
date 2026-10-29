@@ -176,7 +176,7 @@ startWdioSession(
 | Parameter       | Type                                                      | Description                                                                                                                                                                |
 | --------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `capabilities`  | `ElectronServiceCapabilities`                             | An array of standalone capability objects (typically one, built with [`createElectronCapabilities()`](#createelectroncapabilities)), or a multiremote capabilities object. |
-| `globalOptions` | `ElectronServiceGlobalOptions & StandaloneSessionOptions` | Optional. Service-level options applied to all capabilities (e.g., `rootDir`), and `connectionRetryTimeout`: the timeout in milliseconds for each WebDriver request.       |
+| `globalOptions` | `ElectronServiceGlobalOptions & StandaloneSessionOptions` | Optional. Service-level options applied to all capabilities (e.g., `rootDir`), and standalone session options such as `connectionRetryTimeout`.                            |
 
 **Returns:**
 

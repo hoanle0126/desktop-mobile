@@ -340,8 +340,7 @@ single-device run.
 ## Standalone / session mode
 
 Use `startWdioSession` to drive sessions outside the WDIO runner. The optional second argument
-takes the service options, and `connectionRetryTimeout`: the timeout in milliseconds for each
-WebDriver request, WebdriverIO's default unless set.
+takes the service options, and standalone session options such as `connectionRetryTimeout`.
 
 ```ts
 import { startWdioSession, cleanupWdioSession } from '@wdio/flutter-service';

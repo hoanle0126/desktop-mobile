@@ -474,7 +474,7 @@ Initialize the Tauri service in standalone mode. Use this when you want to manag
 
 **Parameters:**
 - `capabilities` (Capabilities) - WebdriverIO capabilities with Tauri options
-- `globalOptions?` (TauriServiceGlobalOptions & StandaloneSessionOptions) - Global service options, and `connectionRetryTimeout`: the timeout in milliseconds for each WebDriver request, WebdriverIO's default unless set
+- `globalOptions?` (TauriServiceGlobalOptions & StandaloneSessionOptions) - Global service options, and standalone session options such as `connectionRetryTimeout`
 
 **Returns:** `Promise<Browser>`
 

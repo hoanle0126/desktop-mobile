@@ -47,7 +47,7 @@ const caps = createElectronCapabilities({
 const browser = await startWdioSession([caps]);
 ```
 
-The second, optional parameter takes `ElectronServiceGlobalOptions`, such as `rootDir` and mocking preferences for the session. It also takes `connectionRetryTimeout`, the timeout in milliseconds for each WebDriver request, which is WebdriverIO's default otherwise:
+The second, optional parameter takes `ElectronServiceGlobalOptions`, such as `rootDir` and mocking preferences for the session. It also takes standalone session options, such as `connectionRetryTimeout`:
 
 ```TS
 const browser = await startWdioSession([{ ... }], {

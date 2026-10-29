@@ -347,8 +347,7 @@ Use `startWdioSession` to drive sessions outside of the WDIO runner. It takes a
 `ReactNativeCapabilities` object and resolves to the `browser`; pass the same
 browser to `cleanupWdioSession` to tear the session down. Appium must already be
 running (the standalone path does not spawn it). The optional second argument takes
-the service options, and `connectionRetryTimeout`: the timeout in milliseconds for
-each WebDriver request, WebdriverIO's default unless set.
+the service options, and standalone session options such as `connectionRetryTimeout`.
 
 ```ts
 import { startWdioSession, cleanupWdioSession } from '@wdio/react-native-service';
