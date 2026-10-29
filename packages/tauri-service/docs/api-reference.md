@@ -43,12 +43,19 @@ const result = await browser.tauri.execute('window.location.href');
 
 ### `browser.tauri.emitEvent(event, payload?, target?)`
 
-Emit a Tauri event to all listeners registered via `listen()` or `once()` in the frontend. The same call works in both native and browser mode — in native mode it routes through Tauri's real `event.emit()` / `event.emitTo()` via the plugin bridge; in browser mode it dispatches through the in-page listener registry installed by the IPC injection.
+Emit a Tauri event to all listeners registered via `listen()` or `once()` in the frontend. The same call works in both native and browser mode — in native mode it calls Tauri's event commands in the app, as `@tauri-apps/api`'s `emit()` / `emitTo()` do; in browser mode it dispatches through the in-page listener registry installed by the IPC injection. In native mode the call runs in the session's current window, so a capability for that window must allow `core:event:allow-emit` and `core:event:allow-emit-to`, which `core:default` includes. After a `switchWindow()` to a window outside the app's capabilities, the emit is rejected.
+
+The call skips any mocks of `plugin:event|emit` / `plugin:event|emit_to`, so it always reaches the listeners. On the multiremote root, it emits on every instance.
 
 **Parameters:**
 - `event` (string) - The event name to emit
 - `payload?` (T) - Optional payload, JSON-serialized to listeners
-- `target?` (string | TauriEventTarget) - Optional target filter — emits only to listeners whose `target` matches. Pass a window/webview label as a string, or a structured `TauriEventTarget` object.
+- `target?` (string | TauriEventTarget) - Optional target. A string is a label, the same as `{ kind: 'AnyLabel', label }`. A listener receives the event when:
+  - either side is `{ kind: 'Any' }`. A plain `listen()` registers this way, so it receives every event, targeted or not;
+  - the labels match and either side is `AnyLabel`;
+  - or the kinds and labels both match. `App` has no label, so it matches only `App`.
+
+  So `{ kind: 'Window', label: 'main' }` misses a listener registered through `getCurrentWebviewWindow()`, which is a `WebviewWindow` listener, while `'main'` reaches it.
 
 **Returns:** `Promise<void>`
 
@@ -64,7 +71,7 @@ const unlisten = await listen<{ rows: number }>('data-loaded', (e) => {
 await browser.tauri.emitEvent('data-loaded', { rows: 3 });
 await expect($('#count')).toHaveText('3');
 
-// Targeted emit — only listeners that subscribed with target 'main' receive it
+// Targeted emit — reaches listeners on the 'main' window, and listeners with no target
 await browser.tauri.emitEvent('focus-window', undefined, 'main');
 ```
 

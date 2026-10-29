@@ -268,19 +268,25 @@ export interface TauriServiceAPI {
    *
    * Works in both modes:
    * - Browser mode: routes through the in-browser listener registry
-   * - Native mode: routes through the real Tauri `event.emit()` / `event.emitTo()` via the backend
+   * - Native mode: calls Tauri's event commands, as `emit()` / `emitTo()` do, from the session's
+   *   current window. A capability for that window must allow `core:event:allow-emit` and
+   *   `core:event:allow-emit-to`, which `core:default` includes.
+   *
+   * The call skips any mocks of `plugin:event|emit` / `plugin:event|emit_to`, so it always reaches
+   * the listeners. On the multiremote root, it emits on every instance.
    *
    * @param event - Event name to emit (e.g. `'data-loaded'`)
    * @param payload - Optional event payload (JSON-serialised across the boundary)
-   * @param target - Optional target filter — string is treated as `{ kind: 'AnyLabel', label }`,
-   *                 or pass an explicit `TauriEventTarget`. Omit to emit to all subscribers.
+   * @param target - Optional target; a string is a label, as `{ kind: 'AnyLabel', label }`. A listener
+   *                 receives the event when either side is `Any` (as a plain `listen()` is), when the
+   *                 labels match and either side is `AnyLabel`, or when the kinds and labels both match.
    *
    * @example
    * ```js
    * // Frontend: const unlisten = await listen('data-loaded', (e) => updateUI(e.payload));
    * await browser.tauri.emitEvent('data-loaded', { rows: 3 });
    *
-   * // Targeted emit — only listeners that subscribed with target: 'main' fire
+   * // Targeted emit — reaches listeners on 'main', and listeners with no target
    * await browser.tauri.emitEvent('focus-window', undefined, 'main');
    * ```
    */

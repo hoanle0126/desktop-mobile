@@ -221,11 +221,11 @@ await browser.tauri.emitEvent('count-updated', 42);
 await expect($('#count')).toHaveText('42');
 ```
 
-`browser.tauri.emitEvent()` is mode-agnostic — the same line works in native mode (where it routes through Tauri's real `event.emit()` via the plugin bridge) and in browser mode (where it routes through the in-page registry).
+`browser.tauri.emitEvent()` is mode-agnostic — the same line works in native mode (where it calls Tauri's event commands in the app, as `@tauri-apps/api`'s `emit()` / `emitTo()` do) and in browser mode (where it routes through the in-page registry).
 
 ### Targeted Emit
 
-Pass a third argument to restrict which listeners receive the event. Subscribers that registered with a matching `target` (or with `Any`) receive it; others do not.
+Pass a third argument to restrict which listeners receive the event. The registry matches targets as Tauri does, so a targeted emit reaches the same listeners in both modes. Listeners registered without a target receive every event; the [`emitEvent` reference](./api-reference.md) has the full rules.
 
 ```ts
 // Frontend — listen only on the 'main' window
@@ -339,17 +339,16 @@ The injection script runs after `browser.url()` resolves (document `readyState` 
 
 ## Limitations
 
-| Feature                                             | Browser Mode                                           |
-| --------------------------------------------------- | ------------------------------------------------------ |
-| `browser.tauri.execute()`                           | Throws — no Tauri backend or plugin bridge             |
-| `browser.tauri.triggerDeeplink()`                   | Throws — no Tauri process                              |
-| `browser.tauri.switchWindow()`                      | Throws — multi-window requires a native Tauri app      |
-| `browser.tauri.listWindows()`                       | Throws — same reason as `switchWindow()`               |
-| Backend log capture (`captureBackendLogs`)          | Not available — no Rust process                        |
-| Frontend log capture (`captureFrontendLogs`)        | Available — Chrome session, standard console capture   |
-| Automatic window focus management                   | Disabled — standard Chrome window switching applies    |
-| `window.__TAURI_INTERNALS__.invoke` event listeners | Not intercepted — fire-and-forget listeners are no-ops |
-| `mock.withImplementation()`                         | Serialised to browser page — see below                 |
+| Feature                                      | Browser Mode                                         |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `browser.tauri.execute()`                    | Throws — no Tauri backend or plugin bridge           |
+| `browser.tauri.triggerDeeplink()`            | Throws — no Tauri process                            |
+| `browser.tauri.switchWindow()`               | Throws — multi-window requires a native Tauri app    |
+| `browser.tauri.listWindows()`                | Throws — same reason as `switchWindow()`             |
+| Backend log capture (`captureBackendLogs`)   | Not available — no Rust process                      |
+| Frontend log capture (`captureFrontendLogs`) | Available — Chrome session, standard console capture |
+| Automatic window focus management            | Disabled — standard Chrome window switching applies  |
+| `mock.withImplementation()`                  | Serialised to browser page — see below               |
 
 ### `withImplementation` in browser mode
 

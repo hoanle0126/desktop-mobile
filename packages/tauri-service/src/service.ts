@@ -551,56 +551,42 @@ export default class TauriWorkerService {
         payload?: T,
         target?: string | TauriEventTarget,
       ): Promise<void> => {
-        if (browserMode) {
-          await (browser.execute as (fn: (...a: unknown[]) => unknown, ...a: unknown[]) => Promise<unknown>)(
-            (...inner: unknown[]) => {
-              const [ev, p, t] = inner as [string, unknown, unknown];
-              // @ts-expect-error - window exists in browser context
-              const w = window as {
-                __wdio_emit_tauri_event__?: (e: string, p: unknown, t: unknown) => void;
-              };
-              if (!w.__wdio_emit_tauri_event__) {
-                throw new Error('Tauri event registry not initialised — is browser mode active?');
-              }
-              w.__wdio_emit_tauri_event__(ev, p, t);
-            },
-            eventName,
-            payload,
-            target,
-          );
-        } else if (target === undefined) {
-          await execute(
-            browser,
-            (tauri: TauriAPIs, ...a: unknown[]) => {
-              const [ev, p] = a as [string, unknown];
-              const ev2 = tauri.event as { emit: (name: string, payload?: unknown) => Promise<void> } | undefined;
-              if (!ev2) {
-                throw new Error('Tauri event API not available — is @tauri-apps/api loaded?');
-              }
-              return ev2.emit(ev, p);
-            },
-            eventName,
-            payload,
-          );
-        } else {
-          await execute(
-            browser,
-            (tauri: TauriAPIs, ...a: unknown[]) => {
-              const [ev, p, t] = a as [string, unknown, unknown];
-              const ev2 = tauri.event as
-                | { emitTo: (target: unknown, name: string, payload?: unknown) => Promise<void> }
-                | undefined;
-              if (!ev2) {
-                throw new Error('Tauri event API not available — is @tauri-apps/api loaded?');
-              }
-              return ev2.emitTo(t, ev, p);
-            },
-            eventName,
-            payload,
-            target,
-          );
+        if (!isMultiremote(browser)) {
+          await emitTauriEvent(browser, browserMode, eventName, payload, target);
+          await getMockUpdateScheduler(browser).schedule();
+          return;
         }
-        await getMockUpdateScheduler(browser).schedule();
+        const mrBrowser = browser as unknown as WebdriverIO.MultiRemoteBrowser;
+        const instanceNames = mrBrowser.instances;
+        const results = await Promise.allSettled(
+          instanceNames.map((name) =>
+            emitTauriEvent(mrBrowser.getInstance(name), browserMode, eventName, payload, target),
+          ),
+        );
+        const failures = results.flatMap((result, i) =>
+          result.status === 'rejected' ? [{ instance: instanceNames[i], error: result.reason as unknown }] : [],
+        );
+        if (failures.length === 0) {
+          await getMockUpdateScheduler(browser).schedule();
+          return;
+        }
+        // Sync if some instances emitted, so their calls are recorded, but throw the emit failures: a
+        // broken session fails the sync too
+        if (failures.length < instanceNames.length) {
+          await getMockUpdateScheduler(browser)
+            .schedule()
+            .catch((error: unknown) => log.warn('Mock sync failed after a failed emitEvent:', error));
+        }
+        // Reporters print only the message, not `cause` or `errors`, so the message names each failure
+        const message = `emitEvent('${eventName}') failed on ${failures
+          .map(({ instance, error }) => `${instance}: ${errorMessage(error)}`)
+          .join('; ')}`;
+        throw failures.length === 1
+          ? new Error(message, { cause: failures[0].error })
+          : new AggregateError(
+              failures.map(({ error }) => error),
+              message,
+            );
       },
     };
   }
@@ -839,6 +825,60 @@ class MockUpdateScheduler {
       }
     }
   }
+}
+
+async function emitTauriEvent(
+  browser: WebdriverIO.Browser,
+  browserMode: boolean,
+  eventName: string,
+  payload: unknown,
+  target: string | TauriEventTarget | undefined,
+): Promise<void> {
+  if (browserMode) {
+    await (browser.execute as (fn: (...a: unknown[]) => unknown, ...a: unknown[]) => Promise<unknown>)(
+      (...inner: unknown[]) => {
+        const [ev, p, t] = inner as [string, unknown, unknown];
+        // @ts-expect-error - window exists in browser context
+        const w = window as {
+          __wdio_emit_tauri_event__?: (e: string, p: unknown, t: unknown) => void;
+        };
+        if (!w.__wdio_emit_tauri_event__) {
+          throw new Error('Tauri event registry not initialised — is browser mode active?');
+        }
+        w.__wdio_emit_tauri_event__(ev, p, t);
+      },
+      eventName,
+      payload,
+      target,
+    );
+    return;
+  }
+
+  // A null target emits to everyone, as in browser mode
+  const [command, args] =
+    target == null
+      ? ['plugin:event|emit', { event: eventName, payload }]
+      : [
+          'plugin:event|emit_to',
+          {
+            target: typeof target === 'string' ? { kind: 'AnyLabel', label: target } : target,
+            event: eventName,
+            payload,
+          },
+        ];
+  // Mocks only wrap tauri.core.invoke, so calling __TAURI_INTERNALS__.invoke keeps a mock of these
+  // commands from swallowing the test's own emit
+  await execute(
+    browser,
+    (_tauri: TauriAPIs, cmd: string, cmdArgs: Record<string, unknown>) =>
+      (
+        globalThis as unknown as {
+          __TAURI_INTERNALS__: { invoke: (cmd: string, args: Record<string, unknown>) => Promise<unknown> };
+        }
+      ).__TAURI_INTERNALS__.invoke(cmd, cmdArgs),
+    command,
+    args,
+  );
 }
 
 function getMockUpdateScheduler(browser: WebdriverIO.Browser): MockUpdateScheduler {
