@@ -1,9 +1,13 @@
 import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   buildCatalogConsumers,
   buildE2eDependencyServices,
+  buildScriptDependencies,
   buildServiceDependents,
+  CATALOG_ALIASES,
   classifyChanges,
   classifyFile,
   discoverServices,
@@ -20,14 +24,16 @@ const REPO_ROOT = new URL('../..', import.meta.url).pathname;
 const DEPENDENTS = buildServiceDependents(REPO_ROOT, SERVICES);
 const E2E_DEPS = buildE2eDependencyServices(REPO_ROOT, SERVICES);
 const CATALOG_CONSUMERS = buildCatalogConsumers(REPO_ROOT);
+const SCRIPT_DEPS = buildScriptDependencies(REPO_ROOT);
+const MAPS = {
+  dependents: DEPENDENTS,
+  e2eDeps: E2E_DEPS,
+  catalogConsumers: CATALOG_CONSUMERS,
+  scriptDeps: SCRIPT_DEPS,
+};
 
 function decide(files: string[], forceAll = false) {
-  return classifyChanges(files, SERVICES, {
-    forceAll,
-    dependents: DEPENDENTS,
-    e2eDeps: E2E_DEPS,
-    catalogConsumers: CATALOG_CONSUMERS,
-  });
+  return classifyChanges(files, SERVICES, { forceAll, ...MAPS });
 }
 
 describe('discoverServices', () => {
@@ -60,6 +66,63 @@ describe('buildE2eDependencyServices', () => {
     expect(E2E_DEPS['@wdio/visual-service']).toEqual(['dioxus']);
     expect(E2E_DEPS['@wdio/cli']).toEqual([...SERVICES].sort());
     expect(E2E_DEPS.webdriverio).toEqual([...SERVICES].sort());
+  });
+});
+
+describe('buildE2eDependencyServices with a comment opener in a string', () => {
+  it('should still read the code after it', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'detect-changes-'));
+    try {
+      fs.mkdirSync(path.join(root, 'e2e'));
+      fs.writeFileSync(
+        path.join(root, 'e2e/package.json'),
+        JSON.stringify({ devDependencies: { 'appium-xcuitest-driver': '^11.0.0' } }),
+      );
+      fs.writeFileSync(
+        path.join(root, 'e2e/wdio.react-native.conf.ts'),
+        [
+          "export const specs = ['./test/react-native/*.spec.ts'];",
+          "export const capabilities = [{ 'appium:automationName': 'XCUITest' }];",
+          '// Logs land in e2e/logs/**/*.log',
+        ].join('\n'),
+      );
+      expect(buildE2eDependencyServices(root, ['react-native', 'tauri'])['appium-xcuitest-driver']).toEqual([
+        'react-native',
+      ]);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('buildScriptDependencies', () => {
+  it('should list the packages the scripts import, without built-ins or relative imports', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'detect-changes-'));
+    try {
+      fs.mkdirSync(path.join(root, 'scripts/lib'), { recursive: true });
+      fs.writeFileSync(
+        path.join(root, 'scripts/a.ts'),
+        ["import { parse } from 'yaml';", "import * as fs from 'node:fs';", "import { x } from './lib/x.ts';"].join(
+          '\n',
+        ),
+      );
+      fs.writeFileSync(
+        path.join(root, 'scripts/lib/x.ts'),
+        ["import '@scope/side-effect/register';", "const dyn = await import('dyn');", "require('cjs');"].join('\n'),
+      );
+      expect([...buildScriptDependencies(root)].sort()).toEqual(['@scope/side-effect', 'cjs', 'dyn', 'yaml']);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('CATALOG_ALIASES', () => {
+  it('should match the swaps switch-catalog.ts makes', () => {
+    const source = fs.readFileSync(`${REPO_ROOT}scripts/switch-catalog.ts`, 'utf8');
+    for (const [alias, dep] of Object.entries(CATALOG_ALIASES)) {
+      expect(source).toContain(`Replaced ${dep} with ${alias}`);
+    }
   });
 });
 
@@ -412,12 +475,7 @@ function snapshotBlock(name: string, dependency: string): string {
 }
 
 function classifyLock(base: string, head: string) {
-  return classifyChanges(['pnpm-lock.yaml'], SERVICES, {
-    dependents: DEPENDENTS,
-    e2eDeps: E2E_DEPS,
-    catalogConsumers: CATALOG_CONSUMERS,
-    lockfile: { base, head },
-  });
+  return classifyChanges(['pnpm-lock.yaml'], SERVICES, { ...MAPS, manifests: { 'pnpm-lock.yaml': { base, head } } });
 }
 
 describe('pnpm-lock.yaml', () => {
@@ -653,12 +711,7 @@ function classifyManifest(
   base: string,
   head: string,
 ) {
-  return classifyChanges([file], SERVICES, {
-    dependents: DEPENDENTS,
-    e2eDeps: E2E_DEPS,
-    catalogConsumers: CATALOG_CONSUMERS,
-    manifests: { [file]: { base, head } },
-  });
+  return classifyChanges([file], SERVICES, { ...MAPS, manifests: { [file]: { base, head } } });
 }
 
 describe('root package.json', () => {
@@ -703,7 +756,23 @@ describe('root package.json', () => {
     expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'none' }]);
   });
 
-  it('should run build + unit (sharedChanges) with no service E2E when build/test devDependencies change', () => {
+  it('should stay lint-only when only lint tooling or git hook devDependencies change', () => {
+    const base = pkgJson();
+    const head = pkgJson({
+      devDependencies: {
+        ...JSON.parse(base).devDependencies,
+        '@vitest/eslint-plugin': '^1.6.29',
+        globals: '^17.14.0',
+        husky: '^9.1.8',
+        'lint-staged': '^17.7.0',
+      },
+    });
+    const d = classifyManifest('package.json', base, head);
+    expect(d.lintOnly).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'none' }]);
+  });
+
+  it('should run build + unit, with no service pipeline or shared-package job, when build/test devDependencies change', () => {
     const base = pkgJson();
     const head = pkgJson({
       devDependencies: {
@@ -717,10 +786,19 @@ describe('root package.json', () => {
     });
     const d = classifyManifest('package.json', base, head);
     expect(Object.values(d.runs).every((v) => !v)).toBe(true);
-    expect(d.sharedChanges).toBe(true);
+    expect(d.sharedChanges).toBe(false);
     expect(d.lintOnly).toBe(false);
     expect(d.triggersAll).toEqual([]);
-    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'shared' }]);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'build' }]);
+  });
+
+  it('should run every pipeline when a devDependency the scripts import changes', () => {
+    expect(SCRIPT_DEPS.has('yaml')).toBe(true);
+    const base = pkgJson();
+    const head = pkgJson({ devDependencies: { ...JSON.parse(base).devDependencies, yaml: '^3.0.0' } });
+    const d = classifyManifest('package.json', base, head);
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'all' }]);
   });
 
   it('should stay lint-only when only scripts the lint job runs change', () => {
@@ -742,8 +820,8 @@ describe('root package.json', () => {
     });
     const d = classifyManifest('package.json', base, head);
     expect(Object.values(d.runs).every((v) => !v)).toBe(true);
-    expect(d.sharedChanges).toBe(true);
-    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'shared' }]);
+    expect(d.lintOnly).toBe(false);
+    expect(d.perFile).toEqual([{ file: 'package.json', verdict: 'build' }]);
   });
 
   it('should run every pipeline when scripts, engines, or packageManager change', () => {
@@ -769,15 +847,15 @@ describe('root package.json', () => {
 });
 
 describe('scripts only the lint job runs', () => {
-  const workflowsDir = `${REPO_ROOT}.github/workflows`;
+  const githubDir = `${REPO_ROOT}.github`;
   // Comment lines can name a script without running it.
   const workflows = fs
-    .readdirSync(workflowsDir)
-    .filter((name) => name.endsWith('.yml'))
+    .readdirSync(githubDir, { recursive: true, encoding: 'utf8' })
+    .filter((name) => /\.ya?ml$/.test(name))
     .map((name) => ({
-      name,
+      name: name.split(path.sep).join('/'),
       text: fs
-        .readFileSync(`${workflowsDir}/${name}`, 'utf8')
+        .readFileSync(path.join(githubDir, name), 'utf8')
         .split('\n')
         .filter((line) => !line.trimStart().startsWith('#'))
         .join('\n'),
@@ -785,8 +863,8 @@ describe('scripts only the lint job runs', () => {
   const rootScripts: Record<string, string> = JSON.parse(fs.readFileSync(`${REPO_ROOT}package.json`, 'utf8')).scripts;
 
   it.each([...LINT_JOB_SCRIPTS])('should run %s from the lint job alone', (name) => {
-    const runs = new RegExp(`\\bpnpm (run )?${name}(?![\\w:-])`);
-    expect(workflows.filter((w) => runs.test(w.text)).map((w) => w.name)).toEqual(['_ci-lint.reusable.yml']);
+    const runs = new RegExp(`\\bpnpm(?: -\\S+)*(?: run)? ${name}(?![\\w:-])`);
+    expect(workflows.filter((w) => runs.test(w.text)).map((w) => w.name)).toEqual(['workflows/_ci-lint.reusable.yml']);
     expect(Object.keys(rootScripts).filter((key) => key !== name && rootScripts[key]?.includes(name))).toEqual([]);
   });
 
@@ -1003,6 +1081,14 @@ describe('pnpm-workspace.yaml', () => {
     expect(d.perFile).toEqual([{ file: 'pnpm-workspace.yaml', verdict: 'shared' }]);
   });
 
+  it("should classify electron-nightly by electron's consumers", () => {
+    const yaml = (nightly: string) =>
+      ['packages:', '  - packages/*', '', 'catalogs:', '  next:', `    electron-nightly: ${nightly}`].join('\n');
+    const d = classifyManifest('pnpm-workspace.yaml', yaml('47.0.0-nightly.20261023'), yaml('47.0.0-nightly.20261030'));
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'electron'])));
+    expect(d.triggersAll).toEqual([]);
+  });
+
   it('should run every pipeline for cross-service catalog deps, unreferenced catalog deps, or non-catalog sections', () => {
     const base = workspaceYaml();
     for (const head of [
@@ -1037,7 +1123,7 @@ describe('pnpm-lock.yaml root/e2e importer and catalog narrowing', () => {
     expect(d.lintOnly).toBe(true);
   });
 
-  it('should flag sharedChanges with no service E2E when the root importer bumps build/test devDependencies', () => {
+  it('should run build + unit with no service pipeline when the root importer bumps build/test devDependencies', () => {
     const rootDevBlock = (version: string) =>
       [
         '  .:',
@@ -1051,8 +1137,65 @@ describe('pnpm-lock.yaml root/e2e importer and catalog narrowing', () => {
       lockfileText({ importers: rootDevBlock('4.2.0') }),
     );
     expect(Object.values(d.runs).every((v) => !v)).toBe(true);
-    expect(d.sharedChanges).toBe(true);
+    expect(d.sharedChanges).toBe(false);
     expect(d.lintOnly).toBe(false);
+  });
+
+  it('should run every pipeline when the root importer bumps a devDependency the scripts import', () => {
+    const rootDevBlock = (version: string) =>
+      [
+        '  .:',
+        '    devDependencies:',
+        '      yaml:',
+        `        specifier: ^${version}`,
+        `        version: ${version}`,
+      ].join('\n');
+    const d = classifyLock(
+      lockfileText({ importers: rootDevBlock('2.9.1') }),
+      lockfileText({ importers: rootDevBlock('3.0.0') }),
+    );
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+  });
+
+  // As in the real e2e importer, `version:` lists each dependency's resolved peers.
+  const e2eImporter = (visual: string, puppeteer = '25.16.0', visualInCli = visual) =>
+    [
+      '  e2e:',
+      '    dependencies:',
+      "      '@wdio/cli':",
+      '        specifier: catalog:',
+      `        version: 10.1.0(@types/node@26.6.5)(@wdio/visual-service@${visualInCli}(webdriverio@10.1.0(puppeteer-core@${puppeteer})))(puppeteer-core@${puppeteer})`,
+      "      '@wdio/visual-service':",
+      '        specifier: catalog:',
+      `        version: ${visual}(webdriverio@10.1.0(puppeteer-core@${puppeteer}))`,
+      '    devDependencies:',
+      "      '@types/node':",
+      '        specifier: ^26.6.5',
+      '        version: 26.6.5',
+    ].join('\n');
+
+  it('should narrow a dependency that other entries list as a peer', () => {
+    const d = classifyLock(
+      lockfileText({ importers: e2eImporter('11.0.0') }),
+      lockfileText({ importers: e2eImporter('11.1.0') }),
+    );
+    expect(d.runs).toEqual(Object.fromEntries(SERVICES.map((svc) => [svc, svc === 'dioxus'])));
+  });
+
+  it("should run every pipeline when a peer that isn't one of the importer's dependencies changes", () => {
+    const d = classifyLock(
+      lockfileText({ importers: e2eImporter('11.0.0') }),
+      lockfileText({ importers: e2eImporter('11.1.0', '25.17.0') }),
+    );
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
+  });
+
+  it("should run every pipeline when only an importer dependency's peer changed", () => {
+    const d = classifyLock(
+      lockfileText({ importers: e2eImporter('11.0.0') }),
+      lockfileText({ importers: e2eImporter('11.0.0', '25.16.0', '11.1.0') }),
+    );
+    expect(Object.values(d.runs).every(Boolean)).toBe(true);
   });
 
   it('should narrow an e2e importer dependency change to the affected service', () => {

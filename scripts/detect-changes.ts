@@ -25,18 +25,17 @@
  *   - .github/workflows/: core-infra list → all; meta list → none;
  *     actions/** → all; service token in filename → that service; else → unknown
  *   - scripts/: service token in filename → that service; else → all (cross-service tooling)
- *   - package.json, when the base copy can be read: release/lint devDependencies
- *     (@releasekit/*, @biomejs/*, eslint*, @typescript-eslint/*) → none; other devDependencies
- *     (vitest, typescript, turbo…) → shared (build + unit, no service E2E); scripts only the lint
- *     job runs (test:scripts, typecheck:scripts) → none; any other change (other scripts,
- *     dependencies, pnpm, engines, packageManager…) → all
- *   - e2e/package.json, when the base copy can be read: each changed dependency maps to the
- *     service(s) whose E2E configs/tests use it; shared runner deps or non-dependency fields → all
- *   - pnpm-workspace.yaml, when the base copy can be read: changed catalog entries classify by the
- *     workspace package.json files that reference `catalog:` for them; non-catalog changes → all
- *   - pnpm-lock.yaml, when the base copy can be read: a changed importer is classified like its
- *     package.json; an edited package or snapshot, or a catalog or other top-level change → all;
- *     a package or snapshot that was only added or removed → none
+ *   - the dependency manifests, compared with their copy at the merge-base (without one → all):
+ *     - package.json: a devDependency → none if only release, lint or git-hook tooling uses it, all if
+ *       a script imports it, else build (build + unit, no service pipeline); a script only the lint
+ *       job runs → none; any other change → all
+ *     - e2e/package.json: a dependency → the services whose E2E configs and specs name it, or all if
+ *       shared E2E code names it; any other change → all
+ *     - pnpm-workspace.yaml: a catalog entry → as the package.json files that take it from the
+ *       catalog; any other change → all
+ *     - pnpm-lock.yaml: an importer → as its package.json (root and e2e by dependency, others by
+ *       path); the catalogs block → as pnpm-workspace.yaml; an edited package or snapshot, or any
+ *       other top-level change → all; a package or snapshot that was only added or removed → none
  *   - tsconfig.scripts*.json → none (only typecheck:scripts, in the lint job, reads them)
  *   - root infra files (package.json, lockfile, turbo.json, tsconfig*…) → all
  *   - biome.jsonc, eslint.config.js → none (the lint job has no `if:` gate)
@@ -55,7 +54,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-/** 'none' | 'shared' | 'all' | 'unknown' | a service name discovered from packages/. */
+/** 'none' | 'build' | 'shared' | 'all' | 'unknown', or service names discovered from packages/ (comma-separated). */
 type Verdict = string;
 
 interface Classification {
@@ -230,13 +229,19 @@ export function findCommentOnlyWorkflowChanges(
   return commentOnly;
 }
 
-function gitDiffReader(diffBase: string | undefined): (file: string) => string | undefined {
-  let base: string | undefined;
-  try {
-    base = diffBase ? execFileSync('git', ['merge-base', diffBase, 'HEAD'], { encoding: 'utf8' }).trim() : undefined;
-  } catch {
-    base = undefined;
+// The commit where HEAD branched off DIFF_BASE, so later commits on the base branch don't count as this change.
+function mergeBase(diffBase: string | undefined): string | undefined {
+  if (!diffBase) {
+    return undefined;
   }
+  try {
+    return execFileSync('git', ['merge-base', diffBase, 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function gitDiffReader(base: string | undefined): (file: string) => string | undefined {
   return (file) => {
     if (!base) {
       return undefined;
@@ -269,8 +274,13 @@ function serviceForToken(filename: string, services: string[]): string | undefin
 
 const LOCKFILE_ENTRY_SECTIONS = new Set(['importers', 'packages', 'snapshots']);
 
-// Root devDependencies that only feed release automation or the unconditional lint job.
+// Root devDependencies that only release automation, the lint job or the local git hooks use.
 const ROOT_INERT_DEV_DEP_PREFIXES = ['@releasekit/', '@biomejs/', 'eslint', '@typescript-eslint/'];
+const ROOT_INERT_DEV_DEPS = new Set(['@vitest/eslint-plugin', 'globals', 'husky', 'lint-staged']);
+
+// Catalog entries that switch-catalog.ts swaps in for another dependency, so they classify by its consumers
+// (the tests check this).
+export const CATALOG_ALIASES: Record<string, string> = { 'electron-nightly': 'electron' };
 
 const DIFF_MANIFEST_FILES = ['package.json', 'e2e/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml'] as const;
 type DiffManifestFile = (typeof DIFF_MANIFEST_FILES)[number];
@@ -288,17 +298,36 @@ interface ParsedLockfile {
 interface ManifestEffect {
   all: boolean;
   unknown: boolean;
-  rootShared: boolean;
+  /** Needs build + unit, but no service pipeline. */
+  buildOnly: boolean;
   services: Set<string>;
   sharedDirs: string[];
 }
 
-function emptyEffect(): ManifestEffect {
-  return { all: false, unknown: false, rootShared: false, services: new Set(), sharedDirs: [] };
+interface ManifestContext {
+  services: string[];
+  e2eDeps: Record<string, string[]>;
+  catalogConsumers: Record<string, string[]>;
+  scriptDeps: Set<string>;
 }
 
-function stripCodeComments(text: string): string {
-  return text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+function emptyEffect(): ManifestEffect {
+  return { all: false, unknown: false, buildOnly: false, services: new Set(), sharedDirs: [] };
+}
+
+function unreadableEffect(): ManifestEffect {
+  return { ...emptyEffect(), all: true, unknown: true };
+}
+
+function addSharedDir(effect: ManifestEffect, dir: string): void {
+  if (!effect.sharedDirs.includes(dir)) {
+    effect.sharedDirs.push(dir);
+  }
+}
+
+// Whole-line comments only: a `/*` inside a string, such as a `*.spec.ts` glob, mustn't swallow the code after it.
+function stripCommentLines(text: string): string {
+  return text.replace(/^\s*(\/\/|\/\*|\*).*$/gm, '');
 }
 
 function escapeRegex(value: string): string {
@@ -326,10 +355,8 @@ function e2eCandidateTokens(dep: string): string[] {
 }
 
 /**
- * Map each dependency (and family token) in `e2e/` → the services whose E2E configs or specs
- * reference it. Derived by scanning `e2e/**` with `classifyFile`: per-service configs and test
- * directories map to their service, while shared E2E helpers and `e2e/package.json` scripts map
- * to all services.
+ * Maps each e2e dependency, and the short names it goes by, to the services whose E2E configs and
+ * specs name it. One that shared E2E code or an e2e script names maps to every service.
  */
 export function buildE2eDependencyServices(repoRoot: string, services: string[]): Record<string, string[]> {
   const e2eDir = path.join(repoRoot, 'e2e');
@@ -350,7 +377,7 @@ export function buildE2eDependencyServices(repoRoot: string, services: string[])
       } else if (/\.(ts|js|mjs)$/.test(entry.name)) {
         const relPath = path.relative(repoRoot, fullPath).split(path.sep).join('/');
         const verdict = classifyFile(relPath, services);
-        const text = stripCodeComments(fs.readFileSync(fullPath, 'utf8'));
+        const text = stripCommentLines(fs.readFileSync(fullPath, 'utf8'));
         if (services.includes(verdict)) {
           serviceTexts[verdict].push(text);
         } else {
@@ -375,7 +402,7 @@ export function buildE2eDependencyServices(repoRoot: string, services: string[])
         depNames.add(dep);
       }
     } catch {
-      // Ignore malformed e2e/package.json here; classifyE2ePackageJson handles parse errors.
+      // classifyPackageJson runs every pipeline for a malformed e2e/package.json.
     }
   }
 
@@ -410,10 +437,7 @@ export function buildE2eDependencyServices(repoRoot: string, services: string[])
   return result;
 }
 
-/**
- * Map each dependency name referenced via `catalog:` in workspace `package.json` files → the
- * relative `package.json` paths that consume it.
- */
+/** Maps each dependency that a workspace package.json takes from a catalog to the package.json files that do. */
 export function buildCatalogConsumers(repoRoot: string): Record<string, string[]> {
   const pkgFiles: string[] = ['package.json', 'e2e/package.json'];
   for (const group of ['packages', 'examples', 'fixtures/e2e-apps', 'fixtures/package-tests']) {
@@ -468,46 +492,80 @@ export function buildCatalogConsumers(repoRoot: string): Record<string, string[]
   return consumers;
 }
 
+/** The packages that files under `scripts/` import. */
+export function buildScriptDependencies(repoRoot: string): Set<string> {
+  const deps = new Set<string>();
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (/\.(ts|js|mjs|cjs)$/.test(entry.name)) {
+        const text = fs.readFileSync(fullPath, 'utf8');
+        for (const [, specifier] of text.matchAll(/\b(?:from|import|require)\s*\(?\s*['"]([^'"]+)['"]/g)) {
+          const name = specifier && packageName(specifier);
+          if (name) {
+            deps.add(name);
+          }
+        }
+      }
+    }
+  };
+  const scriptsDir = path.join(repoRoot, 'scripts');
+  if (fs.existsSync(scriptsDir)) {
+    walk(scriptsDir);
+  }
+  return deps;
+}
+
+function packageName(specifier: string): string | undefined {
+  if (/^(\.|\/|node:)/.test(specifier)) {
+    return undefined;
+  }
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isInertRootDevDep(dep: string): boolean {
-  return ROOT_INERT_DEV_DEP_PREFIXES.some((prefix) => dep.startsWith(prefix));
+  return ROOT_INERT_DEV_DEPS.has(dep) || ROOT_INERT_DEV_DEP_PREFIXES.some((prefix) => dep.startsWith(prefix));
 }
 
-function classifyRootDevDep(dep: string, effect: ManifestEffect): void {
-  if (!isInertRootDevDep(dep)) {
-    effect.rootShared = true;
+type DepClassifier = (dep: string, ctx: ManifestContext, effect: ManifestEffect) => void;
+
+// CI runs the scripts, so a package they import runs every pipeline, as a change to a script does.
+function classifyRootDevDep(dep: string, ctx: ManifestContext, effect: ManifestEffect): void {
+  if (ctx.scriptDeps.has(dep)) {
+    effect.all = true;
+  } else if (!isInertRootDevDep(dep)) {
+    effect.buildOnly = true;
   }
 }
 
-function servicesForE2eDep(dep: string, services: string[], e2eDeps: Record<string, string[]>): string[] {
-  const fromMap = e2eDeps[dep];
+function servicesForE2eDep(dep: string, ctx: ManifestContext): string[] {
+  const fromMap = ctx.e2eDeps[dep];
   if (fromMap && fromMap.length > 0) {
     return fromMap;
   }
-  const directSvc = serviceForToken(dep, services);
+  const directSvc = serviceForToken(dep, ctx.services);
   if (directSvc) {
     return [directSvc];
   }
   for (const token of e2eCandidateTokens(dep)) {
-    const tokenSvcs = e2eDeps[token];
+    const tokenSvcs = ctx.e2eDeps[token];
     if (tokenSvcs && tokenSvcs.length > 0) {
       return tokenSvcs;
     }
   }
-  return services;
+  return ctx.services;
 }
 
-function classifyE2eDep(
-  dep: string,
-  services: string[],
-  e2eDeps: Record<string, string[]>,
-  effect: ManifestEffect,
-): void {
-  const matched = servicesForE2eDep(dep, services, e2eDeps);
-  if (matched.length === 0 || matched.length >= services.length) {
+function classifyE2eDep(dep: string, ctx: ManifestContext, effect: ManifestEffect): void {
+  const matched = servicesForE2eDep(dep, ctx);
+  if (matched.length === 0 || matched.length >= ctx.services.length) {
     effect.all = true;
     return;
   }
@@ -516,37 +574,63 @@ function classifyE2eDep(
   }
 }
 
-function classifyCatalogDep(
-  dep: string,
-  services: string[],
-  catalogConsumers: Record<string, string[]>,
-  e2eDeps: Record<string, string[]>,
-  effect: ManifestEffect,
-): void {
-  const consumers = catalogConsumers[dep] ?? [];
+// The root and e2e manifests, and their lockfile importers, narrow by each changed dependency in `fields`.
+// Any other change runs every pipeline, unless `isInert` says it needs none.
+interface DependencyRules {
+  fields: readonly string[];
+  classify: DepClassifier;
+  isInert?: (field: string, base: unknown, head: unknown) => boolean;
+}
+const ROOT_DEPENDENCY_RULES: DependencyRules = {
+  fields: ['devDependencies'],
+  classify: classifyRootDevDep,
+  isInert: (field, base, head) => field === 'scripts' && onlyLintJobScriptsChanged(base, head),
+};
+const E2E_DEPENDENCY_RULES: DependencyRules = { fields: ['dependencies', 'devDependencies'], classify: classifyE2eDep };
+
+function classifyCatalogDep(catalogDep: string, ctx: ManifestContext, effect: ManifestEffect): void {
+  const dep = CATALOG_ALIASES[catalogDep] ?? catalogDep;
+  const consumers = ctx.catalogConsumers[dep] ?? [];
   if (consumers.length === 0) {
     effect.all = true;
     return;
   }
   for (const pkgFile of consumers) {
     if (pkgFile === 'e2e/package.json') {
-      classifyE2eDep(dep, services, e2eDeps, effect);
+      classifyE2eDep(dep, ctx, effect);
       continue;
     }
     if (pkgFile === 'package.json') {
-      classifyRootDevDep(dep, effect);
+      classifyRootDevDep(dep, ctx, effect);
       continue;
     }
-    const verdict = classifyFile(pkgFile, services);
-    if (verdict === 'shared') {
-      const dir = pkgFile.split('/')[1];
-      if (dir && !effect.sharedDirs.includes(dir)) {
-        effect.sharedDirs.push(dir);
-      }
-    } else if (services.includes(verdict)) {
+    const verdict = classifyFile(pkgFile, ctx.services);
+    const dir = pkgFile.split('/')[1];
+    if (verdict === 'shared' && dir) {
+      addSharedDir(effect, dir);
+    } else if (ctx.services.includes(verdict)) {
       effect.services.add(verdict);
     } else {
       effect.all = true;
+    }
+  }
+}
+
+interface CatalogEntry {
+  dep: string;
+  value: string;
+}
+
+function classifyCatalogChanges(
+  base: Map<string, CatalogEntry>,
+  head: Map<string, CatalogEntry>,
+  ctx: ManifestContext,
+  effect: ManifestEffect,
+): void {
+  for (const key of new Set([...base.keys(), ...head.keys()])) {
+    const entry = head.get(key) ?? base.get(key);
+    if (entry && base.get(key)?.value !== head.get(key)?.value) {
+      classifyCatalogDep(entry.dep, ctx, effect);
     }
   }
 }
@@ -570,86 +654,37 @@ function onlyLintJobScriptsChanged(base: unknown, head: unknown): boolean {
   return changedRecordKeys(baseScripts, headScripts).every((name) => LINT_JOB_SCRIPTS.has(name));
 }
 
-function classifyRootPackageJson(base: string, head: string): ManifestEffect {
-  const effect = emptyEffect();
-  let baseObj: unknown;
-  let headObj: unknown;
+function classifyPackageJson(pair: ManifestPair, rules: DependencyRules, ctx: ManifestContext): ManifestEffect {
+  let base: unknown;
+  let head: unknown;
   try {
-    baseObj = JSON.parse(base);
-    headObj = JSON.parse(head);
+    base = JSON.parse(pair.base);
+    head = JSON.parse(pair.head);
   } catch {
-    effect.all = true;
-    effect.unknown = true;
-    return effect;
+    return unreadableEffect();
   }
-  if (!isPlainObject(baseObj) || !isPlainObject(headObj)) {
-    effect.all = true;
-    effect.unknown = true;
-    return effect;
+  if (!isPlainObject(base) || !isPlainObject(head)) {
+    return unreadableEffect();
   }
-  for (const key of changedRecordKeys(baseObj, headObj)) {
-    if (key === 'scripts' && onlyLintJobScriptsChanged(baseObj.scripts, headObj.scripts)) {
+  const effect = emptyEffect();
+  for (const field of changedRecordKeys(base, head)) {
+    if (rules.isInert?.(field, base[field], head[field])) {
       continue;
     }
-    if (key !== 'devDependencies') {
-      effect.all = true;
-      return effect;
-    }
-  }
-  const baseDev = baseObj.devDependencies ?? {};
-  const headDev = headObj.devDependencies ?? {};
-  if (!isPlainObject(baseDev) || !isPlainObject(headDev)) {
-    effect.all = true;
-    return effect;
-  }
-  for (const dep of changedRecordKeys(baseDev, headDev)) {
-    classifyRootDevDep(dep, effect);
-  }
-  return effect;
-}
-
-function classifyE2ePackageJson(
-  base: string,
-  head: string,
-  services: string[],
-  e2eDeps: Record<string, string[]>,
-): ManifestEffect {
-  const effect = emptyEffect();
-  let baseObj: unknown;
-  let headObj: unknown;
-  try {
-    baseObj = JSON.parse(base);
-    headObj = JSON.parse(head);
-  } catch {
-    effect.all = true;
-    effect.unknown = true;
-    return effect;
-  }
-  if (!isPlainObject(baseObj) || !isPlainObject(headObj)) {
-    effect.all = true;
-    effect.unknown = true;
-    return effect;
-  }
-  for (const key of changedRecordKeys(baseObj, headObj)) {
-    if (key !== 'dependencies' && key !== 'devDependencies') {
-      effect.all = true;
-      return effect;
-    }
-  }
-  for (const field of ['dependencies', 'devDependencies'] as const) {
-    const baseDeps = baseObj[field] ?? {};
-    const headDeps = headObj[field] ?? {};
-    if (!isPlainObject(baseDeps) || !isPlainObject(headDeps)) {
+    const baseDeps = base[field] ?? {};
+    const headDeps = head[field] ?? {};
+    if (!rules.fields.includes(field) || !isPlainObject(baseDeps) || !isPlainObject(headDeps)) {
       effect.all = true;
       return effect;
     }
     for (const dep of changedRecordKeys(baseDeps, headDeps)) {
-      classifyE2eDep(dep, services, e2eDeps, effect);
+      rules.classify(dep, ctx, effect);
     }
   }
   return effect;
 }
 
+// A key at exactly `indent` spaces: `key:` opens a block, and `key: {}` is pnpm's inline form for an entry with no body.
 function splitIndentedKeyLine(line: string, indent: number): { key: string; inline: string } | undefined {
   const prefix = ' '.repeat(indent);
   if (!line.startsWith(prefix) || line.startsWith(`${prefix} `)) {
@@ -673,13 +708,13 @@ function splitIndentedKeyLine(line: string, indent: number): { key: string; inli
 }
 
 interface ParsedWorkspaceYaml {
-  catalogs: Map<string, { dep: string; value: string }>;
+  catalogs: Map<string, CatalogEntry>;
   other: Map<string, string>;
   valid: boolean;
 }
 
 function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
-  const catalogs = new Map<string, { dep: string; value: string }>();
+  const catalogs = new Map<string, CatalogEntry>();
   const other = new Map<string, string>();
   let section: string | undefined;
   let catalogName = 'default';
@@ -735,38 +770,18 @@ function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
   return { catalogs, other, valid: sawTopLevel };
 }
 
-function classifyWorkspaceYaml(
-  base: string,
-  head: string,
-  services: string[],
-  catalogConsumers: Record<string, string[]>,
-  e2eDeps: Record<string, string[]>,
-): ManifestEffect {
+function classifyWorkspaceYaml(pair: ManifestPair, ctx: ManifestContext): ManifestEffect {
+  const base = parseWorkspaceYaml(pair.base);
+  const head = parseWorkspaceYaml(pair.head);
+  if (!base.valid || !head.valid) {
+    return unreadableEffect();
+  }
   const effect = emptyEffect();
-  const parsedBase = parseWorkspaceYaml(base);
-  const parsedHead = parseWorkspaceYaml(head);
-  if (!parsedBase.valid || !parsedHead.valid) {
+  if (changedMapKeys(base.other, head.other).length > 0) {
     effect.all = true;
-    effect.unknown = true;
     return effect;
   }
-  for (const key of new Set([...parsedBase.other.keys(), ...parsedHead.other.keys()])) {
-    if ((parsedBase.other.get(key) ?? '') !== (parsedHead.other.get(key) ?? '')) {
-      effect.all = true;
-      return effect;
-    }
-  }
-  for (const key of new Set([...parsedBase.catalogs.keys(), ...parsedHead.catalogs.keys()])) {
-    const baseEntry = parsedBase.catalogs.get(key);
-    const headEntry = parsedHead.catalogs.get(key);
-    if (baseEntry?.value === headEntry?.value) {
-      continue;
-    }
-    const dep = (headEntry ?? baseEntry)?.dep;
-    if (dep) {
-      classifyCatalogDep(dep, services, catalogConsumers, e2eDeps, effect);
-    }
-  }
+  classifyCatalogChanges(base.catalogs, head.catalogs, ctx, effect);
   return effect;
 }
 
@@ -778,25 +793,6 @@ function unquoteLockKey(raw: string): string {
     }
   }
   return raw;
-}
-
-// Entry keys sit at two spaces: `key:` opens a block, and `key: {}` is pnpm's inline form for an entry with no body.
-function splitLockEntryLine(line: string): { key: string; inline: string } | undefined {
-  if (!line.startsWith('  ') || line.startsWith('   ')) {
-    return undefined;
-  }
-  const rest = line.slice(2).trimEnd();
-  let keyEnd: number;
-  if (rest.startsWith("'") || rest.startsWith('"')) {
-    keyEnd = rest.indexOf(rest[0] as string, 1) + 1;
-  } else {
-    const separator = rest.indexOf(': ');
-    keyEnd = separator === -1 ? rest.length - 1 : separator;
-  }
-  if (keyEnd <= 0 || rest[keyEnd] !== ':') {
-    return undefined;
-  }
-  return { key: unquoteLockKey(rest.slice(0, keyEnd)), inline: rest.slice(keyEnd + 1).trim() };
 }
 
 // pnpm-lock.yaml is two YAML documents, with entries under importers, packages and snapshots. The detect
@@ -849,7 +845,7 @@ function parseLockfile(text: string): ParsedLockfile {
       continue;
     }
     if (LOCKFILE_ENTRY_SECTIONS.has(section)) {
-      const entry = splitLockEntryLine(line);
+      const entry = splitIndentedKeyLine(line, 2);
       if (entry) {
         flushEntry();
         entryKey = entry.key;
@@ -952,11 +948,8 @@ function parseLockImporterBody(body: string): ParsedImporterBody {
   return { sections, other, valid: true };
 }
 
-function parseLockCatalogs(text: string | undefined): {
-  entries: Map<string, { dep: string; value: string }>;
-  valid: boolean;
-} {
-  const entries = new Map<string, { dep: string; value: string }>();
+function parseLockCatalogs(text: string | undefined): { entries: Map<string, CatalogEntry>; valid: boolean } {
+  const entries = new Map<string, CatalogEntry>();
   if (!text) {
     return { entries, valid: true };
   }
@@ -1003,9 +996,6 @@ function changedMapKeys(base: Map<string, string>, head: Map<string, string>): s
 }
 
 function classifyImporterPath(importer: string, services: string[]): Verdict {
-  if (importer === '.' || importer === 'e2e') {
-    return 'all';
-  }
   const asFile =
     importer.startsWith('packages/') || importer.startsWith('fixtures/') ? `${importer}/package.json` : undefined;
   if (!asFile) {
@@ -1018,122 +1008,114 @@ function classifyImporterPath(importer: string, services: string[]): Verdict {
   return verdict;
 }
 
-function classifyLockfile(
-  base: string,
-  head: string,
-  services: string[],
-  e2eDeps: Record<string, string[]>,
-  catalogConsumers: Record<string, string[]>,
-): ManifestEffect {
-  const effect = emptyEffect();
-  if (!looksLikeLockfile(base) || !looksLikeLockfile(head)) {
-    effect.all = true;
-    effect.unknown = true;
-    return effect;
+// The top-level `(…)` groups in `text`, without their parentheses.
+function parenGroups(text: string): string[] {
+  const groups: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '(') {
+      if (depth === 0) {
+        start = i + 1;
+      }
+      depth++;
+    } else if (text[i] === ')') {
+      depth--;
+      if (depth === 0) {
+        groups.push(text.slice(start, i));
+      }
+    }
   }
-  const parsedBase = parseLockfile(base);
-  const parsedHead = parseLockfile(head);
+  return groups;
+}
 
-  for (const name of new Set([...parsedBase.other.keys(), ...parsedHead.other.keys()])) {
-    if ((parsedBase.other.get(name) ?? '') === (parsedHead.other.get(name) ?? '')) {
-      continue;
-    }
-    if (name === 'catalogs') {
-      const baseCat = parseLockCatalogs(parsedBase.other.get('catalogs'));
-      const headCat = parseLockCatalogs(parsedHead.other.get('catalogs'));
-      if (!baseCat.valid || !headCat.valid) {
-        effect.all = true;
-        continue;
-      }
-      for (const key of new Set([...baseCat.entries.keys(), ...headCat.entries.keys()])) {
-        const b = baseCat.entries.get(key);
-        const h = headCat.entries.get(key);
-        if (b?.value !== h?.value) {
-          const dep = (h ?? b)?.dep;
-          if (dep) {
-            classifyCatalogDep(dep, services, catalogConsumers, e2eDeps, effect);
-          }
-        }
-      }
-      continue;
-    }
+// `version:` ends with the dependency's resolved peers, as `(name@version…)` groups. A peer that's also one of the
+// importer's dependencies is classified by its own entry, so only the other peers count.
+function withoutOwnPeers(entry: string, ownDeps: Set<string>): string {
+  return entry.replace(/^([ \t]*version: [^(\s]+)(\(.*\))$/m, (_match, version: string, peers: string) => {
+    const others = parenGroups(peers).filter((peer) => !ownDeps.has(peer.slice(0, peer.indexOf('@', 1))));
+    return version + others.map((peer) => `(${peer})`).join('');
+  });
+}
+
+function classifyImporterDeps(
+  baseBody: string | undefined,
+  headBody: string | undefined,
+  rules: DependencyRules,
+  ctx: ManifestContext,
+  effect: ManifestEffect,
+): void {
+  const base = parseLockImporterBody(baseBody ?? '');
+  const head = parseLockImporterBody(headBody ?? '');
+  if (!base.valid || !head.valid || changedMapKeys(base.other, head.other).length > 0) {
     effect.all = true;
+    return;
   }
-
-  for (const key of new Set([...parsedBase.entries.importers.keys(), ...parsedHead.entries.importers.keys()])) {
-    const baseImpBody = parsedBase.entries.importers.get(key);
-    const headImpBody = parsedHead.entries.importers.get(key);
-    if (baseImpBody === headImpBody) {
-      continue;
-    }
-    if (key === '.') {
-      const baseImp = parseLockImporterBody(baseImpBody ?? '');
-      const headImp = parseLockImporterBody(headImpBody ?? '');
-      if (!baseImp.valid || !headImp.valid || changedMapKeys(baseImp.other, headImp.other).length > 0) {
-        effect.all = true;
-        continue;
-      }
-      for (const sec of new Set([...baseImp.sections.keys(), ...headImp.sections.keys()])) {
-        const changedDeps = changedMapKeys(
-          baseImp.sections.get(sec) ?? new Map(),
-          headImp.sections.get(sec) ?? new Map(),
-        );
-        if (changedDeps.length === 0) {
-          continue;
-        }
-        if (sec !== 'devDependencies') {
-          effect.all = true;
-        } else {
-          for (const dep of changedDeps) {
-            classifyRootDevDep(dep, effect);
-          }
-        }
-      }
-      continue;
-    }
-    if (key === 'e2e') {
-      const baseImp = parseLockImporterBody(baseImpBody ?? '');
-      const headImp = parseLockImporterBody(headImpBody ?? '');
-      if (!baseImp.valid || !headImp.valid || changedMapKeys(baseImp.other, headImp.other).length > 0) {
-        effect.all = true;
-        continue;
-      }
-      for (const sec of new Set([...baseImp.sections.keys(), ...headImp.sections.keys()])) {
-        const changedDeps = changedMapKeys(
-          baseImp.sections.get(sec) ?? new Map(),
-          headImp.sections.get(sec) ?? new Map(),
-        );
-        if (changedDeps.length === 0) {
-          continue;
-        }
-        if (sec !== 'dependencies' && sec !== 'devDependencies') {
-          effect.all = true;
-        } else {
-          for (const dep of changedDeps) {
-            classifyE2eDep(dep, services, e2eDeps, effect);
-          }
-        }
-      }
-      continue;
-    }
-    const verdict = classifyImporterPath(key, services);
-    if (verdict === 'all' || verdict === 'unknown') {
+  const ownDeps = new Set([...base.sections.values(), ...head.sections.values()].flatMap((deps) => [...deps.keys()]));
+  let changedAny = false;
+  for (const field of new Set([...base.sections.keys(), ...head.sections.keys()])) {
+    const baseDeps = base.sections.get(field) ?? new Map<string, string>();
+    const headDeps = head.sections.get(field) ?? new Map<string, string>();
+    const changed = [...new Set([...baseDeps.keys(), ...headDeps.keys()])].filter(
+      (dep) => withoutOwnPeers(baseDeps.get(dep) ?? '', ownDeps) !== withoutOwnPeers(headDeps.get(dep) ?? '', ownDeps),
+    );
+    if (changed.length > 0 && !rules.fields.includes(field)) {
       effect.all = true;
-    } else if (verdict === 'shared') {
-      const dir = key.split('/')[1];
-      if (dir) {
-        effect.sharedDirs.push(dir);
-      }
+      return;
+    }
+    for (const dep of changed) {
+      rules.classify(dep, ctx, effect);
+    }
+    changedAny ||= changed.length > 0;
+  }
+  // The body changed but no dependency did, so it can't place the change.
+  if (!changedAny) {
+    effect.all = true;
+  }
+}
+
+function classifyLockfile(pair: ManifestPair, ctx: ManifestContext): ManifestEffect {
+  if (!looksLikeLockfile(pair.base) || !looksLikeLockfile(pair.head)) {
+    return unreadableEffect();
+  }
+  const base = parseLockfile(pair.base);
+  const head = parseLockfile(pair.head);
+  const effect = emptyEffect();
+
+  for (const name of changedMapKeys(base.other, head.other)) {
+    const baseCatalogs = name === 'catalogs' ? parseLockCatalogs(base.other.get(name)) : undefined;
+    const headCatalogs = name === 'catalogs' ? parseLockCatalogs(head.other.get(name)) : undefined;
+    if (baseCatalogs?.valid && headCatalogs?.valid) {
+      classifyCatalogChanges(baseCatalogs.entries, headCatalogs.entries, ctx, effect);
     } else {
+      effect.all = true;
+    }
+  }
+
+  for (const key of changedMapKeys(base.entries.importers, head.entries.importers)) {
+    const baseBody = base.entries.importers.get(key);
+    const headBody = head.entries.importers.get(key);
+    if (key === '.' || key === 'e2e') {
+      const rules = key === '.' ? ROOT_DEPENDENCY_RULES : E2E_DEPENDENCY_RULES;
+      classifyImporterDeps(baseBody, headBody, rules, ctx, effect);
+      continue;
+    }
+    const verdict = classifyImporterPath(key, ctx.services);
+    const dir = key.split('/')[1];
+    if (verdict === 'shared' && dir) {
+      addSharedDir(effect, dir);
+    } else if (ctx.services.includes(verdict)) {
       effect.services.add(verdict);
+    } else {
+      effect.all = true;
     }
   }
 
   // Only in-place edits count. Anything that uses a newly added package also changes an importer or an
   // existing snapshot, which is classified.
   for (const section of ['packages', 'snapshots'] as const) {
-    const baseEntries = parsedBase.entries[section];
-    const headEntries = parsedHead.entries[section];
+    const baseEntries = base.entries[section];
+    const headEntries = head.entries[section];
     for (const key of new Set([...baseEntries.keys(), ...headEntries.keys()])) {
       if (baseEntries.has(key) && headEntries.has(key) && baseEntries.get(key) !== headEntries.get(key)) {
         effect.all = true;
@@ -1144,14 +1126,13 @@ function classifyLockfile(
   // The text changed but no entry the reader understands did, so it can't place the change: run everything.
   if (
     !effect.all &&
-    !effect.rootShared &&
+    !effect.buildOnly &&
     effect.services.size === 0 &&
     effect.sharedDirs.length === 0 &&
-    base !== head &&
-    canonicalLockfile(parsedBase) === canonicalLockfile(parsedHead)
+    pair.base !== pair.head &&
+    canonicalLockfile(base) === canonicalLockfile(head)
   ) {
-    effect.all = true;
-    effect.unknown = true;
+    return unreadableEffect();
   }
   return effect;
 }
@@ -1163,16 +1144,13 @@ function manifestVerdict(effect: ManifestEffect): Verdict {
   if (effect.all) {
     return 'all';
   }
-  if (effect.sharedDirs.length > 0 || (effect.rootShared && effect.services.size === 0)) {
+  if (effect.sharedDirs.length > 0) {
     return 'shared';
   }
-  if (effect.services.size === 1) {
-    return [...effect.services][0] as string;
+  if (effect.services.size > 0) {
+    return [...effect.services].sort().join(',');
   }
-  if (effect.services.size === 0) {
-    return 'none';
-  }
-  return [...effect.services].sort().join(',');
+  return effect.buildOnly ? 'build' : 'none';
 }
 
 function diffBaseRef(): string | undefined {
@@ -1184,24 +1162,22 @@ function diffBaseRef(): string | undefined {
   return baseRef;
 }
 
-function readManifestPairs(files: string[]): Partial<Record<DiffManifestFile, ManifestPair>> {
-  const baseRef = diffBaseRef();
-  if (!baseRef) {
-    return {};
-  }
+function readManifestPairs(files: string[], base: string | undefined): Partial<Record<DiffManifestFile, ManifestPair>> {
   const pairs: Partial<Record<DiffManifestFile, ManifestPair>> = {};
+  if (!base) {
+    return pairs;
+  }
   for (const file of DIFF_MANIFEST_FILES) {
     if (!files.includes(file)) {
       continue;
     }
     try {
-      const base = execFileSync('git', ['show', `${baseRef}:${file}`], {
-        encoding: 'utf8',
-        maxBuffer: 32 * 1024 * 1024,
-      });
-      pairs[file] = { base, head: fs.readFileSync(file, 'utf8') };
+      pairs[file] = {
+        base: execFileSync('git', ['show', `${base}:${file}`], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }),
+        head: fs.readFileSync(file, 'utf8'),
+      };
     } catch {
-      // Base or head copy unavailable — falls back to classifyFile ('all').
+      // A file without both copies runs every pipeline (see classifyChanges).
     }
   }
   return pairs;
@@ -1305,22 +1281,16 @@ function affectedServices(dir: string, services: string[], dependents: Record<st
   return dependents[dir]?.length ? dependents[dir] : services;
 }
 
-function classifyManifestFile(
-  file: DiffManifestFile,
-  pair: ManifestPair,
-  services: string[],
-  e2eDeps: Record<string, string[]>,
-  catalogConsumers: Record<string, string[]>,
-): ManifestEffect {
+function classifyManifestFile(file: DiffManifestFile, pair: ManifestPair, ctx: ManifestContext): ManifestEffect {
   switch (file) {
     case 'package.json':
-      return classifyRootPackageJson(pair.base, pair.head);
+      return classifyPackageJson(pair, ROOT_DEPENDENCY_RULES, ctx);
     case 'e2e/package.json':
-      return classifyE2ePackageJson(pair.base, pair.head, services, e2eDeps);
+      return classifyPackageJson(pair, E2E_DEPENDENCY_RULES, ctx);
     case 'pnpm-workspace.yaml':
-      return classifyWorkspaceYaml(pair.base, pair.head, services, catalogConsumers, e2eDeps);
+      return classifyWorkspaceYaml(pair, ctx);
     case 'pnpm-lock.yaml':
-      return classifyLockfile(pair.base, pair.head, services, e2eDeps, catalogConsumers);
+      return classifyLockfile(pair, ctx);
   }
 }
 
@@ -1333,7 +1303,7 @@ export function classifyChanges(
     dependents = {} as Record<string, string[]>,
     e2eDeps = {} as Record<string, string[]>,
     catalogConsumers = {} as Record<string, string[]>,
-    lockfile,
+    scriptDeps = new Set<string>(),
     manifests = {},
     commentOnly = new Set<string>(),
   }: {
@@ -1342,13 +1312,14 @@ export function classifyChanges(
     dependents?: Record<string, string[]>;
     e2eDeps?: Record<string, string[]>;
     catalogConsumers?: Record<string, string[]>;
-    lockfile?: ManifestPair;
+    scriptDeps?: Set<string>;
     manifests?: Partial<Record<DiffManifestFile, ManifestPair>>;
     commentOnly?: Set<string>;
   } = {},
 ): Classification {
   const runs: Record<string, boolean> = Object.fromEntries(services.map((svc) => [svc, false]));
   let sharedChanges = false;
+  let buildOnly = false;
   // Deliberate run-everything verdicts (core infra, cross-service scripts, shared e2e)
   // vs files no convention rule could place — both run all pipelines, but only the
   // latter signal naming-convention drift.
@@ -1385,11 +1356,7 @@ export function classifyChanges(
     };
   }
 
-  const manifestPairs: Partial<Record<DiffManifestFile, ManifestPair>> = {
-    ...manifests,
-    ...(lockfile ? { 'pnpm-lock.yaml': lockfile } : {}),
-  };
-
+  const ctx: ManifestContext = { services, e2eDeps, catalogConsumers, scriptDeps };
   const perFile: Array<{ file: string; verdict: Verdict }> = [];
   const commentOnlyFiles: string[] = [];
   for (const file of files) {
@@ -1400,7 +1367,7 @@ export function classifyChanges(
     }
     if ((DIFF_MANIFEST_FILES as readonly string[]).includes(file)) {
       const manifestFile = file as DiffManifestFile;
-      const pair = manifestPairs[manifestFile];
+      const pair = manifests[manifestFile];
       if (!pair) {
         perFile.push({ file, verdict: 'all' });
         triggersAll.push(file);
@@ -1409,10 +1376,8 @@ export function classifyChanges(
         }
         continue;
       }
-      const effect = classifyManifestFile(manifestFile, pair, services, e2eDeps, catalogConsumers);
-      if (effect.rootShared) {
-        sharedChanges = true;
-      }
+      const effect = classifyManifestFile(manifestFile, pair, ctx);
+      buildOnly ||= effect.buildOnly;
       if (effect.all) {
         if (effect.unknown) {
           unknownFiles.push(file);
@@ -1473,10 +1438,10 @@ export function classifyChanges(
     }
   }
 
-  // Lint-only = nothing needs build: no service runs AND no shared (compile-affecting) change.
+  // Lint-only = nothing needs build: no service runs AND no shared-package or build-only change.
   // A types-only shared change runs no service yet must still build/typecheck, so the
   // sharedChanges term keeps it off this path (build + unit gate on `run_lint_only != true`).
-  const lintOnly = services.every((svc) => !runs[svc]) && !sharedChanges;
+  const lintOnly = services.every((svc) => !runs[svc]) && !sharedChanges && !buildOnly;
   return { runs, sharedChanges, lintOnly, triggersAll, unknownFiles, commentOnlyFiles, sharedDetail, perFile };
 }
 
@@ -1495,8 +1460,10 @@ function main(): void {
   const dependents = buildServiceDependents(process.cwd(), services);
   const e2eDeps = buildE2eDependencyServices(process.cwd(), services);
   const catalogConsumers = buildCatalogConsumers(process.cwd());
-  const manifests = readManifestPairs(files);
-  const commentOnly = findCommentOnlyWorkflowChanges(files, services, gitDiffReader(diffBaseRef()));
+  const scriptDeps = buildScriptDependencies(process.cwd());
+  const base = mergeBase(diffBaseRef());
+  const manifests = readManifestPairs(files, base);
+  const commentOnly = findCommentOnlyWorkflowChanges(files, services, gitDiffReader(base));
 
   const { runs, sharedChanges, lintOnly, triggersAll, unknownFiles, commentOnlyFiles, sharedDetail, perFile } =
     classifyChanges(files, services, {
@@ -1505,6 +1472,7 @@ function main(): void {
       dependents,
       e2eDeps,
       catalogConsumers,
+      scriptDeps,
       manifests,
       commentOnly,
     });
