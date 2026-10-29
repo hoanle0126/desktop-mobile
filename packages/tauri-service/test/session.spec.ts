@@ -82,7 +82,7 @@ vi.mock('node:http', () => ({
 }));
 
 import { closeLogWriter, getLogWriter } from '@wdio/native-core';
-import { DEFAULT_TEARDOWN_TIMEOUT_MS } from '@wdio/native-utils';
+import { DEFAULT_TEARDOWN_TIMEOUT_MS, PROCESS_TEARDOWN_TIMEOUT_MS } from '@wdio/native-utils';
 import TauriLaunchService from '../src/launcher.js';
 import TauriWorkerService from '../src/service.js';
 import { cleanup, createTauriCapabilities, init } from '../src/session.js';
@@ -390,12 +390,9 @@ describe('session', () => {
 
       await init(capabilities);
 
-      const remoteCall = mockRemote.mock.calls[0][0] as {
-        connectionRetryTimeout?: number;
-        connectionRetryCount: number;
-      };
+      const remoteCall = mockRemote.mock.calls[0][0];
       expect(remoteCall).not.toHaveProperty('connectionRetryTimeout');
-      expect(remoteCall.connectionRetryCount).toBe(10);
+      expect(remoteCall).not.toHaveProperty('connectionRetryCount');
     });
 
     it('should forward connectionRetryTimeout from globalOptions to remote()', async () => {
@@ -878,6 +875,35 @@ describe('session', () => {
       expect(vi.mocked(browser.deleteSession).mock.invocationCallOrder[0]).toBeLessThan(
         mockOnComplete.mock.invocationCallOrder[0],
       );
+    });
+
+    it.each([
+      ['Session not found', new Error('Session not found')],
+      ['UND_ERR_CLOSED', Object.assign(new Error('other side closed'), { code: 'UND_ERR_CLOSED' })],
+      ['an unexpected error', new Error('boom')],
+    ])('should still stop the launcher when deleteSession rejects with %s', async (_, error) => {
+      const browser = await init({ 'tauri:options': { application: '/app' } } as unknown as TauriCapabilities);
+      vi.clearAllMocks();
+      vi.mocked(browser.deleteSession).mockRejectedValueOnce(error);
+
+      await expect(cleanup(browser)).resolves.toBeUndefined();
+      expect(mockOnComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not hang cleanup when deleteSession never settles', async () => {
+      const browser = await init({ 'tauri:options': { application: '/app' } } as unknown as TauriCapabilities);
+      vi.clearAllMocks();
+      vi.mocked(browser.deleteSession).mockReturnValueOnce(new Promise<void>(() => {}));
+
+      vi.useFakeTimers();
+      try {
+        const cleanupPromise = cleanup(browser);
+        await vi.advanceTimersByTimeAsync(PROCESS_TEARDOWN_TIMEOUT_MS + 1_000);
+        await expect(cleanupPromise).resolves.toBeUndefined();
+      } finally {
+        vi.useRealTimers();
+      }
+      expect(mockOnComplete).toHaveBeenCalledTimes(1);
     });
 
     it('should swallow a launcher.onComplete failure during cleanup', async () => {

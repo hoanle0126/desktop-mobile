@@ -123,6 +123,7 @@ export type {
   Result,
   SelectorsBase,
   ServiceMockContext,
+  StandaloneSessionOptions,
 } from './shared.js';
 
 // Tauri types

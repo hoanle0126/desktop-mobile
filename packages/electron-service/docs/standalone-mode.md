@@ -47,18 +47,16 @@ const caps = createElectronCapabilities({
 const browser = await startWdioSession([caps]);
 ```
 
-`rootDir` can be specified in the second (optional) `ElectronServiceGlobalOptions` parameter, which also accepts mocking preferences for the session:
+The second, optional parameter takes `ElectronServiceGlobalOptions`, such as `rootDir` and mocking preferences for the session. It also takes `connectionRetryTimeout`, the timeout in milliseconds for each WebDriver request, which is WebdriverIO's default otherwise:
 
 ```TS
-const browser = await startWdioSession([
-  { ... },
-  {
-    rootDir: '/path/to/dir',
-    clearMocks: false,
-    resetMocks: false,
-    restoreMocks: true,
-  }
-]);
+const browser = await startWdioSession([{ ... }], {
+  rootDir: '/path/to/dir',
+  clearMocks: false,
+  resetMocks: false,
+  restoreMocks: true,
+  connectionRetryTimeout: 180000,
+});
 ```
 
 ## Log Capture in Standalone Mode

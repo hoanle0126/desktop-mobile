@@ -1,6 +1,7 @@
 import http from 'node:http';
 import { join } from 'node:path';
 import { getLogWriter } from '@wdio/native-core';
+import type { StandaloneSessionOptions } from '@wdio/native-types';
 import {
   boundedOnComplete,
   createLogger,
@@ -36,7 +37,7 @@ async function checkDriverHealth(hostname: string, port: number): Promise<boolea
 
 async function driverRemoteOptions(
   capabilities: TauriCapabilities,
-  globalOptions?: TauriServiceGlobalOptions,
+  standaloneOptions?: StandaloneSessionOptions,
 ): Promise<Parameters<typeof remote>[0]> {
   const hostname = (capabilities as { hostname?: string }).hostname || 'localhost';
   const port = (capabilities as { port?: number }).port;
@@ -64,8 +65,7 @@ async function driverRemoteOptions(
     hostname,
     port,
     capabilities: driverCapabilities,
-    ...standaloneRequestTimeout(globalOptions),
-    connectionRetryCount: 10,
+    ...standaloneRequestTimeout(standaloneOptions),
   };
 }
 
@@ -94,7 +94,7 @@ function browserSessionCapabilities(capabilities: TauriCapabilities): TauriCapab
 
 export async function init(
   callerCapabilities: TauriCapabilities,
-  globalOptions?: TauriServiceGlobalOptions,
+  globalOptions?: TauriServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser> {
   log.debug('Initializing Tauri service in standalone mode...');
 

@@ -4,6 +4,7 @@ import type {
   ElectronServiceGlobalOptions,
   ElectronServiceOptions,
   ElectronStandaloneCapability,
+  StandaloneSessionOptions,
 } from '@wdio/native-types';
 import {
   boundedOnComplete,
@@ -36,7 +37,7 @@ function failStartup(launcher: ElectronLaunchService, error: unknown): Promise<n
 
 export async function init(
   capabilities: ElectronServiceCapabilities,
-  globalOptions?: ElectronServiceGlobalOptions,
+  globalOptions?: ElectronServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser> {
   log.debug('Initializing Electron service in standalone mode...');
 

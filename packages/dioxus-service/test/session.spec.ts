@@ -177,6 +177,7 @@ describe('session', () => {
       await init(caps, { startTimeout: 15_000 });
 
       expect(remoteMock.mock.calls[0][0]).not.toHaveProperty('connectionRetryTimeout');
+      expect(remoteMock.mock.calls[0][0]).not.toHaveProperty('connectionRetryCount');
     });
 
     it('should forward connectionRetryTimeout from globalOptions to remote()', async () => {
@@ -364,6 +365,33 @@ describe('session', () => {
         deleteSessionMock.mock.invocationCallOrder[0],
       );
       expect(deleteSessionMock.mock.invocationCallOrder[0]).toBeLessThan(onCompleteMock.mock.invocationCallOrder[0]);
+    });
+
+    it.each([
+      ['Session not found', new Error('Session not found')],
+      ['UND_ERR_CLOSED', Object.assign(new Error('other side closed'), { code: 'UND_ERR_CLOSED' })],
+      ['an unexpected error', new Error('boom')],
+    ])('should still stop the launcher when deleteSession rejects with %s', async (_, error) => {
+      const browser = await init(makeCaps());
+      deleteSessionMock.mockRejectedValueOnce(error);
+
+      await expect(cleanup(browser)).resolves.toBeUndefined();
+      expect(onCompleteMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not hang cleanup when deleteSession never settles', async () => {
+      const browser = await init(makeCaps());
+      deleteSessionMock.mockReturnValueOnce(new Promise<void>(() => {}));
+
+      vi.useFakeTimers();
+      try {
+        const cleanupPromise = cleanup(browser);
+        await vi.advanceTimersByTimeAsync(PROCESS_TEARDOWN_TIMEOUT_MS + 1_000);
+        await expect(cleanupPromise).resolves.toBeUndefined();
+      } finally {
+        vi.useRealTimers();
+      }
+      expect(onCompleteMock).toHaveBeenCalledTimes(1);
     });
 
     it('should resolve when launcher.onComplete rejects (best-effort teardown)', async () => {

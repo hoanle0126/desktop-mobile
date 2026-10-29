@@ -45,7 +45,7 @@ class FakeWorker {
 }
 
 const makeSession = () =>
-  createMobileSession<{ connectionRetryTimeout?: number } & Record<string, unknown>, { platformName?: string }>({
+  createMobileSession<Record<string, unknown>, { platformName?: string }>({
     LauncherClass: FakeLauncher as never,
     WorkerClass: FakeWorker as never,
     logNamespace: 'test-service',
@@ -193,6 +193,25 @@ describe('createMobileSession cleanup', () => {
       const pending = session.cleanup(browser);
       await vi.advanceTimersByTimeAsync(PROCESS_TEARDOWN_TIMEOUT_MS);
       await expect(pending).resolves.toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('should bound a hung worker.after, which afterSession runs again, so cleanup still finishes', async () => {
+    resetMocks();
+    const session = makeSession();
+    const browser = await session.init({ platformName: 'Android' });
+    const hang = new Promise<void>(() => {});
+    after.mockReturnValueOnce(hang).mockReturnValueOnce(hang);
+    afterSession.mockImplementationOnce(() => after());
+    vi.useFakeTimers();
+    try {
+      const pending = session.cleanup(browser);
+      await vi.advanceTimersByTimeAsync(2 * DEFAULT_TEARDOWN_TIMEOUT_MS);
+      await expect(pending).resolves.toBeUndefined();
+      expect(deleteSession).toHaveBeenCalledTimes(1);
+      expect(onComplete).toHaveBeenCalledTimes(1);
     } finally {
       vi.useRealTimers();
     }

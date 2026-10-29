@@ -1,3 +1,4 @@
+import type { StandaloneSessionOptions } from '@wdio/native-types';
 import {
   boundedOnComplete,
   createLogger,
@@ -25,7 +26,7 @@ function failStartup(launcher: DioxusLaunchService, error: unknown, context: str
 
 function driverRemoteOptions(
   capabilities: DioxusCapabilities,
-  globalOptions?: DioxusServiceGlobalOptions,
+  standaloneOptions?: StandaloneSessionOptions,
 ): Parameters<typeof remote>[0] {
   const hostname = (capabilities as { hostname?: string }).hostname ?? '127.0.0.1';
   const port = (capabilities as { port?: number }).port;
@@ -48,8 +49,7 @@ function driverRemoteOptions(
     hostname,
     port,
     capabilities: driverCapabilities,
-    ...standaloneRequestTimeout(globalOptions),
-    connectionRetryCount: 10,
+    ...standaloneRequestTimeout(standaloneOptions),
   };
 }
 
@@ -77,7 +77,7 @@ function browserSessionCapabilities(capabilities: DioxusCapabilities): DioxusCap
 
 export async function init(
   callerCapabilities: DioxusCapabilities,
-  globalOptions?: DioxusServiceGlobalOptions,
+  globalOptions?: DioxusServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser> {
   log.debug('Initializing Dioxus service in standalone mode…');
 

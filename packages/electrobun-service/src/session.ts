@@ -4,6 +4,7 @@ import type {
   ElectrobunCapabilities,
   ElectrobunServiceGlobalOptions,
   ElectrobunServiceOptions,
+  StandaloneSessionOptions,
 } from '@wdio/native-types';
 import {
   boundedOnComplete,
@@ -36,7 +37,7 @@ function failStartup(launcher: ElectrobunLaunchService, error: unknown): Promise
 
 export async function init(
   capabilities: ElectrobunCapabilities,
-  globalOptions?: ElectrobunServiceGlobalOptions,
+  globalOptions?: ElectrobunServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser> {
   log.debug('Initializing Electrobun service in standalone mode…');
 

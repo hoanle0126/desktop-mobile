@@ -32,6 +32,7 @@ export {
 } from './result.js';
 export { hasSemicolonOutsideQuotes, hasTopLevelArrow } from './script-detect.js';
 export { selectExecutable, validateBinaryPaths } from './selectExecutable.js';
+export { standaloneRequestTimeout } from './standalone.js';
 export {
   BENIGN_TEARDOWN_ERROR_PATTERNS,
   boundedOnComplete,
@@ -41,7 +42,6 @@ export {
   PROCESS_TEARDOWN_TIMEOUT_MS,
   runBounded,
   safeDeleteSession,
-  standaloneRequestTimeout,
 } from './teardown.js';
 export { getWebKitWebDriverInstallCommand, WEBKIT_WEBDRIVER_INSTALL_HINT } from './webkitWebDriver.js';
 export { waitUntilWindowAvailable } from './window.js';

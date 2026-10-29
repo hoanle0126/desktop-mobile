@@ -337,6 +337,12 @@ export const config = {
 };
 ```
 
+In standalone mode, pass it with the service options instead:
+
+```typescript
+const browser = await startWdioSession(capabilities, { connectionRetryTimeout: 180000 });
+```
+
 **Solution 2: Wait for App to Be Ready**
 
 ```typescript

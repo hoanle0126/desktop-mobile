@@ -23,11 +23,9 @@ export function mergeServiceOptions(
   };
 }
 
-const DRIVER_START_TIMEOUT = 30_000;
 const EMBEDDED_START_TIMEOUT = 60_000;
 
-// Takes merged options. An unset driverProvider means embedded.
+// Takes merged options. Only the embedded provider waits for the app to start.
 export function resolveStartTimeout(options: TauriServiceOptions): number {
-  const embedded = (options.driverProvider ?? 'embedded') === 'embedded';
-  return options.startTimeout || (embedded ? EMBEDDED_START_TIMEOUT : DRIVER_START_TIMEOUT);
+  return options.startTimeout || EMBEDDED_START_TIMEOUT;
 }

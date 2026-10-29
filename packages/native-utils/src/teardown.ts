@@ -155,15 +155,3 @@ export async function boundedOnComplete(
     throw new Error(`launcher.onComplete() timed out after ${timeoutMs}ms during ${context}`);
   }
 }
-
-/**
- * Build the request-timeout option for a standalone `remote()` call.
- * Leaves WebdriverIO's own `connectionRetryTimeout` default in place unless the caller passes one.
- */
-export function standaloneRequestTimeout(options?: { connectionRetryTimeout?: number }): {
-  connectionRetryTimeout?: number;
-} {
-  return options?.connectionRetryTimeout !== undefined
-    ? { connectionRetryTimeout: options.connectionRetryTimeout }
-    : {};
-}

@@ -48,6 +48,7 @@ export const validateBinaryPaths = vi.fn();
 // (they capture and invoke the registered override) — re-export the real source.
 export { installMockSyncOverride } from '../../../native-utils/src/commandOverride.js';
 export { isMultiremote } from '../../../native-utils/src/multiremote.js';
+export { standaloneRequestTimeout } from '../../../native-utils/src/standalone.js';
 // Teardown helpers are pure utilities the service depends on for real behavior
 // (bounded timeout, benign-error matching) — re-export the actual source rather
 // than stub them, so afterSession() tests exercise the real logic.
@@ -57,5 +58,4 @@ export {
   errorMessage,
   isBenignTeardownError,
   runBounded,
-  standaloneRequestTimeout,
 } from '../../../native-utils/src/teardown.js';
