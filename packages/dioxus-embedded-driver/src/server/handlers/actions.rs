@@ -22,6 +22,7 @@ use serde_json::Value;
 use tokio::sync::oneshot;
 use uuid::Uuid;
 
+use super::element::ELEMENT_EVENTS_JS;
 use crate::server::response::{WebDriverErrorResponse, WebDriverResponse, WebDriverResult};
 use crate::server::AppState;
 use crate::webdriver::element::ELEMENT_KEY;
@@ -362,14 +363,20 @@ fn key_code(value: &str) -> String {
   }
 }
 
-/// JS that synthesizes a `KeyboardEvent` of `event_type` for `value` on the
-/// active element.
+/// JS for a `KeyboardEvent` of `event_type` for `value` on the active element. An uncanceled
+/// Enter keydown in an input commits its value, firing the `change` that Send Keys deferred.
 fn key_event_js(event_type: &str, value: &str, mods: Modifiers) -> String {
   let key = normalize_key(value);
   let code = key_code(value);
   let modifiers = mods.js();
+  let commit = if event_type == "keydown" && key == "Enter" && !(mods.ctrl || mods.meta || mods.alt)
+  {
+    format!("if(!e.defaultPrevented){{\n{ELEMENT_EVENTS_JS}\nwdioCommitOnEnter(t); }}")
+  } else {
+    String::new()
+  };
   format!(
-    "(function(){{ var t=document.activeElement||document.body; if(!t) return; var e=new KeyboardEvent({event_type:?},{{bubbles:true,cancelable:true,composed:true,key:{key:?},code:{code:?},{modifiers}}}); t.dispatchEvent(e); }})(); null"
+    "(function(){{ var t=document.activeElement||document.body; if(!t) return; var e=new KeyboardEvent({event_type:?},{{bubbles:true,cancelable:true,composed:true,key:{key:?},code:{code:?},{modifiers}}}); t.dispatchEvent(e); {commit}}})(); null"
   )
 }
 
@@ -870,6 +877,26 @@ mod tests {
     assert!(js.contains("document.activeElement"));
     assert!(js.contains("KeyboardEvent(\"keydown\""));
     assert!(js.contains("key:\"Enter\""));
+  }
+
+  #[test]
+  fn key_event_js_commits_an_inputs_change_on_an_uncanceled_enter_keydown() {
+    let m = Modifiers::default();
+    let enter = key_event_js("keydown", "\u{E007}", m);
+    let dispatch = enter.find("t.dispatchEvent(e);").unwrap();
+    let canceled = enter.find("if(!e.defaultPrevented){").unwrap();
+    let commit = enter.find("wdioCommitOnEnter(t);").unwrap();
+    assert!(dispatch < canceled && canceled < commit && enter.contains(ELEMENT_EVENTS_JS));
+    let shift = Modifiers { shift: true, ..m };
+    assert!(key_event_js("keydown", "\u{E006}", shift).contains("wdioCommitOnEnter(t);"));
+    let ctrl = Modifiers { ctrl: true, ..m };
+    for js in [
+      key_event_js("keyup", "\u{E007}", m),
+      key_event_js("keydown", "\u{E007}", ctrl),
+      key_event_js("keydown", "a", m),
+    ] {
+      assert!(!js.contains("wdioCommitOnEnter"), "{js}");
+    }
   }
 
   #[test]

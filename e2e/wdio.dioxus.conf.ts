@@ -50,7 +50,12 @@ switch (testType) {
     break;
   default:
     specs = ['./test/dioxus/*.spec.ts'];
-    exclude = ['./test/dioxus/window.spec.ts', './test/dioxus/deeplink.spec.ts'];
+    exclude = [
+      './test/dioxus/window.spec.ts',
+      './test/dioxus/deeplink.spec.ts',
+      // Embedded-only: wdio-dioxus-driver passes element commands to the platform's WebDriver server.
+      './test/dioxus/element-events.embedded.spec.ts',
+    ];
     break;
 }
 
