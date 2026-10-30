@@ -1,6 +1,6 @@
 import { createIpcInterceptor } from '@wdio/native-spy/interceptor';
 import type { DioxusServiceAPI } from '@wdio/native-types';
-import { createLogger, isMultiremote, safeDeleteSession } from '@wdio/native-utils';
+import { createLogger, isMultiremote } from '@wdio/native-utils';
 
 import { clearAllMocks, isMockFunction, resetAllMocks, restoreAllMocks } from './commands/allMocks.js';
 import { execute, markAsEmbedded } from './commands/execute.js';
@@ -14,7 +14,6 @@ const log = createLogger('dioxus-service', 'service');
 const interceptor = createIpcInterceptor('dioxus');
 
 export default class DioxusWorkerService {
-  private browser?: WebdriverIO.Browser | WebdriverIO.MultiRemoteBrowser;
   private devServerUrl?: string;
   private browserMode: boolean;
   private isEmbedded: boolean;
@@ -40,7 +39,6 @@ export default class DioxusWorkerService {
     _specs: string[],
     browser: WebdriverIO.Browser | WebdriverIO.MultiRemoteBrowser,
   ): Promise<void> {
-    this.browser = browser;
     log.info(
       `before() start — mode=${this.browserMode ? 'browser' : 'native'} ` +
         `multiremote=${isMultiremote(browser)} ` +
@@ -95,32 +93,9 @@ export default class DioxusWorkerService {
   }
 
   async afterSession(): Promise<void> {
-    log.debug('DioxusWorkerService.afterSession — deleting WebDriver session');
+    log.debug('DioxusWorkerService.afterSession — clearing mock and window state');
     mockStore.clear();
-
-    if (!this.browser) {
-      clearWindowState();
-      return;
-    }
-
-    try {
-      // Only standalone cleanup() gets here with a live session; under the runner the delete is a no-op.
-      if (!isMultiremote(this.browser)) {
-        await safeDeleteSession(this.browser as WebdriverIO.Browser, 'afterSession', log);
-      } else {
-        const mrBrowser = this.browser as WebdriverIO.MultiRemoteBrowser;
-        for (const instanceName of mrBrowser.instances) {
-          try {
-            const instance = mrBrowser.getInstance(instanceName);
-            await safeDeleteSession(instance, `afterSession (instance ${instanceName})`, log);
-          } catch (error) {
-            log.warn(`Failed to clean up instance ${instanceName}:`, error);
-          }
-        }
-      }
-    } finally {
-      clearWindowState();
-    }
+    clearWindowState();
   }
 
   private addDioxusApi(browser: WebdriverIO.Browser): void {

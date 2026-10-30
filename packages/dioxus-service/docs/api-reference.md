@@ -398,7 +398,7 @@ Initialize the Dioxus service in standalone mode. Use this when you want to mana
 
 **Parameters:**
 - `capabilities` (Capabilities) - WebdriverIO capabilities with Dioxus options
-- `globalOptions?` (DioxusServiceGlobalOptions) - Global service options
+- `globalOptions?` (DioxusServiceGlobalOptions & StandaloneSessionOptions) - Global service and standalone session options
 
 **Returns:** `Promise<Browser>`
 

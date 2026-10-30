@@ -257,6 +257,17 @@ export interface BaseServiceGlobalOptions extends LogCaptureConfig, MockLifecycl
   devServer?: DevServer;
 }
 
+/**
+ * Options that standalone `startWdioSession()` takes alongside the service's global options. The
+ * testrunner reads these from its own config instead.
+ */
+export interface StandaloneSessionOptions {
+  /**
+   * Timeout in milliseconds for each WebDriver request. Defaults to WebdriverIO's own.
+   */
+  connectionRetryTimeout?: number;
+}
+
 // ============================================================================
 // Shared Utility Types
 // ============================================================================

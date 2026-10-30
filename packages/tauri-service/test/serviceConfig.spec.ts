@@ -48,22 +48,11 @@ describe('mergeServiceOptions', () => {
 });
 
 describe('resolveStartTimeout', () => {
-  it('should use the embedded default when no provider is set', () => {
+  it('should default to 60000', () => {
     expect(resolveStartTimeout({})).toBe(60000);
   });
 
-  it('should use the embedded default for the embedded provider', () => {
-    expect(resolveStartTimeout({ driverProvider: 'embedded' })).toBe(60000);
-  });
-
-  it.each(['external', 'crabnebula'] as const)(
-    'should use the driver default for the %s provider',
-    (driverProvider) => {
-      expect(resolveStartTimeout({ driverProvider })).toBe(30000);
-    },
-  );
-
-  it('should prefer an explicit startTimeout over the provider default', () => {
-    expect(resolveStartTimeout({ driverProvider: 'external', startTimeout: 45000 })).toBe(45000);
+  it('should prefer an explicit startTimeout', () => {
+    expect(resolveStartTimeout({ startTimeout: 45000 })).toBe(45000);
   });
 });

@@ -167,16 +167,16 @@ import { startWdioSession } from '@wdio/electron-service';
 
 startWdioSession(
   capabilities: ElectronServiceCapabilities,
-  globalOptions?: ElectronServiceGlobalOptions,
+  globalOptions?: ElectronServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser>
 ```
 
 **Parameters:**
 
-| Parameter       | Type                           | Description                                                                                                                                                                |
-| --------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `capabilities`  | `ElectronServiceCapabilities`  | An array of standalone capability objects (typically one, built with [`createElectronCapabilities()`](#createelectroncapabilities)), or a multiremote capabilities object. |
-| `globalOptions` | `ElectronServiceGlobalOptions` | Optional. Service-level options applied to all capabilities (e.g., `rootDir`).                                                                                             |
+| Parameter       | Type                                                      | Description                                                                                                                                                                |
+| --------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `capabilities`  | `ElectronServiceCapabilities`                             | An array of standalone capability objects (typically one, built with [`createElectronCapabilities()`](#createelectroncapabilities)), or a multiremote capabilities object. |
+| `globalOptions` | `ElectronServiceGlobalOptions & StandaloneSessionOptions` | Optional. Service-level options applied to all capabilities (e.g., `rootDir`), and standalone session options.                                                             |
 
 **Returns:**
 

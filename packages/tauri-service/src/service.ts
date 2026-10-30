@@ -6,7 +6,6 @@ import {
   hasSemicolonOutsideQuotes,
   installMockSyncOverride,
   isMultiremote,
-  safeDeleteSession,
   waitUntilWindowAvailable,
 } from '@wdio/native-utils';
 import { execute } from './commands/execute.js';
@@ -312,18 +311,15 @@ export default class TauriWorkerService {
       return;
     }
 
-    // Only standalone cleanup() gets here with a live session; under the runner the delete is a no-op.
     if (!isMultiremote(this.browser)) {
       const stdBrowser = this.browser as WebdriverIO.Browser;
       clearWindowState(stdBrowser.sessionId);
-      await safeDeleteSession(stdBrowser, 'afterSession', log);
     } else {
       const mrBrowser = this.browser as WebdriverIO.MultiRemoteBrowser;
       for (const instanceName of mrBrowser.instances) {
         try {
           const instance = mrBrowser.getInstance(instanceName);
           clearWindowState(instance.sessionId);
-          await safeDeleteSession(instance, `afterSession (instance ${instanceName})`, log);
         } catch (error) {
           log.warn(`Failed to clean up instance ${instanceName}:`, error);
         }

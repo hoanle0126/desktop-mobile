@@ -479,7 +479,7 @@ Initialize the Tauri service in standalone mode. Use this when you want to manag
 
 **Parameters:**
 - `capabilities` (Capabilities) - WebdriverIO capabilities with Tauri options
-- `globalOptions?` (TauriServiceGlobalOptions) - Global service options
+- `globalOptions?` (TauriServiceGlobalOptions & StandaloneSessionOptions) - Global service and standalone session options
 
 **Returns:** `Promise<Browser>`
 

@@ -1,15 +1,16 @@
+import type { StandaloneSessionOptions } from '@wdio/native-types';
 import {
   boundedOnComplete,
   createLogger,
   errorMessage,
   failStartup as failStartupShared,
   safeDeleteSession,
+  standaloneRequestTimeout,
 } from '@wdio/native-utils';
 import type { Options } from '@wdio/types';
 import { remote } from 'webdriverio';
 import DioxusLaunchService from './launcher.js';
 import DioxusWorkerService from './service.js';
-import { mergeOptions } from './serviceConfig.js';
 import type { DioxusCapabilities, DioxusDriverProvider, DioxusServiceGlobalOptions } from './types.js';
 
 const log = createLogger('dioxus-service', 'session');
@@ -23,7 +24,10 @@ function failStartup(launcher: DioxusLaunchService, error: unknown, context: str
   );
 }
 
-function driverRemoteOptions(capabilities: DioxusCapabilities, startTimeout: number): Parameters<typeof remote>[0] {
+function driverRemoteOptions(
+  capabilities: DioxusCapabilities,
+  standaloneOptions?: StandaloneSessionOptions,
+): Parameters<typeof remote>[0] {
   const hostname = (capabilities as { hostname?: string }).hostname ?? '127.0.0.1';
   const port = (capabilities as { port?: number }).port;
   if (!port) {
@@ -45,8 +49,7 @@ function driverRemoteOptions(capabilities: DioxusCapabilities, startTimeout: num
     hostname,
     port,
     capabilities: driverCapabilities,
-    connectionRetryTimeout: startTimeout * 4,
-    connectionRetryCount: 10,
+    ...standaloneRequestTimeout(standaloneOptions),
   };
 }
 
@@ -74,13 +77,11 @@ function browserSessionCapabilities(capabilities: DioxusCapabilities): DioxusCap
 
 export async function init(
   callerCapabilities: DioxusCapabilities,
-  globalOptions?: DioxusServiceGlobalOptions,
+  globalOptions?: DioxusServiceGlobalOptions & StandaloneSessionOptions,
 ): Promise<WebdriverIO.Browser> {
   log.debug('Initializing Dioxus service in standalone mode…');
 
   const capabilities = copyCapabilities(callerCapabilities);
-  const startTimeout =
-    mergeOptions(globalOptions ?? {}, capabilities['wdio:dioxusServiceOptions']).startTimeout ?? 60_000;
   const testRunnerOpts = { capabilities: [] } as unknown as Options.Testrunner;
   const launcher = new DioxusLaunchService(globalOptions ?? {}, capabilities, testRunnerOpts);
 
@@ -90,8 +91,8 @@ export async function init(
   try {
     // Browser mode has no embedded driver: WebdriverIO starts and manages chromedriver itself.
     remoteOptions = launcher.isBrowserMode
-      ? { capabilities: browserSessionCapabilities(capabilities) }
-      : driverRemoteOptions(capabilities, startTimeout);
+      ? { capabilities: browserSessionCapabilities(capabilities), ...standaloneRequestTimeout(globalOptions) }
+      : driverRemoteOptions(capabilities, globalOptions);
   } catch (error) {
     return failStartup(launcher, error, 'session-options cleanup');
   }
@@ -138,6 +139,7 @@ export async function cleanup(browser: WebdriverIO.Browser): Promise<void> {
     } finally {
       activeServices.delete(browser);
     }
+    await safeDeleteSession(browser, 'cleanup', log);
     await boundedOnComplete(launcher, 'cleanup', log);
     activeLaunchers.delete(browser);
     log.debug('Dioxus standalone session cleaned up');

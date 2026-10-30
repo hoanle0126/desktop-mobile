@@ -33,6 +33,7 @@ export {
 } from './result.js';
 export { hasSemicolonOutsideQuotes, hasTopLevelArrow } from './script-detect.js';
 export { selectExecutable, validateBinaryPaths } from './selectExecutable.js';
+export { standaloneRequestTimeout } from './standalone.js';
 export {
   BENIGN_TEARDOWN_ERROR_PATTERNS,
   boundedOnComplete,
