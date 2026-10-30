@@ -35,6 +35,26 @@ async function fillChangeScratch(initialValue = '') {
   );
 }
 
+// A form holding `fields` that logs its key, change, click and submit events, and cancels its
+// submit so the page stays.
+async function fillFormScratch(fields: string) {
+  await fillChangeScratch();
+  await browser.execute(
+    `document.querySelector("#change-scratch").innerHTML = '<form id="fresh-form">${fields}</form>';
+    var form = document.querySelector("#fresh-form");
+    window.__fieldEvents = [];
+    for (var type of ["keydown", "keyup", "change", "click", "submit"]) {
+      form.addEventListener(type, function (ev) {
+        var detail = ev.type === "change" ? ev.target.value
+          : ev.type === "submit" ? (ev.submitter ? ev.submitter.id : "without submitter")
+          : ev.key || ev.target.id;
+        window.__fieldEvents.push(ev.type + " " + detail);
+      });
+    }
+    form.addEventListener("submit", function (ev) { ev.preventDefault(); });`,
+  );
+}
+
 describe('Dioxus element events (embedded)', () => {
   beforeEach(async () => {
     // Blur first, so a field's owed change fires before the scratch area is emptied.
@@ -121,6 +141,69 @@ describe('Dioxus element events (embedded)', () => {
     expect(await fieldEvents()).toEqual(['input ', 'change ', 'blur ', 'input 2', 'change 2']);
     await browser.$('#fresh-other').click();
     expect(await fieldEvents()).toEqual(['input ', 'change ', 'blur ', 'input 2', 'change 2', 'blur 2']);
+  });
+
+  it("should click the form's default button on Enter in an input, after its change, as Chrome does", async () => {
+    await fillChangeScratch();
+    await browser.execute(
+      `var form = document.createElement("form");
+      form.innerHTML = '<button id="fresh-submit">go</button>';
+      form.prepend(document.querySelector("#fresh-field"));
+      document.querySelector("#change-scratch").appendChild(form);
+      form.querySelector("#fresh-submit").addEventListener("click", function () {
+        window.__fieldEvents.push("click");
+      });
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        window.__fieldEvents.push("submit " + ev.submitter.id);
+      });`,
+    );
+    await browser.$('#fresh-field').addValue('x');
+    await browser.keys(Key.Enter);
+    expect(await fieldEvents()).toEqual(['input x', 'change x', 'click', 'submit fresh-submit']);
+  });
+
+  it('should submit a form in a shadow root on Enter in its input', async () => {
+    await fillChangeScratch();
+    await browser.execute(
+      `var host = document.createElement("div");
+      host.id = "fresh-host";
+      document.querySelector("#change-scratch").appendChild(host);
+      var root = host.attachShadow({ mode: "open", delegatesFocus: true });
+      root.innerHTML = '<form><input id="inner"><button id="inner-submit">go</button></form>';
+      root.querySelector("#inner").addEventListener("change", function (ev) {
+        window.__fieldEvents.push("change inner " + ev.target.value);
+      });
+      root.querySelector("form").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        window.__fieldEvents.push("submit " + ev.submitter.id);
+      });`,
+    );
+    await browser.$('#fresh-host').addValue('x');
+    await browser.keys(Key.Enter);
+    expect(await fieldEvents()).toEqual(['change inner x', 'submit inner-submit']);
+  });
+
+  it('should submit a form without a submit button on Enter only when it has a single text field', async () => {
+    const pressEnter = async () => {
+      await browser.execute('document.querySelector("#fresh-field").focus(); window.__fieldEvents = [];');
+      await browser.keys(Key.Enter);
+      return fieldEvents();
+    };
+    await fillFormScratch('<input id="fresh-field"><input type="checkbox"><input type="date">');
+    expect(await pressEnter()).toEqual(['keydown Enter', 'submit without submitter', 'keyup Enter']);
+    await fillFormScratch('<input id="fresh-field"><input type="password">');
+    expect(await pressEnter()).toEqual(['keydown Enter', 'keyup Enter']);
+  });
+
+  it('should neither commit the change nor submit the form when a keydown handler cancels Enter', async () => {
+    await fillFormScratch('<input id="fresh-field"><button id="fresh-submit">go</button>');
+    await browser.execute(
+      'document.querySelector("#fresh-field").addEventListener("keydown", function (ev) { ev.preventDefault(); });',
+    );
+    await browser.$('#fresh-field').addValue('x');
+    await browser.keys(Key.Enter);
+    expect(await fieldEvents()).toEqual(['keydown Enter', 'keyup Enter']);
   });
 
   it('should set a date input at once, firing input and change', async () => {

@@ -4,14 +4,12 @@
 // tauri-plugin-wdio-webdriver and wdio-dioxus-embedded-driver each keep an identical copy.
 // test/scripts/element-events.spec.ts tests it and checks the copies match.
 
+// The inputs that take typed text. Chromium counts only these for implicit submission, where the
+// HTML spec also counts the date and time inputs. Tauri's key_input.rs reads this declaration.
+const WDIO_TEXT_FIELD_TYPES = ['text', 'search', 'url', 'tel', 'email', 'password', 'number'];
+
 const WDIO_CLEARABLE_INPUT_TYPES = [
-  'text',
-  'search',
-  'url',
-  'tel',
-  'email',
-  'password',
-  'number',
+  ...WDIO_TEXT_FIELD_TYPES,
   'date',
   'datetime-local',
   'month',
@@ -23,6 +21,9 @@ const WDIO_CLEARABLE_INPUT_TYPES = [
 ];
 
 const WDIO_VALUE_CONTROL_TYPES = ['color', 'date', 'datetime-local', 'month', 'range', 'time', 'week'];
+
+// Enter on these inputs clicks them in a browser instead of submitting their form.
+const WDIO_CLICKED_ON_ENTER_TYPES = ['button', 'color', 'file', 'image', 'reset', 'submit'];
 
 const WDIO_CLICK_FOCUSABLE =
   'a[href], area[href], button, input, select, textarea, iframe, summary, audio[controls], video[controls], [tabindex]';
@@ -101,6 +102,30 @@ function wdioCommitOnEnter(el) {
   record.value = el.value;
   el.dispatchEvent(new Event('change', { bubbles: true }));
   record.value = el.value;
+}
+
+// Implicit submission, as Chromium runs it. A disabled default button blocks it, even with an enabled
+// button after it. click() fires the lone synthetic click Chrome fires, with no pointer or mouse events.
+function wdioSubmitOnEnter(el) {
+  const form = el.tagName === 'INPUT' ? el.form : undefined;
+  if (!form || WDIO_CLICKED_ON_ENTER_TYPES.includes(el.type)) {
+    return;
+  }
+  // The prototypes' methods, because a control named after a form method hides it.
+  const controls = Array.from(Node.prototype.getRootNode.call(form).querySelectorAll('button, input')).filter(
+    (control) => control.form === form,
+  );
+  const buttons = controls.filter((control) => control.type === 'submit' || control.type === 'image');
+  if (!WDIO_TEXT_FIELD_TYPES.includes(el.type)) {
+    buttons.find((button) => !wdioDisabled(button))?.click();
+  } else if (buttons.length > 0) {
+    if (!wdioDisabled(buttons[0])) {
+      buttons[0].click();
+    }
+  } else if (controls.filter((control) => WDIO_TEXT_FIELD_TYPES.includes(control.type)).length === 1) {
+    // Safari before 16 has no requestSubmit.
+    HTMLFormElement.prototype.requestSubmit?.call(form);
+  }
 }
 
 // Element Click's press, as Chrome sends it: a cancelled pointerdown or mousedown keeps focus where
