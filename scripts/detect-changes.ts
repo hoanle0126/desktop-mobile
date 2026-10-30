@@ -15,6 +15,7 @@
  * Classification (first matching rule wins):
  *   - *.md anywhere            → docs (never triggers pipelines; lint runs unconditionally),
  *                                except packages/<pkg>/permissions/** (generated, shipped in the crate)
+ *   - packages/native-types/** but its package.json → build (types only: build + unit, no service pipeline)
  *   - packages/native-*, packages/bundler        → shared (all services)
  *   - packages/<svc>[-...]/**                    → that service
  *   - packages/<unrecognised>/**                 → unknown (runs all — convention drift, fail loud)
@@ -25,14 +26,14 @@
  *   - .github/workflows/: core-infra list → all; meta list → none;
  *     actions/** → all; service token in filename → that service; else → unknown
  *   - scripts/: service token in filename → that service; else → all (cross-service tooling)
- *   - the dependency manifests, compared with their copy at the merge-base (without one → all):
- *     - package.json: a devDependency → none if only release, lint or git-hook tooling uses it, all if
- *       a script imports it, else build (build + unit, no service pipeline); a script only the lint
- *       job runs → none; any other change → all
+ *   - the dependency manifests, compared with their copy at the merge-base (without one, or if the two match → all):
+ *     - package.json: a devDependency → none if only release automation, the lint job or lint-staged uses it,
+ *       build (build + unit, no service pipeline) if only installs, the build and the unit tests do, else all;
+ *       a script only the lint job runs → none; any other change → all
  *     - e2e/package.json: a dependency → the services whose E2E configs and specs name it, or all if
  *       shared E2E code names it; any other change → all
- *     - pnpm-workspace.yaml: a catalog entry → as the package.json files that take it from the
- *       catalog; any other change → all
+ *     - pnpm-workspace.yaml: a catalog entry → as the packages that take it from that catalog, or
+ *       none for a named catalog no package takes; any other change → all
  *     - pnpm-lock.yaml: an importer → as its package.json (root and e2e by dependency, others by
  *       path); the catalogs block → as pnpm-workspace.yaml; an edited package or snapshot, or any
  *       other top-level change → all; a package or snapshot that was only added or removed → none
@@ -54,7 +55,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-/** 'none' | 'build' | 'shared' | 'all' | 'unknown', or service names discovered from packages/ (comma-separated). */
+// 'none' | 'build' | 'shared' | 'all' | 'unknown', or service names discovered from packages/ (comma-separated).
 type Verdict = string;
 
 interface Classification {
@@ -64,7 +65,8 @@ interface Classification {
   triggersAll: string[];
   unknownFiles: string[];
   commentOnlyFiles: string[];
-  sharedDetail: Array<{ file: string; pkg: string; services: string[]; typesOnly: boolean }>;
+  buildOnlyFiles: string[];
+  sharedDetail: Array<{ file: string; pkg: string; services: string[] }>;
   perFile: Array<{ file: string; verdict: Verdict }>;
 }
 
@@ -116,8 +118,9 @@ const SHARED_PACKAGES = new Set(['bundler']);
 
 // Types-only packages ship nothing but type declarations (erased at compile time), so a change
 // to one can only break COMPILATION — caught by the always-on build + unit jobs — never a
-// service's runtime. They therefore need no per-service E2E. Guarded by
-// test/scripts/native-types-types-only.spec.ts, which fails if real runtime code ever lands here.
+// service's runtime. They therefore need build + unit only, not E2E or the jobs `has_shared_changes`
+// gates. Guarded by test/scripts/native-types-types-only.spec.ts, which fails if real runtime code
+// ever lands here.
 const TYPES_ONLY_PACKAGES = new Set(['native-types']);
 
 export function discoverServices(repoRoot: string): string[] {
@@ -276,11 +279,11 @@ const LOCKFILE_ENTRY_SECTIONS = new Set(['importers', 'packages', 'snapshots']);
 
 // Root devDependencies that only release automation, the lint job or the local git hooks use.
 const ROOT_INERT_DEV_DEP_PREFIXES = ['@releasekit/', '@biomejs/', 'eslint', '@typescript-eslint/'];
-const ROOT_INERT_DEV_DEPS = new Set(['@vitest/eslint-plugin', 'globals', 'husky', 'lint-staged']);
-
-// Catalog entries that switch-catalog.ts swaps in for another dependency, so they classify by its consumers
-// (the tests check this).
-export const CATALOG_ALIASES: Record<string, string> = { 'electron-nightly': 'electron' };
+const ROOT_INERT_DEV_DEPS = new Set(['@vitest/eslint-plugin', 'globals', 'lint-staged']);
+// Root devDependencies that only the build and unit tests use, and husky, which `prepare` runs on every install.
+// The unit jobs install on every OS the pipelines use. Any other runs every pipeline.
+const ROOT_BUILD_DEV_DEP_PREFIXES = ['@types/'];
+const ROOT_BUILD_DEV_DEPS = new Set(['husky', 'typescript', 'vitest']);
 
 const DIFF_MANIFEST_FILES = ['package.json', 'e2e/package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml'] as const;
 type DiffManifestFile = (typeof DIFF_MANIFEST_FILES)[number];
@@ -298,18 +301,22 @@ interface ParsedLockfile {
 interface ManifestEffect {
   all: boolean;
   unknown: boolean;
-  /** Needs build + unit, but no service pipeline. */
+  // Needs build + unit, but no service pipeline.
   buildOnly: boolean;
   services: Set<string>;
   sharedDirs: string[];
 }
 
+// Without catalogConsumers or scriptDeps, a dependency they would place runs every pipeline.
 interface ManifestContext {
   services: string[];
   e2eDeps: Record<string, string[]>;
-  catalogConsumers: Record<string, string[]>;
-  scriptDeps: Set<string>;
+  catalogConsumers?: CatalogConsumers;
+  scriptDeps?: Set<string>;
 }
+
+// Catalog name → dependency → the importers, as pnpm-lock.yaml names them, that take it from that catalog.
+type CatalogConsumers = Record<string, Record<string, string[]>>;
 
 function emptyEffect(): ManifestEffect {
   return { all: false, unknown: false, buildOnly: false, services: new Set(), sharedDirs: [] };
@@ -325,9 +332,48 @@ function addSharedDir(effect: ManifestEffect, dir: string): void {
   }
 }
 
-// Whole-line comments only: a `/*` inside a string, such as a `*.spec.ts` glob, mustn't swallow the code after it.
-function stripCommentLines(text: string): string {
-  return text.replace(/^\s*(\/\/|\/\*|\*).*$/gm, '');
+// Skips strings, so a comment opener in one, such as a `*.spec.ts` glob, stays code. A backslash outside a
+// string escapes the next character, as `\/` does in a regex literal.
+export function stripComments(text: string): string {
+  let out = '';
+  let quote: string | undefined;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i] as string;
+    const next = text[i + 1] ?? '';
+    if (quote) {
+      if (ch === '\\') {
+        out += ch + next;
+        i++;
+        continue;
+      }
+      if (ch === quote || (ch === '\n' && quote !== '`')) {
+        quote = undefined;
+      }
+      out += ch;
+      continue;
+    }
+    if (ch === '/' && next === '/') {
+      const end = text.indexOf('\n', i);
+      i = (end === -1 ? text.length : end) - 1;
+      continue;
+    }
+    if (ch === '/' && next === '*') {
+      const end = text.indexOf('*/', i + 2);
+      i = end === -1 ? text.length : end + 1;
+      out += ' ';
+      continue;
+    }
+    if (ch === '\\') {
+      out += ch + next;
+      i++;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') {
+      quote = ch;
+    }
+    out += ch;
+  }
+  return out;
 }
 
 function escapeRegex(value: string): string {
@@ -354,10 +400,8 @@ function e2eCandidateTokens(dep: string): string[] {
   return tokens;
 }
 
-/**
- * Maps each e2e dependency, and the short names it goes by, to the services whose E2E configs and
- * specs name it. One that shared E2E code or an e2e script names maps to every service.
- */
+// Maps each e2e dependency, and the short names it goes by, to the services whose E2E configs and
+// specs name it. One that shared E2E code or an e2e script names maps to every service.
 export function buildE2eDependencyServices(repoRoot: string, services: string[]): Record<string, string[]> {
   const e2eDir = path.join(repoRoot, 'e2e');
   if (!fs.existsSync(e2eDir)) {
@@ -377,7 +421,7 @@ export function buildE2eDependencyServices(repoRoot: string, services: string[])
       } else if (/\.(ts|js|mjs)$/.test(entry.name)) {
         const relPath = path.relative(repoRoot, fullPath).split(path.sep).join('/');
         const verdict = classifyFile(relPath, services);
-        const text = stripCommentLines(fs.readFileSync(fullPath, 'utf8'));
+        const text = stripComments(fs.readFileSync(fullPath, 'utf8'));
         if (services.includes(verdict)) {
           serviceTexts[verdict].push(text);
         } else {
@@ -437,62 +481,53 @@ export function buildE2eDependencyServices(repoRoot: string, services: string[])
   return result;
 }
 
-/** Maps each dependency that a workspace package.json takes from a catalog to the package.json files that do. */
-export function buildCatalogConsumers(repoRoot: string): Record<string, string[]> {
-  const pkgFiles: string[] = ['package.json', 'e2e/package.json'];
-  for (const group of ['packages', 'examples', 'fixtures/e2e-apps', 'fixtures/package-tests']) {
-    const groupDir = path.join(repoRoot, group);
-    if (!fs.existsSync(groupDir)) {
-      continue;
-    }
-    for (const entry of fs.readdirSync(groupDir, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        pkgFiles.push(`${group}/${entry.name}/package.json`);
-      }
-    }
-  }
+const PACKAGE_DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 
-  const consumers: Record<string, string[]> = {};
-  for (const relPath of pkgFiles) {
-    const fullPath = path.join(repoRoot, relPath);
-    if (!fs.existsSync(fullPath)) {
-      continue;
-    }
-    let pkg: {
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-      peerDependencies?: Record<string, string>;
-      optionalDependencies?: Record<string, string>;
-    };
+// The workspace packages are the lockfile's importers, which CI's frozen install keeps in step with the workspace.
+export function buildCatalogConsumers(repoRoot: string): CatalogConsumers | undefined {
+  let lockfile: string;
+  try {
+    lockfile = fs.readFileSync(path.join(repoRoot, 'pnpm-lock.yaml'), 'utf8');
+  } catch {
+    return undefined;
+  }
+  if (!looksLikeLockfile(lockfile)) {
+    return undefined;
+  }
+  const consumers: CatalogConsumers = {};
+  for (const importer of parseLockfile(lockfile).entries.importers.keys()) {
+    let pkg: unknown;
     try {
-      pkg = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+      pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, importer, 'package.json'), 'utf8'));
     } catch {
       continue;
     }
-    const deps = {
-      ...pkg.dependencies,
-      ...pkg.devDependencies,
-      ...pkg.peerDependencies,
-      ...pkg.optionalDependencies,
-    };
-    for (const [dep, spec] of Object.entries(deps)) {
-      if (typeof spec === 'string' && spec.startsWith('catalog:')) {
-        if (!consumers[dep]) {
-          consumers[dep] = [];
+    if (!isPlainObject(pkg)) {
+      continue;
+    }
+    for (const field of PACKAGE_DEPENDENCY_FIELDS) {
+      const deps = pkg[field];
+      if (!isPlainObject(deps)) {
+        continue;
+      }
+      for (const [dep, spec] of Object.entries(deps)) {
+        if (typeof spec !== 'string' || !spec.startsWith('catalog:')) {
+          continue;
         }
-        if (!consumers[dep].includes(relPath)) {
-          consumers[dep].push(relPath);
-        }
+        const catalog = spec.slice('catalog:'.length) || 'default';
+        consumers[catalog] ??= {};
+        consumers[catalog][dep] = [...new Set([...(consumers[catalog][dep] ?? []), importer])];
       }
     }
   }
-  for (const dep of Object.keys(consumers)) {
-    consumers[dep].sort();
+  for (const byDep of Object.values(consumers)) {
+    for (const importers of Object.values(byDep)) {
+      importers.sort();
+    }
   }
   return consumers;
 }
 
-/** The packages that files under `scripts/` import. */
 export function buildScriptDependencies(repoRoot: string): Set<string> {
   const deps = new Set<string>();
   const walk = (dir: string) => {
@@ -530,18 +565,20 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isInertRootDevDep(dep: string): boolean {
-  return ROOT_INERT_DEV_DEPS.has(dep) || ROOT_INERT_DEV_DEP_PREFIXES.some((prefix) => dep.startsWith(prefix));
+function matchesDep(dep: string, names: Set<string>, prefixes: string[]): boolean {
+  return names.has(dep) || prefixes.some((prefix) => dep.startsWith(prefix));
 }
 
 type DepClassifier = (dep: string, ctx: ManifestContext, effect: ManifestEffect) => void;
 
 // CI runs the scripts, so a package they import runs every pipeline, as a change to a script does.
 function classifyRootDevDep(dep: string, ctx: ManifestContext, effect: ManifestEffect): void {
-  if (ctx.scriptDeps.has(dep)) {
+  if (!ctx.scriptDeps || ctx.scriptDeps.has(dep)) {
     effect.all = true;
-  } else if (!isInertRootDevDep(dep)) {
+  } else if (matchesDep(dep, ROOT_BUILD_DEV_DEPS, ROOT_BUILD_DEV_DEP_PREFIXES)) {
     effect.buildOnly = true;
+  } else if (!matchesDep(dep, ROOT_INERT_DEV_DEPS, ROOT_INERT_DEV_DEP_PREFIXES)) {
+    effect.all = true;
   }
 }
 
@@ -588,35 +625,50 @@ const ROOT_DEPENDENCY_RULES: DependencyRules = {
 };
 const E2E_DEPENDENCY_RULES: DependencyRules = { fields: ['dependencies', 'devDependencies'], classify: classifyE2eDep };
 
-function classifyCatalogDep(catalogDep: string, ctx: ManifestContext, effect: ManifestEffect): void {
-  const dep = CATALOG_ALIASES[catalogDep] ?? catalogDep;
-  const consumers = ctx.catalogConsumers[dep] ?? [];
-  if (consumers.length === 0) {
+// An importer other than the root and e2e runs what a change to its package.json would. A types-only package has no
+// dependencies (the tests check this), so its importer resolves only what its types build against.
+function classifyImporterByPath(importer: string, ctx: ManifestContext, effect: ManifestEffect): void {
+  const sharedDir = importer.match(/^packages\/([^/]+)$/)?.[1];
+  if (sharedDir && TYPES_ONLY_PACKAGES.has(sharedDir)) {
+    effect.buildOnly = true;
+    return;
+  }
+  const verdict = classifyFile(`${importer}/package.json`, ctx.services);
+  if (verdict === 'shared' && sharedDir) {
+    addSharedDir(effect, sharedDir);
+  } else if (ctx.services.includes(verdict)) {
+    effect.services.add(verdict);
+  } else {
+    effect.all = true;
+  }
+}
+
+function classifyCatalogDep({ catalog, dep }: CatalogEntry, ctx: ManifestContext, effect: ManifestEffect): void {
+  if (!ctx.catalogConsumers) {
     effect.all = true;
     return;
   }
-  for (const pkgFile of consumers) {
-    if (pkgFile === 'e2e/package.json') {
-      classifyE2eDep(dep, ctx, effect);
-      continue;
-    }
-    if (pkgFile === 'package.json') {
-      classifyRootDevDep(dep, ctx, effect);
-      continue;
-    }
-    const verdict = classifyFile(pkgFile, ctx.services);
-    const dir = pkgFile.split('/')[1];
-    if (verdict === 'shared' && dir) {
-      addSharedDir(effect, dir);
-    } else if (ctx.services.includes(verdict)) {
-      effect.services.add(verdict);
-    } else {
+  const importers = ctx.catalogConsumers[catalog]?.[dep] ?? [];
+  if (importers.length === 0) {
+    // CI never switches catalogs (the tests check this), so it never installs a named-catalog entry no package takes.
+    if (catalog === 'default') {
       effect.all = true;
+    }
+    return;
+  }
+  for (const importer of importers) {
+    if (importer === 'e2e') {
+      classifyE2eDep(dep, ctx, effect);
+    } else if (importer === '.') {
+      classifyRootDevDep(dep, ctx, effect);
+    } else {
+      classifyImporterByPath(importer, ctx, effect);
     }
   }
 }
 
 interface CatalogEntry {
+  catalog: string;
   dep: string;
   value: string;
 }
@@ -630,7 +682,7 @@ function classifyCatalogChanges(
   for (const key of new Set([...base.keys(), ...head.keys()])) {
     const entry = head.get(key) ?? base.get(key);
     if (entry && base.get(key)?.value !== head.get(key)?.value) {
-      classifyCatalogDep(entry.dep, ctx, effect);
+      classifyCatalogDep(entry, ctx, effect);
     }
   }
 }
@@ -734,9 +786,13 @@ function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
       sawTopLevel = true;
       section = line.slice(0, colon).trim();
       catalogName = 'default';
+      const inline = line.slice(colon + 1).replace(/\s#.*$/, '');
       if (section !== 'catalogs' && section !== 'catalog') {
         const prev = other.get(section);
         other.set(section, prev === undefined ? line : `${prev}\n${line}`);
+      } else if (inline.trim()) {
+        // A flow-style `catalog: { … }` holds its entries on this line, which the readers below don't parse.
+        return { catalogs, other, valid: false };
       }
       continue;
     }
@@ -751,7 +807,11 @@ function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
       }
       const depEntry = splitIndentedKeyLine(line, 4);
       if (depEntry && depEntry.inline !== '') {
-        catalogs.set(`${catalogName}\0${depEntry.key}`, { dep: depEntry.key, value: depEntry.inline });
+        catalogs.set(`${catalogName}\0${depEntry.key}`, {
+          catalog: catalogName,
+          dep: depEntry.key,
+          value: depEntry.inline,
+        });
         continue;
       }
       return { catalogs, other, valid: false };
@@ -759,7 +819,7 @@ function parseWorkspaceYaml(text: string): ParsedWorkspaceYaml {
     if (section === 'catalog') {
       const depEntry = splitIndentedKeyLine(line, 2);
       if (depEntry && depEntry.inline !== '') {
-        catalogs.set(`default\0${depEntry.key}`, { dep: depEntry.key, value: depEntry.inline });
+        catalogs.set(`default\0${depEntry.key}`, { catalog: 'default', dep: depEntry.key, value: depEntry.inline });
         continue;
       }
       return { catalogs, other, valid: false };
@@ -970,7 +1030,7 @@ function parseLockCatalogs(text: string | undefined): { entries: Map<string, Cat
     const depEntry = splitIndentedKeyLine(line, 4);
     if (depEntry && catalogName) {
       currentKey = `${catalogName}\0${depEntry.key}`;
-      entries.set(currentKey, { dep: depEntry.key, value: depEntry.inline });
+      entries.set(currentKey, { catalog: catalogName, dep: depEntry.key, value: depEntry.inline });
       continue;
     }
     if (line.startsWith('      ') && currentKey) {
@@ -993,19 +1053,6 @@ function changedMapKeys(base: Map<string, string>, head: Map<string, string>): s
     }
   }
   return changed;
-}
-
-function classifyImporterPath(importer: string, services: string[]): Verdict {
-  const asFile =
-    importer.startsWith('packages/') || importer.startsWith('fixtures/') ? `${importer}/package.json` : undefined;
-  if (!asFile) {
-    return 'all';
-  }
-  const verdict = classifyFile(asFile, services);
-  if (verdict === 'none' || verdict === 'unknown') {
-    return 'all';
-  }
-  return verdict;
 }
 
 // The top-level `(…)` groups in `text`, without their parentheses.
@@ -1098,16 +1145,8 @@ function classifyLockfile(pair: ManifestPair, ctx: ManifestContext): ManifestEff
     if (key === '.' || key === 'e2e') {
       const rules = key === '.' ? ROOT_DEPENDENCY_RULES : E2E_DEPENDENCY_RULES;
       classifyImporterDeps(baseBody, headBody, rules, ctx, effect);
-      continue;
-    }
-    const verdict = classifyImporterPath(key, ctx.services);
-    const dir = key.split('/')[1];
-    if (verdict === 'shared' && dir) {
-      addSharedDir(effect, dir);
-    } else if (ctx.services.includes(verdict)) {
-      effect.services.add(verdict);
     } else {
-      effect.all = true;
+      classifyImporterByPath(key, ctx, effect);
     }
   }
 
@@ -1183,10 +1222,6 @@ function readManifestPairs(files: string[], base: string | undefined): Partial<R
   return pairs;
 }
 
-/**
- * Classify one changed file.
- * Returns: 'none' | 'shared' | 'all' | a service name.
- */
 export function classifyFile(file: string, services: string[]): Verdict {
   // Generated permission docs ship in the plugin crates, so a change to them must run that service's CI.
   const isPermissionsFile = /^packages\/[^/]+\/permissions\//.test(file);
@@ -1197,6 +1232,10 @@ export function classifyFile(file: string, services: string[]): Verdict {
   const pkg = file.match(/^packages\/([^/]+)\//);
   if (pkg) {
     const dir = pkg[1];
+    // Its package.json still decides what its consumers install, through its peers, exports and files.
+    if (TYPES_ONLY_PACKAGES.has(dir) && file !== `packages/${dir}/package.json`) {
+      return 'build';
+    }
     if (SHARED_PACKAGES.has(dir) || SHARED_PACKAGE_PREFIXES.some((p) => dir.startsWith(p))) {
       return 'shared';
     }
@@ -1264,17 +1303,9 @@ export function classifyFile(file: string, services: string[]): Verdict {
   return 'none';
 }
 
-/**
- * Services whose E2E a shared-package change must run. A types-only package needs none — its
- * change is erased at compile time, so build/unit already cover it. The `bundler` build tool
- * changes every package's build output, so all. Otherwise: the transitive dependents from the dep
- * graph, falling back to every service for a new/unknown shared package with no known dependents
- * (over-run, never silently under-run).
- */
+// Services whose E2E a shared-package change must run. The bundler changes every package's build output, so all.
+// Otherwise its transitive dependents, or every service for a shared package with none known.
 function affectedServices(dir: string, services: string[], dependents: Record<string, string[]>): string[] {
-  if (TYPES_ONLY_PACKAGES.has(dir)) {
-    return [];
-  }
   if (SHARED_PACKAGES.has(dir)) {
     return services;
   }
@@ -1302,8 +1333,8 @@ export function classifyChanges(
     releaseCommit = false,
     dependents = {} as Record<string, string[]>,
     e2eDeps = {} as Record<string, string[]>,
-    catalogConsumers = {} as Record<string, string[]>,
-    scriptDeps = new Set<string>(),
+    catalogConsumers,
+    scriptDeps,
     manifests = {},
     commentOnly = new Set<string>(),
   }: {
@@ -1311,7 +1342,7 @@ export function classifyChanges(
     releaseCommit?: boolean;
     dependents?: Record<string, string[]>;
     e2eDeps?: Record<string, string[]>;
-    catalogConsumers?: Record<string, string[]>;
+    catalogConsumers?: CatalogConsumers;
     scriptDeps?: Set<string>;
     manifests?: Partial<Record<DiffManifestFile, ManifestPair>>;
     commentOnly?: Set<string>;
@@ -1325,7 +1356,8 @@ export function classifyChanges(
   // latter signal naming-convention drift.
   const triggersAll: string[] = [];
   const unknownFiles: string[] = [];
-  const sharedDetail: Array<{ file: string; pkg: string; services: string[]; typesOnly: boolean }> = [];
+  const buildOnlyFiles: string[] = [];
+  const sharedDetail: Classification['sharedDetail'] = [];
 
   if (forceAll) {
     for (const svc of services) {
@@ -1338,6 +1370,7 @@ export function classifyChanges(
       triggersAll,
       unknownFiles,
       commentOnlyFiles: [],
+      buildOnlyFiles,
       sharedDetail,
       perFile: [],
     };
@@ -1351,10 +1384,22 @@ export function classifyChanges(
       triggersAll,
       unknownFiles,
       commentOnlyFiles: [],
+      buildOnlyFiles,
       sharedDetail,
       perFile: [],
     };
   }
+
+  // A shared-package change always needs build + unit; affectedServices decides which services' E2E it can
+  // affect at runtime.
+  const addSharedChange = (file: string, dir: string) => {
+    sharedChanges = true;
+    const affected = affectedServices(dir, services, dependents);
+    for (const svc of affected) {
+      runs[svc] = true;
+    }
+    sharedDetail.push({ file, pkg: dir, services: affected });
+  };
 
   const ctx: ManifestContext = { services, e2eDeps, catalogConsumers, scriptDeps };
   const perFile: Array<{ file: string; verdict: Verdict }> = [];
@@ -1368,7 +1413,8 @@ export function classifyChanges(
     if ((DIFF_MANIFEST_FILES as readonly string[]).includes(file)) {
       const manifestFile = file as DiffManifestFile;
       const pair = manifests[manifestFile];
-      if (!pair) {
+      // Listed as changed but the same as at the base: the file list and the base disagree, as on a manual run on main.
+      if (!pair || pair.base === pair.head) {
         perFile.push({ file, verdict: 'all' });
         triggersAll.push(file);
         for (const svc of services) {
@@ -1389,12 +1435,7 @@ export function classifyChanges(
         }
       }
       for (const dir of effect.sharedDirs) {
-        sharedChanges = true;
-        const affected = affectedServices(dir, services, dependents);
-        for (const svc of affected) {
-          runs[svc] = true;
-        }
-        sharedDetail.push({ file, pkg: dir, services: affected, typesOnly: TYPES_ONLY_PACKAGES.has(dir) });
+        addSharedChange(file, dir);
       }
       for (const svc of effect.services) {
         if (services.includes(svc)) {
@@ -1406,7 +1447,11 @@ export function classifyChanges(
           }
         }
       }
-      perFile.push({ file, verdict: manifestVerdict(effect) });
+      const verdict = manifestVerdict(effect);
+      if (verdict === 'build') {
+        buildOnlyFiles.push(file);
+      }
+      perFile.push({ file, verdict });
       continue;
     }
     const verdict = classifyFile(file, services);
@@ -1414,16 +1459,11 @@ export function classifyChanges(
     if (verdict === 'none') {
       continue;
     }
-    if (verdict === 'shared') {
-      // A shared-package change always needs build/unit (sharedChanges keeps it off the lint-only
-      // path below); affectedServices decides which services' E2E it can actually affect at runtime.
-      sharedChanges = true;
-      const dir = (file.match(/^packages\/([^/]+)\//) as RegExpMatchArray)[1];
-      const affected = affectedServices(dir, services, dependents);
-      for (const svc of affected) {
-        runs[svc] = true;
-      }
-      sharedDetail.push({ file, pkg: dir, services: affected, typesOnly: TYPES_ONLY_PACKAGES.has(dir) });
+    if (verdict === 'build') {
+      buildOnly = true;
+      buildOnlyFiles.push(file);
+    } else if (verdict === 'shared') {
+      addSharedChange(file, (file.match(/^packages\/([^/]+)\//) as RegExpMatchArray)[1] as string);
     } else if (verdict === 'all' || verdict === 'unknown') {
       if (verdict === 'all') {
         triggersAll.push(file);
@@ -1438,11 +1478,20 @@ export function classifyChanges(
     }
   }
 
-  // Lint-only = nothing needs build: no service runs AND no shared-package or build-only change.
-  // A types-only shared change runs no service yet must still build/typecheck, so the
-  // sharedChanges term keeps it off this path (build + unit gate on `run_lint_only != true`).
+  // Lint-only = nothing needs build: no service runs AND no shared-package or build-only change
+  // (build + unit gate on `run_lint_only != true`).
   const lintOnly = services.every((svc) => !runs[svc]) && !sharedChanges && !buildOnly;
-  return { runs, sharedChanges, lintOnly, triggersAll, unknownFiles, commentOnlyFiles, sharedDetail, perFile };
+  return {
+    runs,
+    sharedChanges,
+    lintOnly,
+    triggersAll,
+    unknownFiles,
+    commentOnlyFiles,
+    buildOnlyFiles,
+    sharedDetail,
+    perFile,
+  };
 }
 
 function appendFile(envVar: string, content: string): void {
@@ -1465,17 +1514,26 @@ function main(): void {
   const manifests = readManifestPairs(files, base);
   const commentOnly = findCommentOnlyWorkflowChanges(files, services, gitDiffReader(base));
 
-  const { runs, sharedChanges, lintOnly, triggersAll, unknownFiles, commentOnlyFiles, sharedDetail, perFile } =
-    classifyChanges(files, services, {
-      forceAll,
-      releaseCommit,
-      dependents,
-      e2eDeps,
-      catalogConsumers,
-      scriptDeps,
-      manifests,
-      commentOnly,
-    });
+  const {
+    runs,
+    sharedChanges,
+    lintOnly,
+    triggersAll,
+    unknownFiles,
+    commentOnlyFiles,
+    buildOnlyFiles,
+    sharedDetail,
+    perFile,
+  } = classifyChanges(files, services, {
+    forceAll,
+    releaseCommit,
+    dependents,
+    e2eDeps,
+    catalogConsumers,
+    scriptDeps,
+    manifests,
+    commentOnly,
+  });
 
   let output = '';
   for (const [svc, run] of Object.entries(runs)) {
@@ -1497,9 +1555,14 @@ function main(): void {
   if (sharedDetail.length > 0) {
     summary += '\n### Shared package changes (narrowed to runtime dependents)\n\n';
     summary += 'build + unit run regardless; E2E runs only for the services a shared change can affect:\n\n';
-    for (const { file, pkg, services: svcs, typesOnly } of sharedDetail) {
-      const target = typesOnly ? 'types-only → typecheck/build only, no E2E' : svcs.join(', ') || 'all';
-      summary += `- \`${file}\` (${pkg}) → ${target}\n`;
+    for (const { file, pkg, services: svcs } of sharedDetail) {
+      summary += `- \`${file}\` (${pkg}) → ${svcs.join(', ')}\n`;
+    }
+  }
+  if (buildOnlyFiles.length > 0) {
+    summary += '\n### Files that need only build and unit\n\n';
+    for (const file of buildOnlyFiles) {
+      summary += `- \`${file}\`\n`;
     }
   }
   if (triggersAll.length > 0) {
