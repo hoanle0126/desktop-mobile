@@ -168,7 +168,7 @@ Timeout in milliseconds for the Tauri app to start and become ready. Only the `'
 startTimeout: 60000; // 60 seconds
 ```
 
-**Default:** `60000` (the embedded WebDriver server takes longer to come up, especially on Windows CI).
+**Default:** `60000`
 
 ---
 

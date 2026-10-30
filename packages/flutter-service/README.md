@@ -339,8 +339,7 @@ single-device run.
 
 ## Standalone / session mode
 
-Use `startWdioSession` to drive sessions outside the WDIO runner. The optional second argument
-takes the service and standalone session options.
+Use `startWdioSession` to drive sessions outside the WDIO runner:
 
 ```ts
 import { startWdioSession, cleanupWdioSession } from '@wdio/flutter-service';
